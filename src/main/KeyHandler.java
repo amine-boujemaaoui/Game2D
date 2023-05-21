@@ -5,12 +5,11 @@ import java.awt.event.KeyListener;
 
 public class KeyHandler implements KeyListener {
 	
+	public boolean debug = false;
 	public boolean upPressed, downPressed, leftPressed, rightPressed;
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-		// TODO Auto-generated method stub
-
 	}
 	@Override
 	public void keyPressed(KeyEvent e) {
@@ -21,6 +20,7 @@ public class KeyHandler implements KeyListener {
 		if (code == KeyEvent.VK_A) leftPressed  = true;
 		if (code == KeyEvent.VK_S) downPressed  = true;
 		if (code == KeyEvent.VK_D) rightPressed = true;
+		if (code == KeyEvent.VK_T) debug = !debug;
 	}
 	@Override
 	public void keyReleased(KeyEvent e) {

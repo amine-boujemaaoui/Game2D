@@ -2,6 +2,7 @@ package main;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
@@ -9,6 +10,7 @@ import javax.swing.JPanel;
 
 import entity.Player;
 import tile.TileManager;
+import object.OBJ;
 
 public class GamePanel extends JPanel implements Runnable {
 	private static final long serialVersionUID = 1L;
@@ -22,12 +24,16 @@ public class GamePanel extends JPanel implements Runnable {
 	public final int screenWidth = tileSize * maxScreenCol;
 	public final int screenHeight = tileSize * maxScreenRow;
 	final int FPS = 60;
+	public int drawFPS;
 
 	// HANDLERS
-	KeyHandler keyH = new KeyHandler();
+	public KeyHandler keyH = new KeyHandler();
 	TileManager tileM= new TileManager(this);
 	Thread gameThread;
+	public CollisionChecker cChecker= new CollisionChecker(this);
 	public Player player = new Player(this, keyH);
+	public AssetSetter aSetter = new AssetSetter(this);
+	public OBJ obj[] = new OBJ[10];
 	
 	// WORLD SETTINGS
 	public final int maxWorldCol = 50;
@@ -43,6 +49,10 @@ public class GamePanel extends JPanel implements Runnable {
 		this.addKeyListener(keyH);
 		this.setFocusable(true);
 	}
+	public void setupGame() {
+		
+		aSetter.setObjects();
+	}
 	public void startGameThread() {
 
 		gameThread = new Thread(this);
@@ -54,7 +64,7 @@ public class GamePanel extends JPanel implements Runnable {
 		// --- FPS
 		double drawInterval = 1000000000/FPS, delta = 0;
 		long lastTime = System.nanoTime(), currentTime, timer = 0;
-		int drawFPS = 0;
+		drawFPS = 0;
 		// -------
 
 		while (gameThread != null) {
@@ -71,11 +81,10 @@ public class GamePanel extends JPanel implements Runnable {
 				delta--; drawFPS++;
 			}
 			// DRAW FPS
-			if ( timer >= 1000000000 ) { System.out.println("FPS " + drawFPS); drawFPS = 0; timer = 0; }
+			if ( timer >= 1000000000 ) { drawFPS = 0; timer = 0; }
 		}
 	}
 	public void update() {
-		
 		player.update();
 		
 	}
@@ -85,7 +94,20 @@ public class GamePanel extends JPanel implements Runnable {
 		Graphics2D g2 = (Graphics2D) g;
 
 		tileM.draw(g2);
+		
+		for (int i = 0; i < obj.length; i++) 
+			if(obj[i] != null) obj[i].draw(g2, this);
+			
 		player.draw(g2);
+		
+		if (keyH.debug) {
+			g2.setFont(g2.getFont().deriveFont(Font.BOLD, 30f));
+			g2.setColor(Color.black);
+			// DEBUG: DRAW WORLD POSITION
+			g2.drawString("X: " + (player.worldX/tileSize) + ", Y: " + (player.worldY/tileSize), tileSize, tileSize);
+			// DEBUG: DRAW FPS
+			g2.drawString("FPS: " + drawFPS, tileSize, tileSize + 24);
+		}
 		
 		g2.dispose();
 	}

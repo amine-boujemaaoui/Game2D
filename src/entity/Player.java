@@ -1,6 +1,8 @@
 package entity;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -15,14 +17,21 @@ public class Player extends Entity {
 	KeyHandler keyH;
 	
 	public final int screenX, screenY;
+	int keyAmount = 0;
 	
 	public Player(GamePanel gp, KeyHandler keyH) {
 		
-		this.gp = gp;
-		this.keyH = keyH;
+		this.gp = gp; this.keyH = keyH;
 		
 		screenX = gp.screenWidth/2 - gp.tileSize/2;
 		screenY = gp.screenHeight/2 - gp.tileSize/2;
+		
+		hitBox = new Rectangle();
+		hitBox.x     = 7;  hitBox.y      = -4;
+		hitBox.width = 34; hitBox.height = 32;
+		
+		hitBoxDefaultX = hitBox.x;
+		hitBoxDefaultY = hitBox.y;
 		
 		setDefaultValues();
 		getPlayerImage();
@@ -32,7 +41,7 @@ public class Player extends Entity {
 		worldX = 20 * gp.tileSize;
 		worldY = 22 * gp.tileSize;
 		speed = 4;
-		direction = "down";
+		direction = "right";
 	}
 	public void getPlayerImage() {
 		
@@ -51,14 +60,40 @@ public class Player extends Entity {
 			
 		} catch (IOException e) { e.printStackTrace(); }
 	}
+	public void pickUpObj(int index) {
+		
+		if(index != 999) {
+			switch(gp.obj[index].name) {
+			case "Key":  keyAmount++; gp.obj[index] = null; break;
+			case "Door": ; break;
+			}
+		}
+	}
 	public void update() {
 		
-		if (keyH.upPressed)    { worldY -= speed; direction = "up";    walking = true; }
-		if (keyH.downPressed)  { worldY += speed; direction = "down";  walking = true; }
-		if (keyH.leftPressed)  { worldX -= speed; direction = "left";  walking = true; }
-		if (keyH.rightPressed) { worldX += speed; direction = "right"; walking = true; }
+		if (keyH.upPressed)    { direction = "up";    walking = true; }
+		if (keyH.downPressed)  { direction = "down";  walking = true; }
+		if (keyH.leftPressed)  { direction = "left";  walking = true; }
+		if (keyH.rightPressed) { direction = "right"; walking = true; }
 		
 		if (!keyH.upPressed && !keyH.downPressed && !keyH.leftPressed && !keyH.rightPressed) walking = false;
+		
+		// CHECK OBJ COLLISIONS
+		int objIndex = gp.cChecker.checkObject(this, true);
+		pickUpObj(objIndex);
+		
+		// CHECK COLLISION
+		gp.cChecker.checkTile(this);
+		if(!collisionOn && walking) {
+			switch(direction) {
+			case "up":    worldY -= speed; break;
+			case "down":  worldY += speed; break;
+			case "left":  worldX -= speed; break;
+			case "right": worldX += speed; break;
+			default: break;
+			}
+		}
+		collisionOn = false;
 		
 		// SPRITE COUNTER FOR ANIMATION
 		spriteCounter++;
@@ -87,5 +122,13 @@ public class Player extends Entity {
 		}
 		
 		g2.drawImage(image, screenX, screenY - gp.tileSize, gp.tileSize, gp.tileSize*2, null);
+		
+		// DEBUG: PRINT PLAYER TILESIZE AND HITBOX 
+		if(keyH.debug) {
+			g2.setColor(new Color(0, 0, 255, 90));
+			g2.fillRect(screenX , screenY - gp.tileSize, gp.tileSize, gp.tileSize*2);
+			g2.setColor(new Color(0, 255, 0, 100));
+			g2.fillRect(screenX + hitBox.x, screenY + hitBox.y, hitBox.width, hitBox.height);
+		}
 	}
 }

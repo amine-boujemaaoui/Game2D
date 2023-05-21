@@ -1,5 +1,7 @@
 package tile;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,8 +15,8 @@ import main.GamePanel;
 public class TileManager {
 	
 	GamePanel gp;
-	Tile[] tiles;
-	int mapTileNum[][];
+	public Tile[] tiles;
+	public int mapTileNum[][];
 	
 	public TileManager(GamePanel gp) {
 
@@ -52,6 +54,14 @@ public class TileManager {
 		try {
 			for (int i = 0; i < 10; i++)  { tiles[i] = new Tile(); tiles[i].image = ImageIO.read(getClass().getResourceAsStream("/tiles/00"+ i +".png")); }
 			for (int i = 10; i < 38; i++) { tiles[i] = new Tile(); tiles[i].image = ImageIO.read(getClass().getResourceAsStream("/tiles/0" + i +".png")); }
+			
+			// COLLISIONS
+			for (int i = 18; i < 32; i++) 
+			tiles[i].collision  = true; // WATER
+            tiles[32].collision = true; // WALL
+            tiles[35].collision = true; // TABLE
+            tiles[16].collision = true; // TREE
+			
 		} catch (IOException e) { e.printStackTrace(); }
 	}
 	public void draw(Graphics2D g2) {
@@ -63,13 +73,27 @@ public class TileManager {
 			int worldX =  worldCol * gp.tileSize;
 			int worldY =  worldRow * gp.tileSize;
 			int screenX = worldX - gp.player.worldX + gp.player.screenX;
-			int screenY = worldRow * gp.tileSize - gp.player.worldY + gp.player.screenY;
+			int screenY = worldY - gp.player.worldY + gp.player.screenY;
 			
 			if (worldX + gp.tileSize > gp.player.worldX - gp.player.screenX && 
 				worldX - gp.tileSize < gp.player.worldX + gp.player.screenX &&
 				worldY + gp.tileSize > gp.player.worldY - gp.player.screenY &&
-				worldY - gp.tileSize < gp.player.worldY + gp.player.screenY)
+				worldY - gp.tileSize < gp.player.worldY + gp.player.screenY) {
 				g2.drawImage(tiles[mapTileNum[worldCol][worldRow]].image, screenX, screenY, gp.tileSize, gp.tileSize, null);
+				
+				// DEBUG: PRINT TILE SIZE
+				if(gp.keyH.debug) {
+					g2.setStroke(new BasicStroke(2));
+					g2.setColor(Color.black);
+					g2.drawRect(screenX, screenY, gp.tileSize, gp.tileSize);
+					g2.setStroke(new BasicStroke(1));
+					// DEBUG: PRINT TILE HITBOX 
+					if(tiles[mapTileNum[worldCol][worldRow]].collision) {
+						g2.setColor(new Color(255, 0, 0, 90));
+						g2.fillRect(screenX, screenY, gp.tileSize, gp.tileSize);
+					}
+				}
+			}
 			
 			worldCol++;
 			if (worldCol == gp.maxWorldCol) { worldCol = 0; worldRow++;}
