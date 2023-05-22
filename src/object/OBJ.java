@@ -10,22 +10,26 @@ import main.GamePanel;
 
 public class OBJ {
 	
-	public BufferedImage image;
+	public BufferedImage image, imageWithoutShadow;
 	public String name;
 	public boolean collision = false;
 	public int worldX, worldY;
 	public Rectangle hitBox = new Rectangle(0, 0, 48, 48);
 	public int hitBoxDefaultX = 0, hitBoxDefaultY = 0;
+	public boolean bigObject = false;
 	
 	public void draw(Graphics2D g2, GamePanel gp) {
 		
 		int screenX = worldX - gp.player.worldX + gp.player.screenX;
 		int screenY = worldY - gp.player.worldY + gp.player.screenY;
 		
-		if (worldX + gp.tileSize > gp.player.worldX - gp.player.screenX && 
-			worldX - gp.tileSize < gp.player.worldX + gp.player.screenX &&
-			worldY + gp.tileSize > gp.player.worldY - gp.player.screenY &&
-			worldY - gp.tileSize < gp.player.worldY + gp.player.screenY) {
+		if(bigObject)
+			g2.drawImage(image, screenX - gp.tileSize, screenY - gp.tileSize*3, gp.tileSize*3, gp.tileSize*4, null);
+		
+		else if (worldX + gp.tileSize > gp.player.worldX - gp.player.screenX && 
+			     worldX - gp.tileSize < gp.player.worldX + gp.player.screenX &&
+			     worldY + gp.tileSize > gp.player.worldY - gp.player.screenY &&
+			     worldY - gp.tileSize < gp.player.worldY + gp.player.screenY) {
 			g2.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, null);
 			
 			// DEBUG: PRINT TILE OBJ

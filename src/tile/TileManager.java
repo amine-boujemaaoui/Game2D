@@ -21,10 +21,10 @@ public class TileManager {
 	public TileManager(GamePanel gp) {
 
 		this.gp = gp;
-		tiles = new Tile[38]; // 10 for the number of different type of tiles
+		tiles = new Tile[50]; // 10 for the number of different type of tiles
 		mapTileNum = new int[gp.maxWorldCol][gp.maxWorldRow];
 		getTileImage();
-		loadMap("/maps/worldmap.txt");
+		loadMap("/maps/map.txt");
 	}
 	public void loadMap(String mapPath) {
 		

@@ -8,7 +8,7 @@ public class OBJ_Boots extends OBJ{
 
 	public OBJ_Boots(int worldX, int worldY) {
 		
-		name = "Key";
+		name = "Boots";
 		this.worldX = worldX;
 		this.worldY = worldY;
 		

@@ -18,7 +18,10 @@ public class OBJ_Key extends OBJ{
 		hitBoxDefaultX = hitBox.x;
 		hitBoxDefaultY = hitBox.y;
 		
-		try { image = ImageIO.read(getClass().getResourceAsStream("/objects/key.png")); } 
+		try { 
+			image = ImageIO.read(getClass().getResourceAsStream("/objects/key_shadow.png"));
+			imageWithoutShadow = ImageIO.read(getClass().getResourceAsStream("/objects/key.png"));
+		} 
 		catch (IOException e) { e.printStackTrace(); }
 	}
 }

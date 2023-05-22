@@ -17,7 +17,7 @@ public class Player extends Entity {
 	KeyHandler keyH;
 	
 	public final int screenX, screenY;
-	int keyAmount = 0;
+	public int keyAmount = 0;
 	
 	public Player(GamePanel gp, KeyHandler keyH) {
 		
@@ -27,8 +27,8 @@ public class Player extends Entity {
 		screenY = gp.screenHeight/2 - gp.tileSize/2;
 		
 		hitBox = new Rectangle();
-		hitBox.x     = 7;  hitBox.y      = -4;
-		hitBox.width = 34; hitBox.height = 32;
+		hitBox.x     = 9;  hitBox.y      = -4;
+		hitBox.width = 33; hitBox.height = 32;
 		
 		hitBoxDefaultX = hitBox.x;
 		hitBoxDefaultY = hitBox.y;
@@ -64,8 +64,13 @@ public class Player extends Entity {
 		
 		if(index != 999) {
 			switch(gp.obj[index].name) {
-			case "Key":  keyAmount++; gp.obj[index] = null; break;
-			case "Door": ; break;
+			case "Chest": gp.ui.showMessage("You can not open this chest yet!");        /*gp.obj[index] = null;*/ break;
+			case "Key":   gp.ui.showMessage("You got a key!"); gp.playSE(9); keyAmount++; gp.obj[index] = null;   break;
+			case "Boots": gp.ui.showMessage("You got boots!"); gp.playSE(9); speed = 6;   gp.obj[index] = null;   break;
+			case "Door":  
+				if(keyAmount < 0) gp.ui.showMessage("You need a key to open this door!");
+				else { gp.ui.showMessage("You opened the door!"); keyAmount--; gp.obj[index] = null; }
+				break; 
 			}
 		}
 	}
@@ -101,6 +106,15 @@ public class Player extends Entity {
 			spriteNum++; if(spriteNum > 6) spriteNum = 1;
 			spriteCounter = 0;
 		}
+		
+		// SPRITE COUNTER FOR SOUND
+		soundCounter++;
+		if(soundCounter > 26 - (int)(speed*1.75)) {
+			if (keyH.upPressed || keyH.downPressed || keyH.leftPressed || keyH.rightPressed)
+				gp.playSE(11); 
+			soundCounter = 0;
+		}
+		
 	}
 	public void draw(Graphics2D g2) {
 		
