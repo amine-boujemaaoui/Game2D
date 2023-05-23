@@ -7,7 +7,7 @@ public class KeyHandler implements KeyListener {
 	
 	GamePanel gp;
 	public boolean debug = false;
-	public boolean upPressed, downPressed, leftPressed, rightPressed;
+	public boolean upPressed, downPressed, leftPressed, rightPressed, enterPressed;
 	
 	public KeyHandler(GamePanel gp) {
 		
@@ -21,24 +21,33 @@ public class KeyHandler implements KeyListener {
 
 		int code = e.getKeyCode();
 
-		if (code == KeyEvent.VK_W) upPressed    = true;
-		if (code == KeyEvent.VK_A) leftPressed  = true;
-		if (code == KeyEvent.VK_S) downPressed  = true;
-		if (code == KeyEvent.VK_D) rightPressed = true;
-		if (code == KeyEvent.VK_P) {
-				 if (gp.gameState == gp.playState ) { gp.gameState = gp.pauseState; gp.playSE(4); gp.stopMusic();  }
-			else if (gp.gameState == gp.pauseState) { gp.gameState = gp.playState;  gp.playSE(5); gp.playMusic(0); }
+		if(gp.gameState == gp.playState) {
+			if (code == KeyEvent.VK_ENTER) enterPressed = true;
+			if (code == KeyEvent.VK_W)     upPressed    = true;
+			if (code == KeyEvent.VK_A)     leftPressed  = true;
+			if (code == KeyEvent.VK_S)     downPressed  = true;
+			if (code == KeyEvent.VK_D)     rightPressed = true;
+			if (code == KeyEvent.VK_T)     debug = !debug;
+			if (code == KeyEvent.VK_P) {   gp.gameState = gp.pauseState; gp.playSE(4); gp.stopMusic(); }
 		}
-		if (code == KeyEvent.VK_T) debug = !debug;
+		else if(gp.gameState == gp.pauseState) {
+			if (code == KeyEvent.VK_P) { gp.gameState = gp.playState; gp.playSE(5); gp.playMusic(0); }
+		}
+		else if(gp.gameState == gp.dialogueState) {
+			if (code == KeyEvent.VK_ENTER) { gp.gameState = gp.playState; gp.playSE(4); }
+		}
 	}
 	@Override
 	public void keyReleased(KeyEvent e) {
 		
 		int code = e.getKeyCode();
 		
-		if (code == KeyEvent.VK_W) upPressed    = false;
-		if (code == KeyEvent.VK_A) leftPressed  = false;
-		if (code == KeyEvent.VK_S) downPressed  = false;
-		if (code == KeyEvent.VK_D) rightPressed = false;
+		// if(gp.gameState == gp.playState) {
+			if (code == KeyEvent.VK_ENTER) enterPressed = false;
+			if (code == KeyEvent.VK_W)     upPressed    = false;
+			if (code == KeyEvent.VK_A)     leftPressed  = false;
+			if (code == KeyEvent.VK_S)     downPressed  = false;
+			if (code == KeyEvent.VK_D)     rightPressed = false;
+		// }
 	}
 }

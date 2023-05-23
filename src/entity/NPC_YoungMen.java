@@ -1,6 +1,9 @@
 package entity;
 
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Random;
 
 import main.GamePanel;
@@ -22,6 +25,7 @@ public class NPC_YoungMen extends Entity {
 		hitBoxDefaultY = hitBox.y;
 		
 		getImages();
+		setDialogues();
 	}
 	public void setAction() {
 		
@@ -37,6 +41,19 @@ public class NPC_YoungMen extends Entity {
 			else            {                      walking = false; }
 			actionCounter = 0;
 		}
+	}
+	public void setDialogues() {
+		
+		try {
+			
+			InputStream is = getClass().getResourceAsStream("/dialogues/youngMen.txt");
+			BufferedReader br = new BufferedReader(new InputStreamReader(is));
+			
+			String line; int i = 0; 
+			while ((line = br.readLine()) != null) { dialogues[i] = line; i++; }
+			br.close();
+			
+		} catch (Exception e) { e.printStackTrace(); }
 	}
 	public void getImages() {
 		
@@ -56,5 +73,18 @@ public class NPC_YoungMen extends Entity {
 		for (int i = 0; i < spritesNum; i++) down_walking[i]  = setup("/npc/youngMen/down/walking/"  + (i+1));
 		for (int i = 0; i < spritesNum; i++) left_walking[i]  = setup("/npc/youngMen/left/walking/"  + (i+1));
 		for (int i = 0; i < spritesNum; i++) right_walking[i] = setup("/npc/youngMen/right/walking/" + (i+1));
+	}
+	public void speak() {
+		
+		if (dialogues[dialogueIndex] == null) dialogueIndex = 0;
+		gp.ui.currentDialogue = dialogues[dialogueIndex];
+		dialogueIndex++;
+		
+		switch(gp.player.direction) {
+		case "up":    direction = "down";  break;
+		case "down":  direction = "up";    break;
+		case "left":  direction = "right"; break;
+		case "right": direction = "left";  break;
+		}
 	}
 }

@@ -115,4 +115,29 @@ public class CollisionChecker {
 		
 		return index;
 	}
+	public void checkPlayer(Entity entity) {
+		
+		entity.hitBox.x = entity.worldX + entity.hitBox.x;
+		entity.hitBox.y = entity.worldY + entity.hitBox.y;
+		
+		gp.player.hitBox.x = gp.player.worldX + gp.player.hitBox.x;
+		gp.player.hitBox.y = gp.player.worldY + gp.player.hitBox.y;
+		
+		switch(entity.direction) {
+		case "up":    entity.hitBox.y -= entity.speed; break;
+		case "down":  entity.hitBox.y += entity.speed; break;
+		case "left":  entity.hitBox.x -= entity.speed; break;
+		case "right": entity.hitBox.x += entity.speed; break;
+		}
+		
+		if(entity.hitBox.intersects(gp.player.hitBox))
+			entity.collisionOn = true;
+		
+		entity.hitBox.x = entity.hitBoxDefaultX;
+		entity.hitBox.y = entity.hitBoxDefaultY;
+		
+		gp.player.hitBox.x = gp.player.hitBoxDefaultX;
+		gp.player.hitBox.y = gp.player.hitBoxDefaultY;
+
+	}
 }

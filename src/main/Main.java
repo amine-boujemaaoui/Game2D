@@ -20,5 +20,15 @@ public class Main {
 		
 		gp.setupGame();
 		gp.startGameThread();
+		
+//		String currentDialogue = "Wesh la team. \nBien ou quoi?";
+//		
+//		System.out.println("AAAAAAAAA" + currentDialogue);
+//		
+//		for(String line : currentDialogue.split("\n")) {
+//			System.out.println("BBBBBBBB" + line);
+//			//g2.drawString(line, x, y); 
+//			//y += 50; 
+//		}
 	}
 }

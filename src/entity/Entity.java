@@ -28,6 +28,8 @@ public class Entity {
 	public int hitBoxDefaultX, hitBoxDefaultY;
 	public boolean collisionOn = false;
 	public int actionCounter = 0;
+	public String dialogues[] = new String[20];
+	public int dialogueIndex = 0;
 	
 	public Entity(GamePanel gp) {
 		
@@ -37,8 +39,11 @@ public class Entity {
 		
 		setAction();
 		
-		// CHECK COLLISION
 		gp.cChecker.checkTile(this);
+		gp.cChecker.checkObject(this, false);
+		gp.cChecker.checkPlayer(this);
+		
+		// CHECK COLLISION
 		if(!collisionOn && walking) {
 			switch(direction) {
 			case "up":    worldY -= speed; break;
@@ -47,8 +52,7 @@ public class Entity {
 			case "right": worldX += speed; break;
 			default: break;
 			}
-		}
-		collisionOn = false;
+		} collisionOn = false;
 		
 		// SPRITE COUNTER FOR ANIMATION
 		spriteCounter++;
@@ -66,6 +70,9 @@ public class Entity {
 		try { image = ImageIO.read(getClass().getResourceAsStream(imagePath + ".png")); }
 		catch (IOException e) { e.printStackTrace(); }
 		return gp.ut.scaleImage(image, gp.tileSize, gp.tileSize*2);
+	}
+	public void speak() {
+		
 	}
 	public void draw(Graphics2D g2, GamePanel gp) {
 		
