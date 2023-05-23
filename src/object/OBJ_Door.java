@@ -1,19 +1,13 @@
 package object;
 
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
+import main.GamePanel;
 
 public class OBJ_Door extends OBJ{
 
-	public OBJ_Door(int worldX, int worldY) {
+	public OBJ_Door(GamePanel gp, int worldX, int worldY) {
 		
-		name = "Door";
+		super(gp, "Door", worldX, worldY, "door_closed", null);
+		
 		collision = true;
-		this.worldX = worldX;
-		this.worldY = worldY;
-		
-		try { image = ImageIO.read(getClass().getResourceAsStream("/objects/door_closed.png")); } 
-		catch (IOException e) { e.printStackTrace(); }
 	}
 }

@@ -2,31 +2,23 @@ package entity;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
-
 import main.GamePanel;
 import main.KeyHandler;
 
 public class Player extends Entity {
-
-	GamePanel gp;
-	KeyHandler keyH;
 	
+	KeyHandler keyH;
 	public final int screenX, screenY;
-	public int keyAmount = 0;
 	
 	public Player(GamePanel gp, KeyHandler keyH) {
 		
-		this.gp = gp; this.keyH = keyH;
+		super(gp);
+		this.keyH = keyH;
 		
 		screenX = gp.screenWidth/2 - gp.tileSize/2;
 		screenY = gp.screenHeight/2 - gp.tileSize/2;
 		
-		hitBox = new Rectangle();
 		hitBox.x     = 9;  hitBox.y      = -4;
 		hitBox.width = 33; hitBox.height = 32;
 		
@@ -34,44 +26,44 @@ public class Player extends Entity {
 		hitBoxDefaultY = hitBox.y;
 		
 		setDefaultValues();
-		getPlayerImage();
+		getImages();
 	}
 	public void setDefaultValues() {
 		
-		worldX = 20 * gp.tileSize;
-		worldY = 22 * gp.tileSize;
+		worldX = (int)(26.5 * gp.tileSize);
+		worldY = (int)(23   * gp.tileSize);
 		speed = 4;
 		direction = "right";
 	}
-	public void getPlayerImage() {
+	public void getImages() {
 		
-		try {
-			up_still = new BufferedImage[6]; down_still = new BufferedImage[6]; left_still = new BufferedImage[6]; right_still = new BufferedImage[6];
-			for (int i = 0; i < 6; i++) up_still[i]    = ImageIO.read(getClass().getResourceAsStream("/player/up/still/player_up_still_" + (i+1) + ".png"));
-			for (int i = 0; i < 6; i++) down_still[i]  = ImageIO.read(getClass().getResourceAsStream("/player/down/still/player_down_still_" + (i+1) + ".png"));
-			for (int i = 0; i < 6; i++) left_still[i]  = ImageIO.read(getClass().getResourceAsStream("/player/left/still/player_left_still_" + (i+1) + ".png"));
-			for (int i = 0; i < 6; i++) right_still[i] = ImageIO.read(getClass().getResourceAsStream("/player/right/still/player_right_still_" + (i+1) + ".png"));
-			
-			up_walking = new BufferedImage[6]; down_walking = new BufferedImage[6]; left_walking = new BufferedImage[6]; right_walking = new BufferedImage[6];
-			for (int i = 0; i < 6; i++) up_walking[i]     = ImageIO.read(getClass().getResourceAsStream("/player/up/walking/player_up_walking_" + (i+1) + ".png"));
-			for (int i = 0; i < 6; i++) down_walking [i]  = ImageIO.read(getClass().getResourceAsStream("/player/down/walking/player_down_walking_" + (i+1) + ".png"));
-			for (int i = 0; i < 6; i++) left_walking [i]  = ImageIO.read(getClass().getResourceAsStream("/player/left/walking/player_left_walking_" + (i+1) + ".png"));
-			for (int i = 0; i < 6; i++) right_walking [i] = ImageIO.read(getClass().getResourceAsStream("/player/right/walking/player_right_walking_" + (i+1) + ".png"));
-			
-		} catch (IOException e) { e.printStackTrace(); }
+		int spritesNum = 6;
+		
+		up_still    = new BufferedImage[spritesNum]; up_walking    = new BufferedImage[spritesNum];
+		down_still  = new BufferedImage[spritesNum]; down_walking  = new BufferedImage[spritesNum];
+		left_still  = new BufferedImage[spritesNum]; left_walking  = new BufferedImage[spritesNum]; 
+		right_still = new BufferedImage[spritesNum]; right_walking = new BufferedImage[spritesNum];
+		
+		for (int i = 0; i < spritesNum; i++) up_still[i]    = setup("/player/up/still/"    + (i+1));
+		for (int i = 0; i < spritesNum; i++) down_still[i]  = setup("/player/down/still/"  + (i+1));
+		for (int i = 0; i < spritesNum; i++) left_still[i]  = setup("/player/left/still/"  + (i+1));
+		for (int i = 0; i < spritesNum; i++) right_still[i] = setup("/player/right/still/" + (i+1));
+		
+		for (int i = 0; i < spritesNum; i++) up_walking[i]    = setup("/player/up/walking/"   + (i+1));
+		for (int i = 0; i < spritesNum; i++) down_walking[i]  = setup("/player/down/walking/"  + (i+1));
+		for (int i = 0; i < spritesNum; i++) left_walking[i]  = setup("/player/left/walking/"  + (i+1));
+		for (int i = 0; i < spritesNum; i++) right_walking[i] = setup("/player/right/walking/" + (i+1));
 	}
 	public void pickUpObj(int index) {
 		
 		if(index != 999) {
-			switch(gp.obj[index].name) {
-			case "Chest": gp.ui.showMessage("You can not open this chest yet!");        /*gp.obj[index] = null;*/ break;
-			case "Key":   gp.ui.showMessage("You got a key!"); gp.playSE(9); keyAmount++; gp.obj[index] = null;   break;
-			case "Boots": gp.ui.showMessage("You got boots!"); gp.playSE(9); speed = 6;   gp.obj[index] = null;   break;
-			case "Door":  
-				if(keyAmount < 0) gp.ui.showMessage("You need a key to open this door!");
-				else { gp.ui.showMessage("You opened the door!"); keyAmount--; gp.obj[index] = null; }
-				break; 
-			}
+
+		}
+	}
+	public void interactNPC(int index) {
+		
+		if(index != 999) {
+			
 		}
 	}
 	public void update() {
@@ -86,6 +78,10 @@ public class Player extends Entity {
 		// CHECK OBJ COLLISIONS
 		int objIndex = gp.cChecker.checkObject(this, true);
 		pickUpObj(objIndex);
+		
+		// CHECK NPC COLLISION
+		int npcIndex = gp.cChecker.checkEntity(this, gp.npc);
+		interactNPC(npcIndex);
 		
 		// CHECK COLLISION
 		gp.cChecker.checkTile(this);
@@ -121,21 +117,21 @@ public class Player extends Entity {
 		BufferedImage image = null;
 		if (!walking) {
 			switch(direction) {
-			case "up":    image = up_still[spriteNum-1];   break;
-			case "down":  image = down_still[spriteNum-1]; break;
-			case "left":  image = left_still[spriteNum-1]; break;
-			case "right": image = right_still[spriteNum-1];   break;
+			case "up":    image = up_still[spriteNum-1];    break;
+			case "down":  image = down_still[spriteNum-1];  break;
+			case "left":  image = left_still[spriteNum-1];  break;
+			case "right": image = right_still[spriteNum-1]; break;
 			}
 		} else {
 			switch(direction) {
-			case "up":    image = up_walking[spriteNum-1];   break;
-			case "down":  image = down_walking[spriteNum-1]; break;
-			case "left":  image = left_walking[spriteNum-1]; break;
-			case "right": image = right_walking[spriteNum-1];   break;
+			case "up":    image = up_walking[spriteNum-1];    break;
+			case "down":  image = down_walking[spriteNum-1];  break;
+			case "left":  image = left_walking[spriteNum-1];  break;
+			case "right": image = right_walking[spriteNum-1]; break;
 			}
 		}
 		
-		g2.drawImage(image, screenX, screenY - gp.tileSize, gp.tileSize, gp.tileSize*2, null);
+		g2.drawImage(image, screenX, screenY - gp.tileSize, null);
 		
 		// DEBUG: PRINT PLAYER TILESIZE AND HITBOX 
 		if(keyH.debug) {

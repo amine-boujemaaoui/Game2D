@@ -1,19 +1,11 @@
 package object;
 
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
+import main.GamePanel;
 
 public class OBJ_Boots extends OBJ{
 
-	public OBJ_Boots(int worldX, int worldY) {
+	public OBJ_Boots(GamePanel gp, int worldX, int worldY) {
 		
-		name = "Boots";
-		this.worldX = worldX;
-		this.worldY = worldY;
-		
-		
-		try { image = ImageIO.read(getClass().getResourceAsStream("/objects/boots.png")); } 
-		catch (IOException e) { e.printStackTrace(); }
+		super(gp, "Boots", worldX, worldY, "boots", null);
 	}
 }

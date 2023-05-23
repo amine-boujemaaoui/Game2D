@@ -78,6 +78,41 @@ public class CollisionChecker {
 				gp.obj[i].hitBox.x = gp.obj[i].hitBoxDefaultX;
 				gp.obj[i].hitBox.y = gp.obj[i].hitBoxDefaultY;
 			}
+		
 		return index;		
+	}
+	public int checkEntity(Entity entity, Entity[] targets) {
+	
+		int index = 999;
+		
+		for (int i = 0; i < targets.length; i++)
+			if(targets[i] != null) {
+				
+				entity.hitBox.x = entity.worldX + entity.hitBox.x;
+				entity.hitBox.y = entity.worldY + entity.hitBox.y;
+				
+				targets[i].hitBox.x = targets[i].worldX + targets[i].hitBox.x;
+				targets[i].hitBox.y = targets[i].worldY + targets[i].hitBox.y;
+				
+				switch(entity.direction) {
+				case "up":    entity.hitBox.y -= entity.speed; break;
+				case "down":  entity.hitBox.y += entity.speed; break;
+				case "left":  entity.hitBox.x -= entity.speed; break;
+				case "right": entity.hitBox.x += entity.speed; break;
+				}
+				
+				if(entity.hitBox.intersects(targets[i].hitBox)) {
+					entity.collisionOn = true;
+					index = i;
+				}
+				
+				entity.hitBox.x = entity.hitBoxDefaultX;
+				entity.hitBox.y = entity.hitBoxDefaultY;
+				
+				targets[i].hitBox.x = targets[i].hitBoxDefaultX;
+				targets[i].hitBox.y = targets[i].hitBoxDefaultY;
+			}
+		
+		return index;
 	}
 }

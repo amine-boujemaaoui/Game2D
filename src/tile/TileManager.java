@@ -51,16 +51,30 @@ public class TileManager {
 	}
 	public void getTileImage() {
 		
-		try {
-			for (int i = 0; i < 10; i++)  { tiles[i] = new Tile(); tiles[i].image = ImageIO.read(getClass().getResourceAsStream("/tiles/00"+ i +".png")); }
-			for (int i = 10; i < 38; i++) { tiles[i] = new Tile(); tiles[i].image = ImageIO.read(getClass().getResourceAsStream("/tiles/0" + i +".png")); }
+		for (int i = 0;  i < 10; i++) setup(i, "/tiles/00"+ i +".png", false, false);
+		for (int i = 10; i < 39; i++) setup(i, "/tiles/0" + i +".png", false, false);
 			
-			// COLLISIONS
-			for (int i = 18; i < 32; i++) 
-			tiles[i].collision  = true; // WATER
-            tiles[32].collision = true; // WALL
-            tiles[35].collision = true; // TABLE
-            tiles[16].collision = true; // TREE
+		// COLLISIONS
+		for (int i = 18; i < 32; i++) 
+		tiles[i].collision  = true; // WATER
+        tiles[32].collision = true; // WALL
+        tiles[35].collision = true; // TABLE
+        tiles[16].collision = true; // TREE
+        setup(38, "/tiles/038.png", true, true);
+        setup(39, "/tiles/039.png", true, true);
+	}
+	public void setup(int index, String imagePath, boolean collision, boolean tall) {
+		
+		try {
+			
+			tiles[index] = new Tile(); 
+			tiles[index].image = ImageIO.read(getClass().getResourceAsStream(imagePath));
+			if(tall)
+				tiles[index].image = gp.ut.scaleImage(tiles[index].image, gp.tileSize, gp.tileSize*2);
+			else
+				tiles[index].image = gp.ut.scaleImage(tiles[index].image, gp.tileSize, gp.tileSize);
+			tiles[index].collision = collision;
+			tiles[index].tall = tall;
 			
 		} catch (IOException e) { e.printStackTrace(); }
 	}
@@ -79,7 +93,10 @@ public class TileManager {
 				worldX - gp.tileSize < gp.player.worldX + gp.player.screenX &&
 				worldY + gp.tileSize > gp.player.worldY - gp.player.screenY &&
 				worldY - gp.tileSize < gp.player.worldY + gp.player.screenY) {
-				g2.drawImage(tiles[mapTileNum[worldCol][worldRow]].image, screenX, screenY, gp.tileSize, gp.tileSize, null);
+				if(tiles[mapTileNum[worldCol][worldRow]].tall)
+					g2.drawImage(tiles[mapTileNum[worldCol][worldRow]].image, screenX, screenY - gp.tileSize, null);
+				else
+					g2.drawImage(tiles[mapTileNum[worldCol][worldRow]].image, screenX, screenY, null);
 				
 				// DEBUG: PRINT TILE SIZE
 				if(gp.keyH.debug) {

@@ -1,19 +1,13 @@
 package object;
 
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
+import main.GamePanel;
 
 public class OBJ_Chest extends OBJ{
 
-	public OBJ_Chest(int worldX, int worldY) {
+	public OBJ_Chest(GamePanel gp, int worldX, int worldY) {
 		
-		name = "Chest";
+		super(gp, "Chest", worldX, worldY, "chest", null);
+
 		collision = true;
-		this.worldX = worldX;
-		this.worldY = worldY;
-		
-		try { image = ImageIO.read(getClass().getResourceAsStream("/objects/chest.png")); } 
-		catch (IOException e) { e.printStackTrace(); }
 	}
 }
