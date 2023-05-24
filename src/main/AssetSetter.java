@@ -14,7 +14,6 @@ public class AssetSetter {
 	public void setObjects() {
 		
 		int i = 0;
-		gp.obj[i] = new OBJ_Key     (gp, (int)(29  *gp.tileSize), (int)(25   *gp.tileSize)); i++;
 		gp.obj[i] = new OBJ_Key     (gp, (int)(18.5*gp.tileSize), (int)(34   *gp.tileSize)); i++;
 		gp.obj[i] = new OBJ_Chest   (gp, (int)(36  *gp.tileSize), (int)(31   *gp.tileSize)); i++;
 		gp.obj[i] = new OBJ_Boots   (gp, (int)(43.5*gp.tileSize), (int)(11.5 *gp.tileSize)); i++;

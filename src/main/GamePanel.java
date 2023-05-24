@@ -5,13 +5,14 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import javax.swing.JPanel;
 
-import entity.Player;
 import entity.Entity;
+import entity.Player;
 import tile.TileManager;
-import object.OBJ;
 
 public class GamePanel extends JPanel implements Runnable {
 	private static final long serialVersionUID = 1L;
@@ -40,7 +41,8 @@ public class GamePanel extends JPanel implements Runnable {
 	
 	//PLAYER AND OBJ
 	public Player player = new Player(this, keyH);
-	public OBJ obj[] = new OBJ[10];
+	public Entity obj[] = new Entity[10];
+	public ArrayList<Entity> entityList = new ArrayList<>();
 	public Entity npc[] = new Entity[10];
 	
 	// WORLD SETTINGS
@@ -49,9 +51,18 @@ public class GamePanel extends JPanel implements Runnable {
 	
 	// GAME STATES
 	public int gameState;
+	public final int titleScreenState = 0;
 	public final int playState = 1;
 	public final int pauseState = 2;
 	public final int dialogueState = 3;
+	
+	public String classSelectionOptions[] = {"KNIGHT", "THIEF", "ARCHER", "WIZARD", "SORCELER"};
+	public String statsTitles[] = {"Health", "Int", "Sta", "Def", "Mana", "Str"};
+	public int statsValues[][] = {{ 8,        4,     8,     8,     0,      8   },
+								  { 4,        4,     6,     2,     0,      6   },
+								  { 4,        4,     4,     4,     0,      6   },
+								  { 6,        8,     4,     2,    10,      2   },
+								  { 6,        8,     4,    10,     4,      2   }};
 
 	public GamePanel() {
 
@@ -66,7 +77,7 @@ public class GamePanel extends JPanel implements Runnable {
 		aSetter.setNPCs();
 		aSetter.setObjects();
 		playMusic(0);
-		gameState = playState;
+		gameState = titleScreenState;
 	}
 	public void startGameThread() {
 
@@ -76,20 +87,15 @@ public class GamePanel extends JPanel implements Runnable {
 	@Override
 	public void run() {
 		
-		// --- FPS
 		double drawInterval = 1000000000/FPS, delta = 0;
 		long lastTime = System.nanoTime(), currentTime, timer = 0;
 		drawFPS = 0;
-		// -------
 
 		while (gameThread != null) {
-			
-			// --- FPS
 			currentTime = System.nanoTime(); 
 			delta += (currentTime - lastTime) / drawInterval;
 			timer += (currentTime - lastTime);
 			lastTime = currentTime;
-			// -------
 			
 			if (delta > 1) {
 				update(); repaint();
@@ -106,10 +112,13 @@ public class GamePanel extends JPanel implements Runnable {
 			// PLAYER
 			player.update();
 			
+			// OBJs
+			for (int i = 0; i < obj.length; i++) 
+				if(obj[i] != null) obj[i].update();
+			
 			// NPCs
 			for (int i = 0; i < npc.length; i++) 
 				if(npc[i] != null) npc[i].update();
-			
 		}
 		if(gameState == pauseState) {}
 		
@@ -119,34 +128,43 @@ public class GamePanel extends JPanel implements Runnable {
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g;
 		
-//		long drawStart = System.nanoTime();
-
-		tileM.draw(g2);
-		
-		for (int i = 0; i < obj.length; i++) 
-			if(obj[i] != null) obj[i].draw(g2, this);
-		
-		for (int i = 0; i < npc.length; i++) 
-			if(npc[i] != null) npc[i].draw(g2, this);
+		if(gameState == titleScreenState) {
 			
-		player.draw(g2);
-		
-		ui.draw(g2);
-		
-		if (keyH.debug) {
-			g2.setFont(g2.getFont().deriveFont(Font.BOLD, 30f));
-			g2.setColor(Color.black);
-			// DEBUG: DRAW WORLD POSITION
-			g2.drawString("X: " + (player.worldX/tileSize) + ", Y: " + (player.worldY/tileSize), tileSize, tileSize);
-			// DEBUG: DRAW FPS
-			g2.drawString("FPS: " + drawFPS, tileSize, tileSize + 24); 
-		}	
-		
-//		long drawEnd = System.nanoTime();
-//		long timePassed = drawEnd - drawStart;
-		
-//		System.out.println("TIME PASSED : " + timePassed);
-		
+			ui.draw(g2);
+		} else {
+
+			tileM.draw(g2);
+			
+			entityList.add(player);
+			
+			for (int i = 0; i < obj.length; i++) 
+				if(obj[i] != null) entityList.add(obj[i]);
+			
+			for (int i = 0; i < npc.length; i++) 
+				if(npc[i] != null) entityList.add(npc[i]);
+				
+			Collections.sort(entityList, new Comparator<Entity>() {
+				@Override
+				public int compare(Entity e1, Entity e2) {
+					return Integer.compare(e1.worldY, e2.worldY);
+			}});
+			
+			for (int i = 0; i < entityList.size(); i++)
+				entityList.get(i).draw(g2, this);
+			
+			entityList.clear();
+			
+			ui.draw(g2);
+			
+			if (keyH.debug) {
+				g2.setFont(g2.getFont().deriveFont(Font.BOLD, 30f));
+				g2.setColor(Color.black);
+				// DEBUG: DRAW WORLD POSITION
+				g2.drawString("X: " + (player.worldX/tileSize) + ", Y: " + (player.worldY/tileSize), tileSize, tileSize);
+				// DEBUG: DRAW FPS
+				g2.drawString("FPS: " + drawFPS, tileSize, tileSize + 24); 
+			}	
+		}
 		g2.dispose();
 	}
 	public void playMusic(int i) {

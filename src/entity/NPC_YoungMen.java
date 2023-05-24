@@ -13,6 +13,8 @@ public class NPC_YoungMen extends Entity {
 	public NPC_YoungMen(GamePanel gp, int worldX, int worldY) {
 		
 		super(gp);
+		
+		name = "Jeune homme";
 		speed = 2;
 		
 		this.worldX = worldX;
@@ -64,27 +66,17 @@ public class NPC_YoungMen extends Entity {
 		left_still  = new BufferedImage[spritesNum]; left_walking  = new BufferedImage[spritesNum]; 
 		right_still = new BufferedImage[spritesNum]; right_walking = new BufferedImage[spritesNum];
 		
-		for (int i = 0; i < spritesNum; i++) up_still[i]    = setup("/npc/youngMen/up/still/"    + (i+1));
-		for (int i = 0; i < spritesNum; i++) down_still[i]  = setup("/npc/youngMen/down/still/"  + (i+1));
-		for (int i = 0; i < spritesNum; i++) left_still[i]  = setup("/npc/youngMen/left/still/"  + (i+1));
-		for (int i = 0; i < spritesNum; i++) right_still[i] = setup("/npc/youngMen/right/still/" + (i+1));
+		for (int i = 0; i < spritesNum; i++) up_still[i]    = setup("/npc/youngMen/up/still/"    + (i+1), gp.tileSize, gp.tileSize*2);
+		for (int i = 0; i < spritesNum; i++) down_still[i]  = setup("/npc/youngMen/down/still/"  + (i+1), gp.tileSize, gp.tileSize*2);
+		for (int i = 0; i < spritesNum; i++) left_still[i]  = setup("/npc/youngMen/left/still/"  + (i+1), gp.tileSize, gp.tileSize*2);
+		for (int i = 0; i < spritesNum; i++) right_still[i] = setup("/npc/youngMen/right/still/" + (i+1), gp.tileSize, gp.tileSize*2);
 		
-		for (int i = 0; i < spritesNum; i++) up_walking[i]    = setup("/npc/youngMen/up/walking/"    + (i+1));
-		for (int i = 0; i < spritesNum; i++) down_walking[i]  = setup("/npc/youngMen/down/walking/"  + (i+1));
-		for (int i = 0; i < spritesNum; i++) left_walking[i]  = setup("/npc/youngMen/left/walking/"  + (i+1));
-		for (int i = 0; i < spritesNum; i++) right_walking[i] = setup("/npc/youngMen/right/walking/" + (i+1));
+		for (int i = 0; i < spritesNum; i++) up_walking[i]    = setup("/npc/youngMen/up/walking/"    + (i+1), gp.tileSize, gp.tileSize*2);
+		for (int i = 0; i < spritesNum; i++) down_walking[i]  = setup("/npc/youngMen/down/walking/"  + (i+1), gp.tileSize, gp.tileSize*2);
+		for (int i = 0; i < spritesNum; i++) left_walking[i]  = setup("/npc/youngMen/left/walking/"  + (i+1), gp.tileSize, gp.tileSize*2);
+		for (int i = 0; i < spritesNum; i++) right_walking[i] = setup("/npc/youngMen/right/walking/" + (i+1), gp.tileSize, gp.tileSize*2);
 	}
 	public void speak() {
-		
-		if (dialogues[dialogueIndex] == null) dialogueIndex = 0;
-		gp.ui.currentDialogue = dialogues[dialogueIndex];
-		dialogueIndex++;
-		
-		switch(gp.player.direction) {
-		case "up":    direction = "down";  break;
-		case "down":  direction = "up";    break;
-		case "left":  direction = "right"; break;
-		case "right": direction = "left";  break;
-		}
-	}
+		super.speak();
+ 	}
 }
