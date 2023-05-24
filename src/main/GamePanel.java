@@ -29,6 +29,7 @@ public class GamePanel extends JPanel implements Runnable {
 	public int drawFPS;
 
 	// HANDLERS
+	public EventHandler eventH = new EventHandler(this);
 	public KeyHandler keyH = new KeyHandler(this);
 	public UtilityTool ut = new UtilityTool();
 	public TileManager tileM= new TileManager(this);
@@ -120,8 +121,9 @@ public class GamePanel extends JPanel implements Runnable {
 			for (int i = 0; i < npc.length; i++) 
 				if(npc[i] != null) npc[i].update();
 		}
-		if(gameState == pauseState) {}
-		
+		if(gameState == pauseState) {
+			
+		}
 	}
 	public void paintComponent(Graphics g) {
 

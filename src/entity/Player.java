@@ -88,8 +88,8 @@ public class Player extends Entity {
 			if(keyH.eventPressed) {
 				gp.gameState = gp.dialogueState;
 				gp.npc[index].speak();
+				keyH.eventPressed = false;
 			}
-			keyH.eventPressed = false;
 		}
 	}
 	public void update() {
@@ -109,6 +109,9 @@ public class Player extends Entity {
 		// CHECK NPC COLLISION
 		int npcIndex = gp.cChecker.checkEntity(this, gp.npc);
 		interactNPC(npcIndex);
+		
+		// CHECK EVENT COLLISION
+		gp.eventH.checkEvent();
 		
 		// CHECK COLLISION
 		gp.cChecker.checkTile(this);
@@ -148,6 +151,9 @@ public class Player extends Entity {
 			else if(running && stamina == 0) stamina++;
 			staminaCounter = 0;
 		}
+		
+		keyH.eventPressed = false;
+		keyH.enterPressed = false;
 		
 	}
 	public void draw(Graphics2D g2) {

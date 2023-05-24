@@ -24,5 +24,6 @@ public class AssetSetter {
 		
 		int i = 0;
 		gp.npc[i] = new NPC_YoungMen(gp, (int)(34  *gp.tileSize), (int)(23   *gp.tileSize)); i++;
+		gp.npc[i] = new NPC_YoungMen(gp, (int)(31  *gp.tileSize), (int)(23   *gp.tileSize)); i++;
 	}
 }
