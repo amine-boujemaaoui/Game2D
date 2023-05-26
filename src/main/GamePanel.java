@@ -42,9 +42,10 @@ public class GamePanel extends JPanel implements Runnable {
 	
 	//PLAYER AND OBJ
 	public Player player = new Player(this, keyH);
-	public Entity obj[] = new Entity[10];
 	public ArrayList<Entity> entityList = new ArrayList<>();
+	public Entity obj[] = new Entity[10];
 	public Entity npc[] = new Entity[10];
+	public Entity mon[] = new Entity[20];
 	
 	// WORLD SETTINGS
 	public final int maxWorldCol = 61;
@@ -56,6 +57,13 @@ public class GamePanel extends JPanel implements Runnable {
 	public final int playState = 1;
 	public final int pauseState = 2;
 	public final int dialogueState = 3;
+	
+	// ENTIRY TYPES
+	public final int typePlayer = 0;
+	public final int typeObject = 1;
+	public final int typeBigObject = 2;
+	public final int typeMonster = 3;
+	public final int typeNPC = 4;
 	
 	public String classSelectionOptions[] = {"KNIGHT", "THIEF", "ARCHER", "WIZARD", "SORCELER"};
 	public String statsTitles[] = {"Health", "Int", "Sta", "Def", "Mana", "Str"};
@@ -75,8 +83,9 @@ public class GamePanel extends JPanel implements Runnable {
 	}
 	public void setupGame() {
 		
-		aSetter.setNPCs();
-		aSetter.setObjects();
+		aSetter.setNPC();
+		aSetter.setOBJ();
+		aSetter.setMON();
 		playMusic(0);
 		gameState = titleScreenState;
 	}
@@ -120,6 +129,10 @@ public class GamePanel extends JPanel implements Runnable {
 			// NPCs
 			for (int i = 0; i < npc.length; i++) 
 				if(npc[i] != null) npc[i].update();
+			
+			// MONs
+			for (int i = 0; i < mon.length; i++) 
+				if(mon[i] != null) mon[i].update();
 		}
 		if(gameState == pauseState) {
 			
@@ -144,6 +157,9 @@ public class GamePanel extends JPanel implements Runnable {
 			
 			for (int i = 0; i < npc.length; i++) 
 				if(npc[i] != null) entityList.add(npc[i]);
+			
+			for (int i = 0; i < mon.length; i++) 
+				if(mon[i] != null) entityList.add(mon[i]);
 				
 			Collections.sort(entityList, new Comparator<Entity>() {
 				@Override
@@ -165,6 +181,9 @@ public class GamePanel extends JPanel implements Runnable {
 				g2.drawString("X: " + (player.worldX/tileSize) + ", Y: " + (player.worldY/tileSize), tileSize, tileSize);
 				// DEBUG: DRAW FPS
 				g2.drawString("FPS: " + drawFPS, tileSize, tileSize + 24); 
+				
+				g2.setColor(Color.black);
+				g2.drawString("Invincible: " + player.invincible, tileSize, tileSize + 48);
 			}	
 		}
 		g2.dispose();

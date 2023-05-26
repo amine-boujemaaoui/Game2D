@@ -12,7 +12,7 @@ public class OBJ_Door extends Entity{
 		super(gp);
 		
 		name = "Door";
-		object = true;
+		type = gp.typeObject;
 		
 		this.worldX = worldX;
 		this.worldY = worldY;

@@ -102,8 +102,7 @@ public class CollisionChecker {
 				}
 				
 				if(entity.hitBox.intersects(targets[i].hitBox)) {
-					entity.collisionOn = true;
-					index = i;
+					if(targets[i] != entity) { entity.collisionOn = true; index = i; }
 				}
 				
 				entity.hitBox.x = entity.hitBoxDefaultX;
@@ -115,7 +114,9 @@ public class CollisionChecker {
 		
 		return index;
 	}
-	public void checkPlayer(Entity entity) {
+	public boolean checkPlayer(Entity entity) {
+		
+		boolean contactPlayer = false;
 		
 		entity.hitBox.x = entity.worldX + entity.hitBox.x;
 		entity.hitBox.y = entity.worldY + entity.hitBox.y;
@@ -130,14 +131,17 @@ public class CollisionChecker {
 		case "right": entity.hitBox.x += entity.speed; break;
 		}
 		
-		if(entity.hitBox.intersects(gp.player.hitBox))
+		if(entity.hitBox.intersects(gp.player.hitBox)) {
 			entity.collisionOn = true;
-		
+			contactPlayer = true;
+		}
+			
 		entity.hitBox.x = entity.hitBoxDefaultX;
 		entity.hitBox.y = entity.hitBoxDefaultY;
 		
 		gp.player.hitBox.x = gp.player.hitBoxDefaultX;
 		gp.player.hitBox.y = gp.player.hitBoxDefaultY;
 
+		return contactPlayer;
 	}
 }

@@ -8,20 +8,26 @@ import main.GamePanel;
 
 public class MON_BlueSlime extends Entity {
 
-	public MON_BlueSlime(GamePanel gp) {
+	public MON_BlueSlime(GamePanel gp, int worldX, int worldY) {
 		super(gp);
 		
 		name = "Blue slime";
 		speed = 1;
+		type = gp.typeMonster;
+		
+		this.worldX = worldX;
+		this.worldY = worldY;
 		
 		maxHealth = 4;
 		health = maxHealth;
 		
-		hitBox.x = 8;      hitBox.y = 16;
-		hitBox.width = 16; hitBox.height = 16;
+		hitBox.x = 6;      hitBox.y = 16;
+		hitBox.width = 34; hitBox.height = 20;
 		
 		hitBoxDefaultX = hitBox.x;
 		hitBoxDefaultY = hitBox.y;
+		
+		getImages();
 	}
 	public void getImages() {
 		

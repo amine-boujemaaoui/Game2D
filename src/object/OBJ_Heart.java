@@ -11,7 +11,7 @@ public class OBJ_Heart extends Entity {
 		super(gp);
 		
 		name = "Heart";
-		object = true;
+		type = gp.typeObject;
 		
 		this.worldX = worldX;
 		this.worldY = worldY;

@@ -7,7 +7,15 @@ public class KeyHandler implements KeyListener {
 	
 	GamePanel gp;
 	public boolean debug = false;
-	public boolean upPressed, downPressed, leftPressed, rightPressed, enterPressed, eventPressed, spacePressed, shiftPressed;
+	public boolean 	upPressed, 
+				 	downPressed, 
+				 	leftPressed, 
+				 	rightPressed, 
+				 	enterPressed, 
+				 	eventPressed, 
+				 	spacePressed, 
+				 	shiftPressed,
+				 	attackPressed;
 	
 	public KeyHandler(GamePanel gp) {
 		
@@ -64,13 +72,14 @@ public class KeyHandler implements KeyListener {
 			}
 		}
 		if(gp.gameState == gp.playState) {
-			if (code == KeyEvent.VK_ENTER) enterPressed = true;
-			if (code == KeyEvent.VK_SHIFT) shiftPressed = true;
-			if (code == KeyEvent.VK_W)     upPressed    = true;
-			if (code == KeyEvent.VK_A)     leftPressed  = true;
-			if (code == KeyEvent.VK_S)     downPressed  = true;
-			if (code == KeyEvent.VK_D)     rightPressed = true;
-			if (code == KeyEvent.VK_E)     eventPressed = true;
+			if (code == KeyEvent.VK_ENTER) enterPressed  = true;
+			if (code == KeyEvent.VK_SHIFT) shiftPressed  = true;
+			if (code == KeyEvent.VK_W)     upPressed     = true;
+			if (code == KeyEvent.VK_A)     leftPressed   = true;
+			if (code == KeyEvent.VK_S)     downPressed   = true;
+			if (code == KeyEvent.VK_D)     rightPressed  = true;
+			if (code == KeyEvent.VK_F)     attackPressed = true;
+			if (code == KeyEvent.VK_E)     eventPressed  = true;
 			if (code == KeyEvent.VK_T)     debug = !debug;
 			if (code == KeyEvent.VK_P) {   gp.gameState = gp.pauseState; gp.playSE(4); gp.stopMusic(); }
 		}
@@ -87,13 +96,14 @@ public class KeyHandler implements KeyListener {
 		int code = e.getKeyCode();
 		
 		// if(gp.gameState == gp.playState) {
-			if (code == KeyEvent.VK_ENTER) enterPressed = false;
-			if (code == KeyEvent.VK_SHIFT) shiftPressed = false;
-			if (code == KeyEvent.VK_W)     upPressed    = false;
-			if (code == KeyEvent.VK_A)     leftPressed  = false;
-			if (code == KeyEvent.VK_S)     downPressed  = false;
-			if (code == KeyEvent.VK_D)     rightPressed = false;
-			if (code == KeyEvent.VK_E)     eventPressed = false;
+			if (code == KeyEvent.VK_ENTER) enterPressed  = false;
+			if (code == KeyEvent.VK_SHIFT) shiftPressed  = false;
+			if (code == KeyEvent.VK_W)     upPressed     = false;
+			if (code == KeyEvent.VK_A)     leftPressed   = false;
+			if (code == KeyEvent.VK_S)     downPressed   = false;
+			if (code == KeyEvent.VK_D)     rightPressed  = false;
+			if (code == KeyEvent.VK_E)     eventPressed  = false;
+			if (code == KeyEvent.VK_F)     attackPressed = false;
 		// }
 	}
 }

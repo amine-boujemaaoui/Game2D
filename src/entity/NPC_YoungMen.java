@@ -17,6 +17,8 @@ public class NPC_YoungMen extends Entity {
 		name = "Jeune homme";
 		speed = 2;
 		
+		type = gp.typeNPC;
+		
 		this.worldX = worldX;
 		this.worldY = worldY;
 		

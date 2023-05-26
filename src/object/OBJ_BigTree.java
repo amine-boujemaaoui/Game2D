@@ -12,7 +12,7 @@ public class OBJ_BigTree extends Entity{
 		super(gp);
 		
 		name = "Big tree";
-		bigObject = true;
+		type = gp.typeBigObject;
 		
 		this.worldX = worldX;
 		this.worldY = worldY;

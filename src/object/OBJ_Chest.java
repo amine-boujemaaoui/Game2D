@@ -12,7 +12,7 @@ public class OBJ_Chest extends Entity{
 		super(gp);
 		
 		name = "Chest";
-		object = true;
+		type = gp.typeObject;
 		
 		this.worldX = worldX;
 		this.worldY = worldY;

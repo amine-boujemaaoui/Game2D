@@ -15,19 +15,20 @@ public class Sound {
 	
 	public Sound() {
 		
-		int i =0;
-		soundURL[i] = getClass().getResource("/sounds/background_music.wav"); i++;
-		soundURL[i] = getClass().getResource("/sounds/ui_open.wav");          i++;
-		soundURL[i] = getClass().getResource("/sounds/ui_enter.wav");         i++;
-		soundURL[i] = getClass().getResource("/sounds/ui_back.wav");          i++;
-		soundURL[i] = getClass().getResource("/sounds/ui_select.wav");        i++;
-		soundURL[i] = getClass().getResource("/sounds/ui_unselect.wav");      i++;
-		soundURL[i] = getClass().getResource("/sounds/pickup_coin.wav");      i++;
-		soundURL[i] = getClass().getResource("/sounds/pickup_heart.wav");     i++; 
-		soundURL[i] = getClass().getResource("/sounds/pickup_mana.wav");      i++;
-		soundURL[i] = getClass().getResource("/sounds/pickup_key.wav");       i++;
-		soundURL[i] = getClass().getResource("/sounds/powerup.wav");          i++;
-		soundURL[i] = getClass().getResource("/sounds/footstep.wav");         i++;
+		soundURL[0]  = getClass().getResource("/sounds/background_music.wav");
+		soundURL[1]  = getClass().getResource("/sounds/ui_open.wav");
+		soundURL[2]  = getClass().getResource("/sounds/ui_enter.wav");
+		soundURL[3]  = getClass().getResource("/sounds/ui_back.wav");
+		soundURL[4]  = getClass().getResource("/sounds/ui_select.wav");
+		soundURL[5]  = getClass().getResource("/sounds/ui_unselect.wav");
+		soundURL[6]  = getClass().getResource("/sounds/pickup_coin.wav");
+		soundURL[7]  = getClass().getResource("/sounds/pickup_heart.wav"); 
+		soundURL[8]  = getClass().getResource("/sounds/pickup_mana.wav");
+		soundURL[9]  = getClass().getResource("/sounds/pickup_key.wav");
+		soundURL[10] = getClass().getResource("/sounds/powerup.wav");
+		soundURL[11] = getClass().getResource("/sounds/footstep.wav");
+		soundURL[12] = getClass().getResource("/sounds/slime1.wav");
+		soundURL[13] = getClass().getResource("/sounds/swing.wav");
 	}
 	public void setFile(int i) {
 		

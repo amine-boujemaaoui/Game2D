@@ -12,7 +12,7 @@ public class OBJ_Key extends Entity{
 		super(gp);
 		
 		name = "Key";
-		object = false;
+		type = gp.typeNPC;
 		
 		this.worldX = worldX;
 		this.worldY = worldY;
