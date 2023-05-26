@@ -19,10 +19,6 @@ public class UI {
 	Font pixelFont;
 	Color shadow = new Color(0, 0, 0, 200);
 	Color titleScreenColor = new Color(59, 143, 202);
-//	Color healthBarColor = new Color(255, 0, 68);
-//	Color manaBarColor = new Color(0, 149, 233);
-//	Color staminaBarColor = new Color(254, 174, 52);
-//	Color barColor = new Color(24, 20, 37);
 	public boolean messageOn = false;
 	public String message = "";
 	public String showKey = "";

@@ -38,6 +38,7 @@ public class EventHandler {
 		if(canInitiateEvent) {
 			if(hit(29, 14, "up"))  { healingPool(29, 14, gp.dialogueState); gp.ui.showMessage("E", "to heal yourself!", 29*gp.tileSize, 14*gp.tileSize); }
 			if(hit(29, 30, "any")) { fallPit(29, 30, gp.dialogueState); } else { eventRect[29][30].eventDone = false; }
+			if(hit(22, 20, "any")) { fallPit(29, 30, gp.dialogueState); } else { eventRect[29][30].eventDone = false; }
 		}
 	}
 	public boolean hit(int col, int row, String reqDirection) {
@@ -52,7 +53,6 @@ public class EventHandler {
 		if(gp.player.hitBox.intersects(eventRect[col][row]) && !eventRect[col][row].eventDone) {
 			if(gp.player.direction.equals(reqDirection) || reqDirection.contentEquals("any")) {
 				hit = true;
-				
 				previousEventX = gp.player.worldX; 
 				previousEventY = gp.player.worldY; 
 			}
