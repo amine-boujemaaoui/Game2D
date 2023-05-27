@@ -6,6 +6,8 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import main.GamePanel;
 import main.KeyHandler;
+import object.OBJ_Shield;
+import object.OBJ_Sword;
 
 public class Player extends Entity {
 	
@@ -15,6 +17,7 @@ public class Player extends Entity {
 	public int staminaCounter = 0;
 	public boolean running = false;
 	public int actualSpeed = speed;
+	public boolean attackCanceled = false;
 	
 	public Player(GamePanel gp, KeyHandler keyH) {
 		
@@ -32,6 +35,9 @@ public class Player extends Entity {
 		hitBoxDefaultX = hitBox.x;
 		hitBoxDefaultY = hitBox.y;
 		
+		attackHitBox.x = 32;	 attackHitBox.y = 32;
+		attackHitBox.width = 34; attackHitBox.height = 26;
+		
 		setDefaultValues();
 		getImages();
 		getAttackImages();
@@ -42,17 +48,54 @@ public class Player extends Entity {
 		worldY = (int)(24.5 * gp.tileSize);
 		speed = 4;
 		direction = "right";
+		level = 0; 
+		exp = 0; 
+		coins = 0;
+		nextLevelExp = 10;
 		
+		slotMele   = new OBJ_Sword(gp);
+		slotMele.attackValue = 4;
+		slotShield = new OBJ_Shield(gp);
+		
+		attack = getAttack();
+		toughness = getToughness();
+	}
+	public int getAttack() {
+		int totalMeleValue = 1;
+		if(slotMele != null) totalMeleValue += slotMele.defenseValue;
+		
+		return strenght * totalMeleValue;
+	}
+	public int getToughness() {
+		
+		int totalDefenseValue = 1;
+		if(slotHelmet != null)     totalDefenseValue += slotHelmet.defenseValue;
+		if(slotChestplate != null) totalDefenseValue += slotChestplate.defenseValue;
+		if(slotLeggings != null)   totalDefenseValue += slotLeggings.defenseValue;
+		if(slotBoots != null)      totalDefenseValue += slotBoots.defenseValue;
+				
+		return defense * totalDefenseValue;
 	}
 	public void setClassStats() {
 		
-		// maxHealth   = gp.statsValues[caracterClass][0]; health  = maxHealth - 3;
-		maxHealth   = 20; health  = maxHealth;
+		maxHealth   = gp.statsValues[caracterClass][0]; health  = maxHealth;
 		inteligence = gp.statsValues[caracterClass][1];
-		maxStamina  = gp.statsValues[caracterClass][2]; stamina = maxStamina - 1;
+		maxStamina  = gp.statsValues[caracterClass][2]; stamina = maxStamina;
 		defense     = gp.statsValues[caracterClass][3];
-		maxMana     = gp.statsValues[caracterClass][4]; mana    = maxMana - 5;
+		maxMana     = gp.statsValues[caracterClass][4]; mana    = maxMana;
 		strenght    = gp.statsValues[caracterClass][5];
+	}
+	public int getClassStats(int i) {
+	
+		switch(i) {
+		case 0: return health;
+		case 1: return inteligence;
+		case 2: return stamina;
+		case 3: return defense;
+		case 4: return mana;
+		case 5: return strenght;
+		}
+		return -1;
 	}
 	public void getImages() {
 		
@@ -77,13 +120,22 @@ public class Player extends Entity {
 		
 		int spritesNum = 4;
 		
-		up_attack   = new BufferedImage[spritesNum]; down_attack   = new BufferedImage[spritesNum];
-		left_attack = new BufferedImage[spritesNum]; right_attack  = new BufferedImage[spritesNum];
+		up_attack   = new BufferedImage[spritesNum+2]; down_attack   = new BufferedImage[spritesNum+2];
+		left_attack = new BufferedImage[spritesNum+2]; right_attack  = new BufferedImage[spritesNum+2];
 		
 		for (int i = 0; i < spritesNum; i++) up_attack[i]    = setup("/player/up/sword/"    + (i+1), gp.tileSize*3, gp.tileSize*2);
 		for (int i = 0; i < spritesNum; i++) down_attack[i]  = setup("/player/down/sword/"  + (i+1), gp.tileSize*3, gp.tileSize*2);
 		for (int i = 0; i < spritesNum; i++) left_attack[i]  = setup("/player/left/sword/"  + (i+1), gp.tileSize*3, gp.tileSize*2);
 		for (int i = 0; i < spritesNum; i++) right_attack[i] = setup("/player/right/sword/" + (i+1), gp.tileSize*3, gp.tileSize*2);
+		
+		up_attack[spritesNum]      = setup("/player/up/sword/"    + (spritesNum-1), gp.tileSize*3, gp.tileSize*2);
+		down_attack[spritesNum]    = setup("/player/down/sword/"  + (spritesNum-1), gp.tileSize*3, gp.tileSize*2);
+		left_attack[spritesNum]    = setup("/player/left/sword/"  + (spritesNum-1), gp.tileSize*3, gp.tileSize*2);
+		right_attack[spritesNum]   = setup("/player/right/sword/" + (spritesNum-1), gp.tileSize*3, gp.tileSize*2);
+		up_attack[spritesNum+1]    = setup("/player/up/sword/"    + (spritesNum-2), gp.tileSize*3, gp.tileSize*2);
+		down_attack[spritesNum+1]  = setup("/player/down/sword/"  + (spritesNum-2), gp.tileSize*3, gp.tileSize*2);
+		left_attack[spritesNum+1]  = setup("/player/left/sword/"  + (spritesNum-2), gp.tileSize*3, gp.tileSize*2);
+		right_attack[spritesNum+1] = setup("/player/right/sword/" + (spritesNum-2), gp.tileSize*3, gp.tileSize*2);
 	}
 	public void pickUpObj(int index) {
 		
@@ -100,22 +152,60 @@ public class Player extends Entity {
 	public void interactNPC(int index) {
 		
 		if(index != 999) {
-			
+			attackCanceled = true;
 			gp.ui.showMessage("E", "to talk to " + gp.npc[index].name, gp.npc[index].worldX, gp.npc[index].worldY);
 			if(keyH.eventPressed) {
 				gp.gameState = gp.dialogueState;
 				gp.npc[index].speak();
 			}
-		}
-		else {
-			if(keyH.attackPressed) attacking = true;
-		}
+		} 
 	}
 	public void interactMON(int index) {
 		
 		if(index != 999) {
-			if(!invincible && health > 0) { health--; invincible = true; }
+			if(!gp.mon[index].dying && !invincible && health > 0) { gp.playSE(15); health--; invincible = true; }
 		}
+	}
+	public void damageMonster(int index) {
+		
+		if(index != 999) {
+			
+			if(gp.mon[index].health <= 0) gp.mon[index].dying = true;
+			else if(!gp.mon[index].invincible) {
+				gp.playSE(14);
+				gp.mon[index].health--; gp.mon[index].invincible = true;
+			}
+		}
+	}
+	public void attacking() {
+		
+		spriteCounter++; 
+		     if(spriteCounter <  10)   spriteNum = 1;
+		else if(spriteCounter <  20) { spriteNum = 2;
+			
+			int currentWorldX = worldX,       currentWorldY = worldY;
+			int hitBoxWidth   = hitBox.width, hitBoxHeight  = hitBox.height;
+			
+			switch(direction) {
+			case "up":    worldY -= attackHitBox.height; break;
+			case "down":  worldY += attackHitBox.height; break;
+			case "left":  worldX -= attackHitBox.width;  break;
+			case "right": worldX += attackHitBox.width;  break;
+			default: break;
+			}
+			
+			hitBox.width  = attackHitBox.width;
+			hitBox.height = attackHitBox.height;
+			
+			int monIndex = gp.cChecker.checkEntity(this, gp.mon);
+			damageMonster(monIndex);
+			
+			worldX = currentWorldX;     worldY = currentWorldY;
+			hitBox.width = hitBoxWidth; hitBox.height = hitBoxHeight;
+		}
+		else if(spriteCounter <  30) spriteNum = 3; 
+		else if(spriteCounter <  40) spriteNum = 4;
+		else { spriteNum = 1; spriteCounter = 0; attacking = false; }
 	}
 	public void update() {
 		
@@ -159,6 +249,14 @@ public class Player extends Entity {
 				default: break;
 				}
 			}
+			
+			if(keyH.attackPressed && !attackCanceled) {
+				attacking = true; 
+				gp.playSE(13);
+				spriteCounter = 0;
+			}
+			
+			attackCanceled = false;
 			collisionOn = false;
 			
 			// SPRITE COUNTER FOR ANIMATION
@@ -198,16 +296,6 @@ public class Player extends Entity {
 			}
 		}
 	}
-	public void attacking() {
-		if(spriteCounter == 7) gp.playSE(13);
-		spriteCounter++; 
-		     if(spriteCounter <  10) spriteNum = 1;
-		else if(spriteCounter <  15) spriteNum = 2;
-		else if(spriteCounter <  23) spriteNum = 3; 
-		else if(spriteCounter <  28) spriteNum = 4;
-		else { spriteNum = 1; spriteCounter = 0; attacking = false; }
-		System.out.println(spriteCounter + " : " + (spriteNum-1) + " : " +up_still[spriteNum-1].getTileWidth());
-	}
 	@Override
 	public void draw(Graphics2D g2, GamePanel gp) {
 		
@@ -234,10 +322,7 @@ public class Player extends Entity {
 			if((spriteNum-1)%2 == 0) g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f)); 
 			else                     g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.4f));
 		}
-		
-		
 		g2.drawImage(image, newScreenX, newScreenY, width, height, null);
-		
 		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
 		
 		// DEBUG: PRINT PLAYER TILESIZE AND HITBOX 

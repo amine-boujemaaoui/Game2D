@@ -1,5 +1,6 @@
 package entity;
 
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -26,6 +27,7 @@ public class Entity {
 	public BufferedImage[] up_still,   down_still,   left_still,   right_still;	
 	public BufferedImage[] up_walking, down_walking, left_walking, right_walking;
 	public BufferedImage[] up_attack, down_attack, left_attack, right_attack;
+	public BufferedImage[] up_dying, down_dying, left_dying, right_dying;
 	public String dialogues[] = new String[20];
 	
 	// STATUS
@@ -38,6 +40,9 @@ public class Entity {
 	public boolean collision = false;
 	public boolean invincible = false;
 	public boolean attacking = false;
+	public boolean alive = true;
+	public boolean dying = false;
+	public boolean hpBarOn = false;
 	
 	// COUNTERS
 	public int soundCounter = 0;
@@ -46,14 +51,29 @@ public class Entity {
 	public int actionCounter = 0;
 	public int dialogueIndex = 0;
 	public int invincibleCounter = 0;
+	public int dyingCounter = 0;
+	public int hpBarOnCounter = 0;
 	
 	// STATS
+	public int level;
 	public int health,      maxHealth;
 	public int stamina,     maxStamina;
 	public int mana,        maxMana;
 	public int inteligence;
 	public int defense;
 	public int strenght;
+	public int attack;
+	public int toughness;
+	public int coins;
+	public int exp;
+	public int nextLevelExp;
+	
+	// EQUIPMENTS
+	public Entity slotHelmet,  slotChestplate, slotLeggings, slotBoots;
+	public Entity slotMele,    slotShield,     slotStaff,    slotProjectile;
+	public Entity slotRing1,   slotRing2,      slotNecklace, slotBelt;
+	public Entity slotPickaxe, slotAxe;
+	public int attackValue, defenseValue;
 	
 	public Entity(GamePanel gp) {
 		
@@ -70,15 +90,17 @@ public class Entity {
 		gp.cChecker.checkEntity(this, gp.mon);
 		boolean contactPlayer = gp.cChecker.checkPlayer(this);
 		
-		if(this.type == gp.typeMonster && contactPlayer) {
-			if(!gp.player.invincible) 
-				if(gp.player.health > 0) { gp.player.health--; gp.player.invincible = true;}
+		if(this.type == gp.typeMonster &&
+		   contactPlayer &&
+		   !gp.player.invincible &&
+		   gp.player.health > 0 &&
+		   alive) {
+			
+		   gp.playSE(15); gp.player.health--; gp.player.invincible = true;
 		}
-			
-			
 		
 		// CHECK COLLISION
-		if(!collisionOn && walking) {
+		if(alive && !collisionOn && walking) {
 			switch(direction) {
 			case "up":    worldY -= speed; break;
 			case "down":  worldY += speed; break;
@@ -99,6 +121,15 @@ public class Entity {
 		if(invincible) {
 			invincibleCounter++;
 			if(invincibleCounter > 60) {
+				invincible = false;
+				invincibleCounter = 0;
+			}
+		}
+		
+		// INVINCIBLE COUNTER
+		if(invincible) {
+			invincibleCounter++;
+			if(invincibleCounter > 40) {
 				invincible = false;
 				invincibleCounter = 0;
 			}
@@ -144,28 +175,62 @@ public class Entity {
 											newScreenX = screenX;  newScreenY = screenY - gp.tileSize;}
 		
 		BufferedImage image = null;
-		if (!walking) {
+		if(dying) {
+			dyingAnimation();
 			switch(direction) {
-			case "up":    image = up_still[spriteNum-1];    break;
-			case "down":  image = down_still[spriteNum-1];  break;
-			case "left":  image = left_still[spriteNum-1];  break;
-			case "right": image = right_still[spriteNum-1]; break;
+			case "up":    image = up_dying[spriteNum-1];    break;
+			case "down":  image = down_dying[spriteNum-1];  break;
+			case "left":  image = left_dying[spriteNum-1];  break;
+			case "right": image = right_dying[spriteNum-1]; break;
 			}
 		} else {
-			switch(direction) {
-			case "up":    image = up_walking[spriteNum-1];    break;
-			case "down":  image = down_walking[spriteNum-1];  break;
-			case "left":  image = left_walking[spriteNum-1];  break;
-			case "right": image = right_walking[spriteNum-1]; break;
+			if (!walking) {
+				switch(direction) {
+				case "up":    image = up_still[spriteNum-1];    break;
+				case "down":  image = down_still[spriteNum-1];  break;
+				case "left":  image = left_still[spriteNum-1];  break;
+				case "right": image = right_still[spriteNum-1]; break;
+				}
+			} else {
+				switch(direction) {
+				case "up":    image = up_walking[spriteNum-1];    break;
+				case "down":  image = down_walking[spriteNum-1];  break;
+				case "left":  image = left_walking[spriteNum-1];  break;
+				case "right": image = right_walking[spriteNum-1]; break;
+				}
 			}
 		}
-		
 		
 		if (worldX + offsetX > gp.player.worldX - gp.player.screenX && 
 			worldX - offsetY < gp.player.worldX + gp.player.screenX &&
 			worldY + offsetX > gp.player.worldY - gp.player.screenY &&
 			worldY - offsetY < gp.player.worldY + gp.player.screenY) {
-			g2.drawImage(image, newScreenX, newScreenY, offsetX, offsetY, null);
+			
+			if((type == gp.typeMonster && hpBarOn && !dying && alive) || gp.keyH.debug) {
+				
+				double oneScale = (double)(offsetX/2)/maxHealth;
+				double healthBar = oneScale * health;
+				
+				g2.setColor(gp.ui.helthColor);
+				g2.drawImage(gp.ui.health_bar,newScreenX + offsetX/4, newScreenY, (int)healthBar, 8, null);
+				g2.setColor(gp.ui.barColor);
+				g2.setStroke(new BasicStroke(2));
+				g2.drawRect(newScreenX + offsetX/4, newScreenY, offsetX/2, 8);
+				g2.setStroke(new BasicStroke(1));
+				
+				hpBarOnCounter++;
+				if(hpBarOnCounter > 120) { hpBarOnCounter = 0; hpBarOn = false; }
+			}
+			
+			if(invincible) {
+				hpBarOn = true;
+				hpBarOnCounter = 0;
+				if((spriteNum-1)%2 == 0) 
+					changeAlpha(g2, 0.7f);
+				else                     
+					changeAlpha(g2, 0.4f);
+			}
+			g2.drawImage(image, newScreenX, newScreenY, offsetX, offsetY, null); changeAlpha(g2, 1f);
 		}
 		if(gp.keyH.debug) {
 			g2.setColor(new Color(0, 255, 0, 100));
@@ -175,5 +240,17 @@ public class Entity {
 			g2.setStroke(new BasicStroke(2));
 			g2.drawRect(newScreenX, newScreenY, offsetX, offsetY);
 		}
+	}
+	public void dyingAnimation() {
+		
+		dyingCounter++;
+		     if(dyingCounter <  10) spriteNum = 1;
+		else if(dyingCounter <  15) spriteNum = 2; 
+		else if(dyingCounter <  20) spriteNum = 3;
+		else if(dyingCounter <  25) spriteNum = 4;
+		else { spriteNum = 5; dying = false; alive = false; }
+	}
+	public void changeAlpha(Graphics2D g2, float alpha) {
+		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
 	}
 }

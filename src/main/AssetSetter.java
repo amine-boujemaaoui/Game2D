@@ -31,6 +31,9 @@ public class AssetSetter {
 		
 		int i = 0;
 		gp.mon[i] = new MON_BlueSlime(gp, (int)(28  *gp.tileSize), (int)(40   *gp.tileSize)); i++;
-		gp.mon[i] = new MON_BlueSlime(gp, (int)(30  *gp.tileSize), (int)(41   *gp.tileSize)); i++;
+		gp.mon[i] = new MON_BlueSlime(gp, (int)(29  *gp.tileSize), (int)(41   *gp.tileSize)); i++;
+		gp.mon[i] = new MON_BlueSlime(gp, (int)(30  *gp.tileSize), (int)(42   *gp.tileSize)); i++;
+		gp.mon[i] = new MON_BlueSlime(gp, (int)(31  *gp.tileSize), (int)(43   *gp.tileSize));
+		gp.mon[i].maxHealth = 20; gp.mon[i].health = 20;
 	}
 }

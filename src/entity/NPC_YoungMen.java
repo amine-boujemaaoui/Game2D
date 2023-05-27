@@ -14,7 +14,7 @@ public class NPC_YoungMen extends Entity {
 		
 		super(gp);
 		
-		name = "Jeune homme";
+		name = "Young men";
 		speed = 2;
 		
 		type = gp.typeNPC;

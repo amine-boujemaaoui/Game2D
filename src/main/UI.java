@@ -17,18 +17,21 @@ public class UI {
 	GamePanel gp;
 	Graphics2D g2;
 	Font pixelFont;
-	Color shadow = new Color(0, 0, 0, 200);
-	Color titleScreenColor = new Color(59, 143, 202);
+	public Color shadow = new Color(0, 0, 0, 200);
+	public Color titleScreenColor = new Color(59, 143, 202);
+	public Color barColor = new Color(24, 20, 37);
+	public Color helthColor = new Color(255, 0, 68);
 	public boolean messageOn = false;
 	public String message = "";
 	public String showKey = "";
 	public int x, y;
 	int messageCounter = 0;
-	BufferedImage dialogueWindow, titleScreen, statsWindow;
+	BufferedImage dialogueWindow, titleScreen, statsWindow, equipmentWindow;
 	BufferedImage E, SPACE;
 	BufferedImage heart_full,   heart_half,   heart_empty;
 	BufferedImage mana_full,    mana_half,    mana_empty;
 	BufferedImage stamina_full, stamina_half, stamina_empty;
+	public BufferedImage health_bar;
 	public String currentDialogue = "";
 	public int selectedOption = 0;
 	public int subStateScreen = 0;
@@ -47,7 +50,6 @@ public class UI {
 			e.printStackTrace();
 		}
 		 try {
-			int width =  gp.tileSize * 20, height =  gp.tileSize * 5;
 			int iconSize = (int)(gp.tileSize*0.75);
 			
 			titleScreen = ImageIO.read(getClass().getResourceAsStream("/ui/ui_titleScreen.png"));
@@ -55,7 +57,10 @@ public class UI {
 			statsWindow = ImageIO.read(getClass().getResourceAsStream("/ui/ui_stats.png"));
 			gp.ut.scaleImage(statsWindow, gp.tileSize*14, gp.tileSize*14);
 			dialogueWindow = ImageIO.read(getClass().getResourceAsStream("/ui/ui_dialogue.png"));
-			gp.ut.scaleImage(dialogueWindow, width, height);
+			gp.ut.scaleImage(dialogueWindow, gp.tileSize*20, gp.tileSize*5);
+			equipmentWindow = ImageIO.read(getClass().getResourceAsStream("/ui/ui_equipment.png"));
+			gp.ut.scaleImage(equipmentWindow, gp.tileSize*15, (int)(10.5*gp.tileSize));
+			
 			E = ImageIO.read(getClass().getResourceAsStream("/ui/keys/E.png"));
 			gp.ut.scaleImage(E, gp.tileSize, gp.tileSize);
 			SPACE = ImageIO.read(getClass().getResourceAsStream("/ui/keys/SPACE.png"));
@@ -82,6 +87,9 @@ public class UI {
 			stamina_empty = ImageIO.read(getClass().getResourceAsStream("/ui/icons/stamina/empty.png"));
 			gp.ut.scaleImage(stamina_empty, iconSize, iconSize);
 			
+			health_bar = ImageIO.read(getClass().getResourceAsStream("/ui/icons/health_bar.png"));
+			gp.ut.scaleImage(health_bar, 4, 4);
+			
 		} catch (IOException e) { e.printStackTrace(); }
 	}
 	public void showMessage(String key, String text, int x, int y) {
@@ -99,10 +107,11 @@ public class UI {
 		 
 		if(messageOn) drawIndication(showKey, message, x, y);
 
-		if(gp.gameState == gp.titleScreenState) { drawTitleScreen(g2); }
-		if(gp.gameState == gp.playState       ) { drawGUI(g2); }
-		if(gp.gameState == gp.pauseState      ) { drawPauseScreen(g2); }
-		if(gp.gameState == gp.dialogueState   ) { drawDialogueScreen(g2); drawGUI(g2); }
+		if(gp.gameState == gp.titleScreenState    ) { drawTitleScreen(g2); }
+		if(gp.gameState == gp.playState           ) { drawGUI(g2); }
+		if(gp.gameState == gp.pauseState          ) { drawPauseScreen(g2); }
+		if(gp.gameState == gp.dialogueState       ) { drawDialogueScreen(g2); drawGUI(g2); }
+		if(gp.gameState == gp.equipmentWindowState) { drawEquipmentWindow(g2); }
 	}
 	public void drawTitleScreen(Graphics2D g2) {
 		String title;
@@ -187,6 +196,25 @@ public class UI {
 			g2.drawString(line, x, y);
 			y += 30; 
 		}
+	}
+	public void drawEquipmentWindow(Graphics2D g2) {
+
+		int x = 0, y = gp.tileSize, statValue;
+				
+		g2.drawImage(equipmentWindow, x, y, 15*gp.tileSize, (int)(10.5*gp.tileSize), null);
+		
+		x += (int)(gp.tileSize*3.5);
+		y += (int)(gp.tileSize*2.5);
+		
+		g2.setFont(g2.getFont().deriveFont(26f));
+		for(int i = 0; i < gp.statsTitles.length; i++) {
+			statValue = gp.player.getClassStats(i);
+			if(statValue != -1) drawTextShadow(gp.statsTitles[i] + " : " + statValue, Color.gray, Color.white, x, y);
+			y += (int)(gp.tileSize*1.15);
+		}
+		
+		if(gp.player.slotMele != null) g2.drawImage(gp.player.slotMele.down_still[0], (int)(gp.tileSize*7.75), (int)(gp.tileSize*4.25), gp.tileSize, gp.tileSize, null);
+		if(gp.player.slotShield != null) g2.drawImage(gp.player.slotShield.down_still[0], (int)(gp.tileSize*7.75), (int)(gp.tileSize*5.25), gp.tileSize, gp.tileSize, null);
 	}
 	public void drawGUI(Graphics2D g2) {
 		

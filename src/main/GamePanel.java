@@ -57,6 +57,7 @@ public class GamePanel extends JPanel implements Runnable {
 	public final int playState = 1;
 	public final int pauseState = 2;
 	public final int dialogueState = 3;
+	public final int equipmentWindowState = 4;
 	
 	// ENTIRY TYPES
 	public final int typePlayer = 0;
@@ -131,8 +132,12 @@ public class GamePanel extends JPanel implements Runnable {
 				if(npc[i] != null) npc[i].update();
 			
 			// MONs
-			for (int i = 0; i < mon.length; i++) 
-				if(mon[i] != null) mon[i].update();
+			for (int i = 0; i < mon.length; i++) {
+				if(mon[i] != null) {
+					if(mon[i].alive) mon[i].update();
+					else mon[i] = null;
+				} 
+			}
 		}
 		if(gameState == pauseState) {
 			
@@ -158,7 +163,7 @@ public class GamePanel extends JPanel implements Runnable {
 			for (int i = 0; i < npc.length; i++) 
 				if(npc[i] != null) entityList.add(npc[i]);
 			
-			for (int i = 0; i < mon.length; i++) 
+			for (int i = 0; i < mon.length; i++)
 				if(mon[i] != null) entityList.add(mon[i]);
 				
 			Collections.sort(entityList, new Comparator<Entity>() {

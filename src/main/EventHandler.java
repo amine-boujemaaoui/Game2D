@@ -69,6 +69,7 @@ public class EventHandler {
 		
 		if(gp.keyH.eventPressed) {
 			gp.gameState = gameState;
+			gp.player.attackCanceled = true;
 			gp.ui.currentDialogue = "You healed from drinking!";
 			gp.player.health = gp.player.maxHealth;
 		}
@@ -76,6 +77,7 @@ public class EventHandler {
 	public void fallPit(int col, int row,int gameState) {
 		if(gp.player.health > 0) {
 			gp.gameState = gameState;
+			gp.playSE(15);
 			gp.ui.currentDialogue = "You fell into a pit!";
 			gp.player.health--;
 			canInitiateEvent = false;
