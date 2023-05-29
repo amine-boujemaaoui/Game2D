@@ -2,15 +2,18 @@ package entity;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.util.Random;
+
+import item.*;
 import main.GamePanel;
 import main.KeyHandler;
-import object.OBJ_Shield;
-import object.OBJ_Sword;
 
 public class Player extends Entity {
 	
+	Random r = new Random();
 	KeyHandler keyH;
 	public final int screenX, screenY;
 	public int caracterClass;
@@ -46,35 +49,57 @@ public class Player extends Entity {
 		
 		worldX = (int)(29   * gp.tileSize);
 		worldY = (int)(24.5 * gp.tileSize);
-		speed = 4;
+		speed = 3;
 		direction = "right";
 		level = 0; 
 		exp = 0; 
 		coins = 0;
-		nextLevelExp = 10;
+		nextLevelExp = 2;
+		attackSpeed = 10;
 		
-		slotMele   = new OBJ_Sword(gp);
-		slotMele.attackValue = 4;
-		slotShield = new OBJ_Shield(gp);
+		// TEMPORARY EQUIPMENT
+		slotMele  	= new WPN_Sword_Wood(gp);
+		slotShield  = new WPN_Shield_Wood(gp);
 		
-		attack = getAttack();
-		toughness = getToughness();
+		slotHelmet     = new ARMR_Helmet_Leather(gp);
+		slotChestplate = new ARMR_Chestplate_Leather(gp);
+		slotLeggings   = new ARMR_Leggings_Leather(gp);
+		slotBoots  	   = new ARMR_Boots_Leather(gp);
+		// =====================
+		
+		attack 		= getAttack();
+		toughness	= getToughness();
+		speed 		= getMovementSpeed();
+		attackSpeed = getAttackSpeed();
 	}
 	public int getAttack() {
-		int totalMeleValue = 1;
-		if(slotMele != null) totalMeleValue += slotMele.defenseValue;
+		double totalMeleValue = 1;
+		if(slotMele != null) totalMeleValue += slotMele.attackValue;
 		
-		return strenght * totalMeleValue;
+		return (int)(strenght * totalMeleValue/10);
 	}
 	public int getToughness() {
 		
-		int totalDefenseValue = 1;
+		double totalDefenseValue = 1;
 		if(slotHelmet != null)     totalDefenseValue += slotHelmet.defenseValue;
 		if(slotChestplate != null) totalDefenseValue += slotChestplate.defenseValue;
 		if(slotLeggings != null)   totalDefenseValue += slotLeggings.defenseValue;
 		if(slotBoots != null)      totalDefenseValue += slotBoots.defenseValue;
-				
-		return defense * totalDefenseValue;
+
+		return (int)(defense * totalDefenseValue/10);
+	}
+	public int getAttackSpeed() {
+		int totalAttackSpeedValue = attackSpeedValue;
+		if(slotMele != null) totalAttackSpeedValue = slotMele.attackSpeedValue;
+		
+		return totalAttackSpeedValue;
+	}
+	public int getMovementSpeed() {
+		
+		double totalMovementSpeed = 1;
+		if(slotBoots != null) totalMovementSpeed = slotBoots.speedValue;
+		
+		return (int)(speed * totalMovementSpeed);
 	}
 	public void setClassStats() {
 		
@@ -84,6 +109,9 @@ public class Player extends Entity {
 		defense     = gp.statsValues[caracterClass][3];
 		maxMana     = gp.statsValues[caracterClass][4]; mana    = maxMana;
 		strenght    = gp.statsValues[caracterClass][5];
+		
+		attack = getAttack();
+		toughness = getToughness();
 	}
 	public int getClassStats(int i) {
 	
@@ -144,6 +172,7 @@ public class Player extends Entity {
 			switch(gp.obj[index].name) {
 			case "Chest": msg = "to open ";   break;
 			case "Key":   msg = "to pickup "; break;
+			case "Boots": slotBoots = gp.obj[index]; gp.obj[index].worldX = 0; gp.obj[index].worldY = 0; speed = getMovementSpeed(); break;
 			default:      msg = "NONE";       break;
 			}
 			if(!msg.equals("NONE")) gp.ui.showMessage("E", msg + gp.obj[index].name, gp.obj[index].worldX, gp.obj[index].worldY);
@@ -163,25 +192,89 @@ public class Player extends Entity {
 	public void interactMON(int index) {
 		
 		if(index != 999) {
-			if(!gp.mon[index].dying && !invincible && health > 0) { gp.playSE(15); health--; invincible = true; }
+			if(!gp.mon[index].dying && !invincible && health > 0) { 
+				
+				gp.playSE(15); 
+				
+				int damage = gp.mon[index].attack - toughness;
+				if(damage < 0) damage = 0;
+				
+				health -= damage; 
+				invincible = true;
+			}
 		}
 	}
 	public void damageMonster(int index) {
 		
 		if(index != 999) {
 			
-			if(gp.mon[index].health <= 0) gp.mon[index].dying = true;
-			else if(!gp.mon[index].invincible) {
+			
+		if(!gp.mon[index].invincible) {
+				
 				gp.playSE(14);
-				gp.mon[index].health--; gp.mon[index].invincible = true;
+				
+				int damage = attack - gp.mon[index].toughness;
+				if(damage < 0) damage = 0;
+				
+				int offsetX = 4;
+				switch(direction) {
+				case "up":    offsetX -= 28; break;
+				case "down":  offsetX += 32; break;
+				case "left":  offsetX -= 28; break;
+				case "right": offsetX += 32; break;
+				}
+				
+				gp.ui.addEventMessage("-" + damage, 
+						              24f, 
+						              Font.BOLD, 
+						              gp.ui.evtColM_damage, 
+						              gp.ui.evtColS_damage, 
+						              gp.mon[index].worldX + offsetX + r.nextInt(-8, 9), 
+						              gp.mon[index].worldY + r.nextInt(-8, 9),
+						              false);
+				
+				gp.mon[index].health -= damage; 
+				gp.mon[index].invincible = true;
+				
+			}
+			else if(gp.mon[index].health <= 0) gp.mon[index].dying = true; 
+		}
+	}
+	public void checkLevel() {
+		
+		if(exp >= nextLevelExp) { 
+			gp.playSE(10);
+			String leveledUp = "Leveld UP!";
+			gp.ui.addEventMessage(leveledUp, 
+			           32f, 
+			           Font.BOLD, 
+			           gp.ui.evtColM_exp, 
+			           gp.ui.evtColS_exp, 
+			           gp.ui.getXforCenteredText(leveledUp) - 10, 
+			           gp.screenHeight/2 - (int)(gp.tileSize*1.5),
+			           true);
+			
+			level++; 
+			exp = exp-nextLevelExp; 
+			nextLevelExp *= 2;
+			if(level%2 == 0) {
+				maxHealth += 2;
+				stamina += 2;
+				if(maxMana > 0) maxMana += 2;
+				attack++;
+				defense++;
+				strenght++;
+				
+				attack = getAttack();
+				toughness = getToughness();
 			}
 		}
 	}
 	public void attacking() {
 		
 		spriteCounter++; 
-		     if(spriteCounter <  10)   spriteNum = 1;
-		else if(spriteCounter <  20) { spriteNum = 2;
+		     if(spriteCounter < attackSpeed * 1)   spriteNum = 1;
+		else if(spriteCounter < attackSpeed * 2) { spriteNum = 2; 
 			
 			int currentWorldX = worldX,       currentWorldY = worldY;
 			int hitBoxWidth   = hitBox.width, hitBoxHeight  = hitBox.height;
@@ -203,8 +296,8 @@ public class Player extends Entity {
 			worldX = currentWorldX;     worldY = currentWorldY;
 			hitBox.width = hitBoxWidth; hitBox.height = hitBoxHeight;
 		}
-		else if(spriteCounter <  30) spriteNum = 3; 
-		else if(spriteCounter <  40) spriteNum = 4;
+		else if(spriteCounter < attackSpeed * 3) spriteNum = 3;
+		else if(spriteCounter < attackSpeed * 4) spriteNum = 4;
 		else { spriteNum = 1; spriteCounter = 0; attacking = false; }
 	}
 	public void update() {

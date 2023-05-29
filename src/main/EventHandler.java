@@ -75,7 +75,7 @@ public class EventHandler {
 		}
 	}
 	public void fallPit(int col, int row,int gameState) {
-		if(gp.player.health > 0) {
+		if(gp.player.health > 0 && gp.player.running) {
 			gp.gameState = gameState;
 			gp.playSE(15);
 			gp.ui.currentDialogue = "You fell into a pit!";

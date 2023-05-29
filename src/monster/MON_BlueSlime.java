@@ -18,8 +18,11 @@ public class MON_BlueSlime extends Entity {
 		this.worldX = worldX;
 		this.worldY = worldY;
 		
-		maxHealth = 4;
+		maxHealth = 10;
 		health = maxHealth;
+		attack = 1;
+		toughness = 2;
+		exp = 1;
 		
 		hitBox.x = 6;      hitBox.y = 16;
 		hitBox.width = 34; hitBox.height = 20;

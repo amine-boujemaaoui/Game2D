@@ -8,6 +8,8 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Random;
+
 import javax.swing.JPanel;
 
 import entity.Entity;
@@ -16,6 +18,7 @@ import tile.TileManager;
 
 public class GamePanel extends JPanel implements Runnable {
 	private static final long serialVersionUID = 1L;
+	Random r = new Random();
 	
 	// SCREEN SETTINGS
 	final int originalTileSize = 16;
@@ -112,7 +115,6 @@ public class GamePanel extends JPanel implements Runnable {
 				update(); repaint();
 				delta--; drawFPS++;
 			}
-			// DRAW FPS
 			if ( timer >= 1000000000 ) { drawFPS = 0; timer = 0; }
 		}
 	}
@@ -135,7 +137,21 @@ public class GamePanel extends JPanel implements Runnable {
 			for (int i = 0; i < mon.length; i++) {
 				if(mon[i] != null) {
 					if(mon[i].alive) mon[i].update();
-					else mon[i] = null;
+					else {
+						player.exp += mon[i].exp;
+						ui.addEventMessage("+" + mon[i].exp, 
+								           24f, 
+								           Font.BOLD, 
+								           ui.evtColM_exp, 
+								           ui.evtColS_exp, 
+								           mon[i].worldX + 24 + r.nextInt(-8, 9), 
+								           mon[i].worldY + 24 + r.nextInt(-8, 9),
+								           false);
+						
+						player.checkLevel();
+						int tempX = mon[i].worldX, tempY = mon[i].worldY;
+						mon[i] = null;
+					}
 				} 
 			}
 		}
@@ -180,15 +196,12 @@ public class GamePanel extends JPanel implements Runnable {
 			ui.draw(g2);
 			
 			if (keyH.debug) {
+				g2.setColor(Color.black);
 				g2.setFont(g2.getFont().deriveFont(Font.BOLD, 30f));
-				g2.setColor(Color.black);
-				// DEBUG: DRAW WORLD POSITION
 				g2.drawString("X: " + (player.worldX/tileSize) + ", Y: " + (player.worldY/tileSize), tileSize, tileSize);
-				// DEBUG: DRAW FPS
 				g2.drawString("FPS: " + drawFPS, tileSize, tileSize + 24); 
-				
-				g2.setColor(Color.black);
 				g2.drawString("Invincible: " + player.invincible, tileSize, tileSize + 48);
+				g2.drawString("Speed: " + player.speed, tileSize, tileSize + 48 + 24);
 			}	
 		}
 		g2.dispose();

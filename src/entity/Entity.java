@@ -67,13 +67,15 @@ public class Entity {
 	public int coins;
 	public int exp;
 	public int nextLevelExp;
+	public int attackSpeed;
 	
 	// EQUIPMENTS
 	public Entity slotHelmet,  slotChestplate, slotLeggings, slotBoots;
 	public Entity slotMele,    slotShield,     slotStaff,    slotProjectile;
 	public Entity slotRing1,   slotRing2,      slotNecklace, slotBelt;
 	public Entity slotPickaxe, slotAxe;
-	public int attackValue, defenseValue;
+	public int attackValue, defenseValue, attackSpeedValue;
+	public double speedValue;
 	
 	public Entity(GamePanel gp) {
 		
@@ -96,7 +98,13 @@ public class Entity {
 		   gp.player.health > 0 &&
 		   alive) {
 			
-		   gp.playSE(15); gp.player.health--; gp.player.invincible = true;
+		   gp.playSE(15); 
+		   
+		   int damage = attack - gp.player.toughness;
+			if(damage < 0) damage = 0;
+			
+		   gp.player.health -= damage; 
+		   gp.player.invincible = true;
 		}
 		
 		// CHECK COLLISION

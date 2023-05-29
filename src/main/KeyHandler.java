@@ -90,7 +90,11 @@ public class KeyHandler implements KeyListener {
 			if (code == KeyEvent.VK_ENTER) {
 				gp.playSE(4);
 				if(gp.ui.selectedOption == gp.classSelectionOptions.length) { gp.ui.subStateScreen = 0; gp.ui.selectedOption = 0; }
-				else { gp.player.caracterClass = gp.ui.selectedOption; gp.player.setClassStats(); gp.gameState = gp.playState; }
+				else { 
+					gp.player.caracterClass = gp.ui.selectedOption; 
+					gp.player.setClassStats(); 
+					gp.gameState = gp.playState; 
+				}
 			}
 			break;
 		case 2: break;	

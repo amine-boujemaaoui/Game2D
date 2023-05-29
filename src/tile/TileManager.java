@@ -103,7 +103,7 @@ public class TileManager {
 				if(gp.keyH.debug) {
 					g2.setStroke(new BasicStroke(2));
 					g2.setColor(Color.black);
-					g2.drawRect(screenX, screenY, gp.tileSize, gp.tileSize);
+					// g2.drawRect(screenX, screenY, gp.tileSize, gp.tileSize);
 					g2.setStroke(new BasicStroke(1));
 					// DEBUG: PRINT TILE HITBOX 
 					if(tiles[mapTileNum[worldCol][worldRow]].collision) {

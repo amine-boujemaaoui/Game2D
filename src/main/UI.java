@@ -9,7 +9,7 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-
+import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
 public class UI {
@@ -21,20 +21,26 @@ public class UI {
 	public Color titleScreenColor = new Color(59, 143, 202);
 	public Color barColor = new Color(24, 20, 37);
 	public Color helthColor = new Color(255, 0, 68);
+	public Color equipmentBackgroundColor = new Color(234, 212, 170);
+	public Color evtColM_damage = helthColor;
+	public Color evtColS_damage = new Color(38, 0, 10);
+	public Color evtColM_exp = new Color(99, 199, 77);
+	public Color evtColS_exp = new Color(17, 38, 20);
 	public boolean messageOn = false;
-	public String message = "";
 	public String showKey = "";
 	public int x, y;
-	int messageCounter = 0;
-	BufferedImage dialogueWindow, titleScreen, statsWindow, equipmentWindow;
+	BufferedImage dialogueWindow, titleScreen, statsWindow, equipmentWindow, expBarOutline;
 	BufferedImage E, SPACE;
 	BufferedImage heart_full,   heart_half,   heart_empty;
 	BufferedImage mana_full,    mana_half,    mana_empty;
 	BufferedImage stamina_full, stamina_half, stamina_empty;
+	public BufferedImage exp_bar;
 	public BufferedImage health_bar;
 	public String currentDialogue = "";
 	public int selectedOption = 0;
 	public int subStateScreen = 0;
+    public String indicationText;
+	ArrayList<EventMessage> eventMessages = new ArrayList<EventMessage>();
 	public String titleScreenOptions[] = {"NEW GAME", "LOAD GAME", "QUIT"};
 	
 	public UI(GamePanel gp) {
@@ -60,6 +66,10 @@ public class UI {
 			gp.ut.scaleImage(dialogueWindow, gp.tileSize*20, gp.tileSize*5);
 			equipmentWindow = ImageIO.read(getClass().getResourceAsStream("/ui/ui_equipment.png"));
 			gp.ut.scaleImage(equipmentWindow, gp.tileSize*15, (int)(10.5*gp.tileSize));
+			expBarOutline = ImageIO.read(getClass().getResourceAsStream("/ui/ui_equipment.png"));
+			gp.ut.scaleImage(expBarOutline, iconSize*6, 8*3);
+			expBarOutline = ImageIO.read(getClass().getResourceAsStream("/ui/ui_expBarOutline.png"));
+			gp.ut.scaleImage(expBarOutline, iconSize*6, 8*3);
 			
 			E = ImageIO.read(getClass().getResourceAsStream("/ui/keys/E.png"));
 			gp.ut.scaleImage(E, gp.tileSize, gp.tileSize);
@@ -89,14 +99,20 @@ public class UI {
 			
 			health_bar = ImageIO.read(getClass().getResourceAsStream("/ui/icons/health_bar.png"));
 			gp.ut.scaleImage(health_bar, 4, 4);
+			exp_bar = ImageIO.read(getClass().getResourceAsStream("/ui/icons/exp_bar.png"));
+			gp.ut.scaleImage(exp_bar, 4, 4);
 			
 		} catch (IOException e) { e.printStackTrace(); }
 	}
 	public void showMessage(String key, String text, int x, int y) {
 		messageOn = true;
-		this.message = text;
+		this.indicationText = text;
 		this.showKey = key; 
 		this.x = x; this.y = y;
+	}
+	public void addEventMessage(String text, float fontSize, int fontType, Color textColor, Color shadowColor, int x, int y, boolean fixedPosition) {
+		
+		eventMessages.add(new EventMessage(text, fontSize, fontType, textColor, shadowColor, x, y, fixedPosition));
 	}
 	public void draw(Graphics2D g2) {
 		
@@ -105,13 +121,13 @@ public class UI {
 		g2.setFont(pixelFont);
 		g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		 
-		if(messageOn) drawIndication(showKey, message, x, y);
+		if(messageOn) drawIndication(showKey, indicationText, x, y);
 
 		if(gp.gameState == gp.titleScreenState    ) { drawTitleScreen(g2); }
-		if(gp.gameState == gp.playState           ) { drawGUI(g2); }
 		if(gp.gameState == gp.pauseState          ) { drawPauseScreen(g2); }
 		if(gp.gameState == gp.dialogueState       ) { drawDialogueScreen(g2); drawGUI(g2); }
 		if(gp.gameState == gp.equipmentWindowState) { drawEquipmentWindow(g2); }
+		if(gp.gameState == gp.playState           ) { drawGUI(g2); drawEventMessages(g2); }
 	}
 	public void drawTitleScreen(Graphics2D g2) {
 		String title;
@@ -123,14 +139,16 @@ public class UI {
 			g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
 			g2.drawImage(titleScreen, 0, 0, gp.screenHeight, gp.screenHeight, null);
 			g2.setFont(g2.getFont().deriveFont(120f));
+			
 			drawTextShadow(title, Color.gray, Color.white, getXforCenteredText(title) + gp.screenHeight/3, gp.tileSize*4);
 			
-			g2.setFont(g2.getFont().deriveFont(50f));
 			y = gp.screenHeight/2;
+			g2.setFont(g2.getFont().deriveFont(50f));
 			
 			for(int i = 0; i < titleScreenOptions.length; i++) {
 				x = getXforCenteredText(titleScreenOptions[i]) + gp.screenHeight/3;
 				y += (int)(gp.tileSize*1.5);
+					
 				drawTextShadow(titleScreenOptions[i], Color.gray, Color.white, x, y);
 				if(selectedOption == i) drawTextShadow(">", Color.gray, Color.white, x - gp.tileSize, y);
 			}
@@ -138,24 +156,26 @@ public class UI {
 		case 1:
 			
 			title = "Choose your class";
-			g2.setFont(g2.getFont().deriveFont(70f));
 			g2.setColor(titleScreenColor);
 			g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
 			g2.drawImage(statsWindow,  gp.tileSize*2, gp.screenHeight/2-gp.tileSize*7, gp.tileSize*14, gp.tileSize*14, null);
+			
+			g2.setFont(g2.getFont().deriveFont(70f));
 			drawTextShadow(title, Color.gray, Color.white, getXforCenteredText(title) + (int)(gp.screenHeight/2.5), gp.tileSize*4);
 			
-			g2.setFont(g2.getFont().deriveFont(32f));
 			x = (int)(gp.tileSize*6.5);
 			y = (int)(gp.screenHeight/2-gp.tileSize*3.6);
+			
+			g2.setFont(g2.getFont().deriveFont(32f));
 			
 			for(int i = 0; i < gp.statsTitles.length; i++) {
 				if(selectedOption < gp.classSelectionOptions.length) { drawTextShadow(gp.statsTitles[i] + " : " + gp.statsValues[selectedOption][i], Color.gray, Color.white, x, y); }
 				y += (int)(gp.tileSize*1.5);
 			}
 			
-			g2.setFont(g2.getFont().deriveFont(50f));
 			y = gp.screenHeight/3;
 			
+			g2.setFont(g2.getFont().deriveFont(50f));
 			for(int i = 0; i < gp.classSelectionOptions.length; i++) {
 				x = getXforCenteredText(gp.classSelectionOptions[i]) + (int)(gp.screenHeight/2.5);
 				y += (int)(gp.tileSize*1.5);
@@ -206,15 +226,62 @@ public class UI {
 		x += (int)(gp.tileSize*3.5);
 		y += (int)(gp.tileSize*2.5);
 		
-		g2.setFont(g2.getFont().deriveFont(26f));
+		g2.setFont(g2.getFont().deriveFont(26f)); g2.setColor(Color.white);
+		
 		for(int i = 0; i < gp.statsTitles.length; i++) {
 			statValue = gp.player.getClassStats(i);
-			if(statValue != -1) drawTextShadow(gp.statsTitles[i] + " : " + statValue, Color.gray, Color.white, x, y);
+			//if(statValue != -1) drawTextShadow(gp.statsTitles[i] + " : " + statValue, 26f, Font.PLAIN, Color.gray, Color.white, x, y);
+			//if(statValue != -1) drawTextShadow(gp.statsTitles[i] + " : " + statValue, 26f, Font.PLAIN, Color.gray, Color.white, x, y);
+			if(statValue != -1) g2.drawString(gp.statsTitles[i] + " : " + statValue, x, y);
 			y += (int)(gp.tileSize*1.15);
 		}
 		
-		if(gp.player.slotMele != null) g2.drawImage(gp.player.slotMele.down_still[0], (int)(gp.tileSize*7.75), (int)(gp.tileSize*4.25), gp.tileSize, gp.tileSize, null);
-		if(gp.player.slotShield != null) g2.drawImage(gp.player.slotShield.down_still[0], (int)(gp.tileSize*7.75), (int)(gp.tileSize*5.25), gp.tileSize, gp.tileSize, null);
+		// WEAPONS SLOTS
+		g2.setColor(equipmentBackgroundColor);
+		x = (int)(gp.tileSize*7.75); y = (int)(gp.tileSize*4.25);
+		if(gp.player.slotMele   != null) {
+			g2.fillRect(x, y, gp.tileSize, gp.tileSize);
+			g2.drawImage(gp.player.slotMele.down_still[0],   x, y, gp.tileSize, gp.tileSize, null); 
+			y = (int)(y+gp.tileSize*1.13);
+		}
+		if(gp.player.slotShield != null) { 
+			g2.fillRect(x, y, gp.tileSize, gp.tileSize);
+			g2.drawImage(gp.player.slotShield.down_still[0], x, y, gp.tileSize, gp.tileSize, null); 
+			y = (int)(y+gp.tileSize*1.13); 
+		}
+		if(gp.player.slotStaff  != null) { 
+			g2.fillRect(x, y, gp.tileSize, gp.tileSize);
+			g2.drawImage(gp.player.slotStaff.down_still[0],  x, y, gp.tileSize, gp.tileSize, null);
+			y = (int)(y+gp.tileSize*1.13);
+		}
+		if(gp.player.slotProjectile  != null) { 
+			g2.fillRect(x, y, gp.tileSize, gp.tileSize);
+			g2.drawImage(gp.player.slotStaff.down_still[0],  x, y, gp.tileSize, gp.tileSize, null);
+			y = (int)(y+gp.tileSize*1.13);
+		}
+		
+		// ARMOR SLOTS
+		x = (int)(gp.tileSize*9.25); y = (int)(gp.tileSize*3.875);
+		if(gp.player.slotHelmet  != null) { 
+			g2.fillRect(x, y, gp.tileSize, gp.tileSize);
+			g2.drawImage(gp.player.slotHelmet.down_still[0],  x, y, gp.tileSize, gp.tileSize, null);
+			y = (int)(y+gp.tileSize*1.14);
+		}
+		if(gp.player.slotChestplate  != null) { 
+			g2.fillRect(x, y, gp.tileSize, gp.tileSize);
+			g2.drawImage(gp.player.slotChestplate.down_still[0],  x, y, gp.tileSize, gp.tileSize, null);
+			y = (int)(y+gp.tileSize*1.14);
+		}
+		if(gp.player.slotLeggings  != null) { 
+			g2.fillRect(x, y, gp.tileSize, gp.tileSize);
+			g2.drawImage(gp.player.slotLeggings.down_still[0],  x, y, gp.tileSize, gp.tileSize, null);
+			y = (int)(y+gp.tileSize*1.14);
+		}
+		if(gp.player.slotBoots  != null) { 
+			g2.fillRect(x, y, gp.tileSize, gp.tileSize);
+			g2.drawImage(gp.player.slotBoots.down_still[0],  x, y, gp.tileSize, gp.tileSize, null);
+			y = (int)(y+gp.tileSize*1.14);
+		}
 	}
 	public void drawGUI(Graphics2D g2) {
 		
@@ -250,7 +317,7 @@ public class UI {
 		
 		if(gp.player.maxMana > 0) {
 			x = gp.tileSize*2;
-			y += iconSize + 2;
+			y += iconSize + 4;
 			i = 0;
 			while(i < gp.player.mana) {
 				g2.drawImage(mana_half,   x, y, iconSize, iconSize, null); i++;
@@ -258,7 +325,40 @@ public class UI {
 				i++; x += iconSize - 10;
 			}
 		}
+		
+		double oneScale = iconSize*6/gp.player.nextLevelExp;
+		double expBar = oneScale * gp.player.exp;
+		
+		x = gp.tileSize*2;
+		y += iconSize + 2;
+		
+		g2.drawImage(exp_bar,       x, y, (int)expBar, 8*3, null);
+		g2.drawImage(expBarOutline, x, y, iconSize*6,  8*3, null);
 
+	}
+	public void drawEventMessages(Graphics2D g2) {
+		
+		int screenX, screenY;
+		EventMessage e; 
+		
+		if(eventMessages.size() > 0) {
+			for(int i = 0; i < eventMessages.size(); i++) {
+				
+				e = eventMessages.get(i);
+				
+				if(!e.fixedPosition) {
+					screenX = e.x - gp.player.worldX + gp.player.screenX;
+					screenY = e.y - gp.player.worldY + gp.player.screenY;
+				}
+				else { screenX = e.x; screenY = e.y; }
+				
+				g2.setFont(g2.getFont().deriveFont(e.fontType, e.fontSize));
+				drawTextShadow(e.message, e.shadowColor, e.textColor, screenX, screenY);
+				
+				e.messageCounter++;
+				if(e.messageCounter > 120) eventMessages.remove(i);
+			}
+		}
 	}
 	public void drawSubWindow(int x, int y, int width, int height) {
 
@@ -271,7 +371,7 @@ public class UI {
 	public void drawTextShadow(String text, Color shadow, Color color, int x, int y) {
 		
 		g2.setColor(shadow);
-		g2.drawString(text, x + 3, y + 4);
+		g2.drawString(text, x + 2, y + 3);
 		g2.setColor(color);
 		g2.drawString(text, x, y);
 	}
