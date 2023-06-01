@@ -22,7 +22,7 @@ public class Sound {
 		soundURL[4]  = getClass().getResource("/sounds/ui_select.wav");
 		soundURL[5]  = getClass().getResource("/sounds/ui_unselect.wav");
 		soundURL[6]  = getClass().getResource("/sounds/pickup_coin.wav");
-		soundURL[7]  = getClass().getResource("/sounds/pickup_heart.wav"); 
+		soundURL[7]  = getClass().getResource("/sounds/pickup_item.wav"); 
 		soundURL[8]  = getClass().getResource("/sounds/pickup_mana.wav");
 		soundURL[9]  = getClass().getResource("/sounds/pickup_key.wav");
 		soundURL[10] = getClass().getResource("/sounds/powerup.wav");
@@ -31,6 +31,10 @@ public class Sound {
 		soundURL[13] = getClass().getResource("/sounds/swing.wav");
 		soundURL[14] = getClass().getResource("/sounds/slimeHit.wav");
 		soundURL[15] = getClass().getResource("/sounds/receivedamage.wav");
+		soundURL[16] = getClass().getResource("/sounds/weapon_break.wav");
+		soundURL[17] = getClass().getResource("/sounds/bottle.wav");
+		soundURL[18] = getClass().getResource("/sounds/cloth.wav");
+		soundURL[19] = getClass().getResource("/sounds/weapon.wav");
 	}
 	public void setFile(int i) {
 		

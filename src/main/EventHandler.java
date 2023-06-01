@@ -72,6 +72,7 @@ public class EventHandler {
 			gp.player.attackCanceled = true;
 			gp.ui.currentDialogue = "You healed from drinking!";
 			gp.player.health = gp.player.maxHealth;
+			gp.aSetter.setMON();
 		}
 	}
 	public void fallPit(int col, int row,int gameState) {

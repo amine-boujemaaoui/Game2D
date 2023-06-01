@@ -13,7 +13,8 @@ public class MON_BlueSlime extends Entity {
 		
 		name = "Blue slime";
 		speed = 1;
-		type = gp.typeMonster;
+		type = gp.typeMON;
+		size = size2by2;
 		
 		this.worldX = worldX;
 		this.worldY = worldY;

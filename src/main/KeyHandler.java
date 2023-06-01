@@ -16,15 +16,15 @@ public class KeyHandler implements KeyListener {
 				 	spacePressed, 
 				 	shiftPressed,
 				 	attackPressed,
-				 	equipmentWindowPressed;
+				 	equipmentWindowPressed,
+				 	spellPressed;
 	
 	public KeyHandler(GamePanel gp) {
 		
 		this.gp = gp;
 	}
 	@Override
-	public void keyTyped(KeyEvent e) {
-	}
+	public void keyTyped(KeyEvent e) { }
 	@Override
 	public void keyPressed(KeyEvent e) {
 
@@ -41,17 +41,16 @@ public class KeyHandler implements KeyListener {
 		
 		int code = e.getKeyCode();
 		
-		// if(gp.gameState == gp.playState) {
-		if (code == KeyEvent.VK_U)     equipmentWindowPressed  = false;
-			if (code == KeyEvent.VK_ENTER) enterPressed  = false;
-			if (code == KeyEvent.VK_SHIFT) shiftPressed  = false;
-			if (code == KeyEvent.VK_W)     upPressed     = false;
-			if (code == KeyEvent.VK_A)     leftPressed   = false;
-			if (code == KeyEvent.VK_S)     downPressed   = false;
-			if (code == KeyEvent.VK_D)     rightPressed  = false;
-			if (code == KeyEvent.VK_E)     eventPressed  = false;
-			if (code == KeyEvent.VK_H)     attackPressed = false;
-		// }
+	    if (code == KeyEvent.VK_I)     equipmentWindowPressed = false;
+		if (code == KeyEvent.VK_ENTER) enterPressed  = false;
+		if (code == KeyEvent.VK_SHIFT) shiftPressed  = false;
+		if (code == KeyEvent.VK_W)     upPressed     = false;
+		if (code == KeyEvent.VK_A)     leftPressed   = false;
+		if (code == KeyEvent.VK_S)     downPressed   = false;
+		if (code == KeyEvent.VK_D)     rightPressed  = false;
+		if (code == KeyEvent.VK_E)     eventPressed  = false;
+		if (code == KeyEvent.VK_H)     attackPressed = false;
+		if (code == KeyEvent.VK_J)     spellPressed  = false;
 	}
 	public void titleScreenState(int code) {
 		
@@ -110,10 +109,11 @@ public class KeyHandler implements KeyListener {
 		if (code == KeyEvent.VK_D)     rightPressed  = true;
 		if (code == KeyEvent.VK_H)     attackPressed = true;
 		if (code == KeyEvent.VK_E)     eventPressed  = true;
+		if (code == KeyEvent.VK_J)     spellPressed  = true;
 		if (code == KeyEvent.VK_T)     debug = !debug;
-		if (code == KeyEvent.VK_U) {   
+		if (code == KeyEvent.VK_I) {   
 			 gp.gameState = gp.equipmentWindowState; gp.playSE(1); 
-		};
+		}
 		if (code == KeyEvent.VK_P) {   	 gp.gameState = gp.pauseState; gp.playSE(4); gp.stopMusic(); 
 		}
 	}
@@ -122,7 +122,7 @@ public class KeyHandler implements KeyListener {
 		if (code == KeyEvent.VK_P) { 
 			gp.gameState = gp.playState; 
 			gp.playSE(5); 
-			gp.playMusic(0); 
+			//gp.playMusic(0); 
 		}
 	}
 	public void dialogueState(int code) {
@@ -134,7 +134,12 @@ public class KeyHandler implements KeyListener {
 	}
 	public void equipmentWindowState(int code) {
 		
-		if (code == KeyEvent.VK_U || code == KeyEvent.VK_ESCAPE) { 
+		if (code == KeyEvent.VK_I || code == KeyEvent.VK_ESCAPE) { 
 			gp.gameState = gp.playState; gp.playSE(5); }
+		if (code == KeyEvent.VK_W) { gp.playSE(5); gp.ui.slotRow--; if(gp.ui.slotRow < 0) gp.ui.slotRow = 5; }
+		if (code == KeyEvent.VK_S) { gp.playSE(5); gp.ui.slotRow++; if(gp.ui.slotRow > 5) gp.ui.slotRow = 0; }
+		if (code == KeyEvent.VK_A) { gp.playSE(5); gp.ui.slotCol--; if(gp.ui.slotCol < 0) gp.ui.slotCol = 3; }
+		if (code == KeyEvent.VK_D) { gp.playSE(5); gp.ui.slotCol++; if(gp.ui.slotCol > 3) gp.ui.slotCol = 0; }
+		if (code == KeyEvent.VK_ENTER) { enterPressed = true; }
 	}
 }

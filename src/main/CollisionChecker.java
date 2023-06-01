@@ -22,25 +22,29 @@ public class CollisionChecker {
 		int entityTopRow    = entityTopWorldY / gp.tileSize;
 		int entityBottomRow = entityBottomWorldY / gp.tileSize;
 		
+		int testSpeed = 0;
+		if(entity == gp.player) testSpeed = gp.player.actualSpeed;
+		else testSpeed = entity.speed;
+		
 		int tileNum1 = 0, tileNum2 = 0;
 		switch(entity.direction) {
 		case "up":    
-			entityTopRow = (entityTopWorldY - entity.speed) / gp.tileSize; 
+			entityTopRow = (entityTopWorldY - testSpeed) / gp.tileSize; 
 			tileNum1 = gp.tileM.mapTileNum[entityLeftCol][entityTopRow];
 			tileNum2 = gp.tileM.mapTileNum[entityRightCol][entityTopRow];
 			break;
 		case "down":
-			entityBottomRow = (entityBottomWorldY + entity.speed) / gp.tileSize; 
+			entityBottomRow = (entityBottomWorldY + testSpeed) / gp.tileSize; 
 			tileNum1 = gp.tileM.mapTileNum[entityLeftCol][entityBottomRow];
 			tileNum2 = gp.tileM.mapTileNum[entityRightCol][entityBottomRow];
 			break;
 		case "left":
-			entityLeftCol = (entityLeftWorldX - entity.speed) / gp.tileSize; 
+			entityLeftCol = (entityLeftWorldX - testSpeed) / gp.tileSize; 
 			tileNum1 = gp.tileM.mapTileNum[entityLeftCol][entityTopRow];
 			tileNum2 = gp.tileM.mapTileNum[entityLeftCol][entityBottomRow];
 			break;
 		case "right":
-			entityRightCol = (entityRightWorldX + entity.speed) / gp.tileSize; 
+			entityRightCol = (entityRightWorldX + testSpeed) / gp.tileSize; 
 			tileNum1 = gp.tileM.mapTileNum[entityRightCol][entityTopRow];
 			tileNum2 = gp.tileM.mapTileNum[entityRightCol][entityBottomRow];
 			break;
@@ -54,20 +58,24 @@ public class CollisionChecker {
 		
 		int index = 999;
 		
+		int testSpeed = 0;
+		if(player) testSpeed = gp.player.actualSpeed;
+		else testSpeed = entity.speed;
+		
 		for (int i = 0; i < gp.obj.length; i++)
 			if(gp.obj[i] != null) {
-				// GETTING ENTITY X AND Y POSTION OF HITBOX
+
 				entity.hitBox.x = entity.worldX + entity.hitBox.x;
 				entity.hitBox.y = entity.worldY + entity.hitBox.y;
-				// GETTING obj[i] POSITION
+				
 				gp.obj[i].hitBox.x = gp.obj[i].worldX + gp.obj[i].hitBox.x;
 				gp.obj[i].hitBox.y = gp.obj[i].worldY + gp.obj[i].hitBox.y;
 				
 				switch(entity.direction) {
-				case "up":    entity.hitBox.y -= entity.speed; break;
-				case "down":  entity.hitBox.y += entity.speed; break;
-				case "left":  entity.hitBox.x -= entity.speed; break;
-				case "right": entity.hitBox.x += entity.speed; break;
+				case "up":    entity.hitBox.y -= testSpeed; break;
+				case "down":  entity.hitBox.y += testSpeed; break;
+				case "left":  entity.hitBox.x -= testSpeed; break;
+				case "right": entity.hitBox.x += testSpeed; break;
 				}
 				if(entity.hitBox.intersects(gp.obj[i].hitBox)) {
 					if(gp.obj[i].collision) entity.collisionOn = true;
@@ -85,8 +93,13 @@ public class CollisionChecker {
 	
 		int index = 999;
 		
+		int testSpeed = 0;
+		if(entity == gp.player) testSpeed = gp.player.actualSpeed;
+		else testSpeed = entity.speed;
+		
 		for (int i = 0; i < targets.length; i++)
 			if(targets[i] != null) {
+				
 				
 				entity.hitBox.x = entity.worldX + entity.hitBox.x;
 				entity.hitBox.y = entity.worldY + entity.hitBox.y;
@@ -95,10 +108,10 @@ public class CollisionChecker {
 				targets[i].hitBox.y = targets[i].worldY + targets[i].hitBox.y;
 				
 				switch(entity.direction) {
-				case "up":    entity.hitBox.y -= entity.speed; break;
-				case "down":  entity.hitBox.y += entity.speed; break;
-				case "left":  entity.hitBox.x -= entity.speed; break;
-				case "right": entity.hitBox.x += entity.speed; break;
+				case "up":    entity.hitBox.y -= testSpeed; break;
+				case "down":  entity.hitBox.y += testSpeed; break;
+				case "left":  entity.hitBox.x -= testSpeed; break;
+				case "right": entity.hitBox.x += testSpeed; break;
 				}
 				
 				if(entity.hitBox.intersects(targets[i].hitBox)) {
@@ -143,5 +156,40 @@ public class CollisionChecker {
 		gp.player.hitBox.y = gp.player.hitBoxDefaultY;
 
 		return contactPlayer;
+	}
+	public int checkItem(Entity entity, boolean player) {
+		
+		int index = 999;
+		
+		int testSpeed = 0;
+		if(player) testSpeed = gp.player.actualSpeed;
+		else testSpeed = entity.speed;
+		
+		for (int i = 0; i < gp.itm.length; i++)
+			if(gp.itm[i] != null) {
+
+				entity.hitBox.x = entity.worldX + entity.hitBox.x;
+				entity.hitBox.y = entity.worldY + entity.hitBox.y;
+				
+				gp.itm[i].hitBox.x = gp.itm[i].worldX + gp.itm[i].hitBox.x;
+				gp.itm[i].hitBox.y = gp.itm[i].worldY + gp.itm[i].hitBox.y;
+				
+				switch(entity.direction) {
+				case "up":    entity.hitBox.y -= testSpeed; break;
+				case "down":  entity.hitBox.y += testSpeed; break;
+				case "left":  entity.hitBox.x -= testSpeed; break;
+				case "right": entity.hitBox.x += testSpeed; break;
+				}
+				if(entity.hitBox.intersects(gp.itm[i].hitBox)) {
+					if(gp.itm[i].collision) entity.collisionOn = true;
+					if(player == true) index = i;
+				}
+				entity.hitBox.x = entity.hitBoxDefaultX;
+				entity.hitBox.y = entity.hitBoxDefaultY;
+				gp.itm[i].hitBox.x = gp.itm[i].hitBoxDefaultX;
+				gp.itm[i].hitBox.y = gp.itm[i].hitBoxDefaultY;
+			}
+		
+		return index;
 	}
 }

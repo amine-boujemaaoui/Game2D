@@ -12,20 +12,16 @@ public class OBJ_Chest extends Entity{
 		super(gp);
 		
 		name = "Chest";
-		type = gp.typeObject;
+		size = size1by1;
+		type = gp.typeOBJ;
 		
 		this.worldX = worldX;
 		this.worldY = worldY;
 
 		collision = true;
 		
-		down_still   = new BufferedImage[6];
-		
-		down_still[0] = setup("/objects/chest", gp.tileSize, gp.tileSize);
-		down_still[1] = setup("/objects/chest", gp.tileSize, gp.tileSize);
-		down_still[2] = setup("/objects/chest", gp.tileSize, gp.tileSize);
-		down_still[3] = setup("/objects/chest", gp.tileSize, gp.tileSize);
-		down_still[4] = setup("/objects/chest", gp.tileSize, gp.tileSize);
-		down_still[5] = setup("/objects/chest", gp.tileSize, gp.tileSize);
+		ground    = new BufferedImage[2];
+		ground[0] = setup("/objects/chest", gp.tileSize, gp.tileSize);
+		ground[1] = setup("/objects/chest_opened", gp.tileSize, gp.tileSize);
 	}
 }

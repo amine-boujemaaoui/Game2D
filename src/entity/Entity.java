@@ -7,10 +7,12 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 
 import main.GamePanel;
+import projectile.PRJ;
 
 public class Entity {
 
@@ -28,11 +30,12 @@ public class Entity {
 	public BufferedImage[] up_walking, down_walking, left_walking, right_walking;
 	public BufferedImage[] up_attack, down_attack, left_attack, right_attack;
 	public BufferedImage[] up_dying, down_dying, left_dying, right_dying;
+	public BufferedImage[] ground;
+	public BufferedImage item_icon;
 	public String dialogues[] = new String[20];
 	
 	// STATUS
-	public int type;
-	public int speed;
+	public int size;
 	public String name;
 	public String direction = "down";
 	public boolean walking = false;
@@ -40,9 +43,18 @@ public class Entity {
 	public boolean collision = false;
 	public boolean invincible = false;
 	public boolean attacking = false;
+	public boolean castingSpell = false;
 	public boolean alive = true;
 	public boolean dying = false;
 	public boolean hpBarOn = false;
+	public int type, subType;
+	public int OBJstate = 0;
+	
+	// ENTITY SIZE
+	public final int size1by1 = 0;
+	public final int size1by2 = 1;
+	public final int size3by4 = 2;
+	public final int size2by2 = 3;
 	
 	// COUNTERS
 	public int soundCounter = 0;
@@ -64,18 +76,23 @@ public class Entity {
 	public int strenght;
 	public int attack;
 	public int toughness;
-	public int coins;
 	public int exp;
 	public int nextLevelExp;
-	public int attackSpeed;
+	public int speed, defaultSpeed;
+	public int defaultAttackSpeed, attackSpeed;
+	public int coins;
+	public Map<Integer, Integer> coinsByType;
 	
 	// EQUIPMENTS
 	public Entity slotHelmet,  slotChestplate, slotLeggings, slotBoots;
-	public Entity slotMele,    slotShield,     slotStaff,    slotProjectile;
+	public Entity slotMele,    slotShield,     slotStaff,    slotProjectileWeapon;
 	public Entity slotRing1,   slotRing2,      slotNecklace, slotBelt;
 	public Entity slotPickaxe, slotAxe;
-	public int attackValue, defenseValue, attackSpeedValue;
-	public double speedValue;
+	public int attackValue, toughnessValue, attackSpeedValue, speedValue;
+	public String description = " ";
+	public int durability = -1, maxDurability;
+	public PRJ slotProjectile;
+	public int useCost;
 	
 	public Entity(GamePanel gp) {
 		
@@ -92,7 +109,7 @@ public class Entity {
 		gp.cChecker.checkEntity(this, gp.mon);
 		boolean contactPlayer = gp.cChecker.checkPlayer(this);
 		
-		if(this.type == gp.typeMonster &&
+		if(this.type == gp.typeMON &&
 		   contactPlayer &&
 		   !gp.player.invincible &&
 		   gp.player.health > 0 &&
@@ -128,20 +145,14 @@ public class Entity {
 		// INVINCIBLE COUNTER
 		if(invincible) {
 			invincibleCounter++;
-			if(invincibleCounter > 60) {
+			if(invincibleCounter > 30) {
 				invincible = false;
 				invincibleCounter = 0;
 			}
 		}
-		
-		// INVINCIBLE COUNTER
-		if(invincible) {
-			invincibleCounter++;
-			if(invincibleCounter > 40) {
-				invincible = false;
-				invincibleCounter = 0;
-			}
-		}
+	}
+	public boolean use(Entity entity) {
+		return false;
 	}
 	public void setAction () {
 		
@@ -167,44 +178,73 @@ public class Entity {
 		dialogueIndex++;
 		
 	}
+	public int getStatValues(int i) {
+		
+		switch(i) {
+		case 0: return attackValue;
+		case 1: return attackSpeedValue;
+		case 2: return speedValue;
+		case 3: return toughnessValue;
+		}
+		return -1;
+	}
 	public void draw(Graphics2D g2, GamePanel gp) {
 		
 		int screenX = worldX - gp.player.worldX + gp.player.screenX;
 		int screenY = worldY - gp.player.worldY + gp.player.screenY;
 		
 		int offsetX, offsetY, newScreenX, newScreenY;
-		     if(type == gp.typeObject)    { offsetX = gp.tileSize; offsetY = gp.tileSize; 
-		     								newScreenX = screenX;  newScreenY = screenY; }
-		else if(type == gp.typeBigObject) { offsetX = gp.tileSize*3;  offsetY = gp.tileSize*4; 
-											newScreenX = screenX - gp.tileSize;  newScreenY = screenY - gp.tileSize*3; }
-		else if(type == gp.typeMonster)   { offsetX = gp.tileSize*2;  offsetY = gp.tileSize*2;
-											newScreenX = screenX - gp.tileSize/2;  newScreenY = screenY - gp.tileSize/2;}
-		else              				  { offsetX = gp.tileSize;    offsetY = gp.tileSize*2; 
-											newScreenX = screenX;  newScreenY = screenY - gp.tileSize;}
+		     if(size == size1by1) { offsetX = gp.tileSize; offsetY = gp.tileSize; 
+		     						   newScreenX = screenX;  newScreenY = screenY; }
+		else if(size == size3by4) { offsetX = gp.tileSize*3;  offsetY = gp.tileSize*4; 
+									   newScreenX = screenX - gp.tileSize;  newScreenY = screenY - gp.tileSize*3; }
+		else if(size == size2by2) { offsetX = gp.tileSize*2;  offsetY = gp.tileSize*2;
+									   newScreenX = screenX - gp.tileSize/2;  newScreenY = screenY - gp.tileSize/2;}
+		else              			 { offsetX = gp.tileSize;    offsetY = gp.tileSize*2; 
+									   newScreenX = screenX;  newScreenY = screenY - gp.tileSize;}
 		
 		BufferedImage image = null;
-		if(dying) {
-			dyingAnimation();
+		if(type == gp.typeOBJ) {
+			
+			image = ground[OBJstate];
+		}
+		else if( type == gp.typeARMR || type == gp.typeWPN || type == gp.typeITM) {
+			image = ground[spriteNum-1];
+		} 
+		else if (type == gp.typePRJ) {
+			
 			switch(direction) {
-			case "up":    image = up_dying[spriteNum-1];    break;
-			case "down":  image = down_dying[spriteNum-1];  break;
-			case "left":  image = left_dying[spriteNum-1];  break;
-			case "right": image = right_dying[spriteNum-1]; break;
+			case "up":    image = up_attack[spriteNum-1];    break;
+			case "down":  image = down_attack[spriteNum-1];  break;
+			case "left":  image = left_attack[spriteNum-1];  break;
+			case "right": image = right_attack[spriteNum-1]; break;
 			}
-		} else {
-			if (!walking) {
+		}
+		else {
+			
+			if(dying) {
+				dyingAnimation();
 				switch(direction) {
-				case "up":    image = up_still[spriteNum-1];    break;
-				case "down":  image = down_still[spriteNum-1];  break;
-				case "left":  image = left_still[spriteNum-1];  break;
-				case "right": image = right_still[spriteNum-1]; break;
+				case "up":    image = up_dying[spriteNum-1];    break;
+				case "down":  image = down_dying[spriteNum-1];  break;
+				case "left":  image = left_dying[spriteNum-1];  break;
+				case "right": image = right_dying[spriteNum-1]; break;
 				}
 			} else {
-				switch(direction) {
-				case "up":    image = up_walking[spriteNum-1];    break;
-				case "down":  image = down_walking[spriteNum-1];  break;
-				case "left":  image = left_walking[spriteNum-1];  break;
-				case "right": image = right_walking[spriteNum-1]; break;
+				if (!walking) {
+					switch(direction) {
+					case "up":    image = up_still[spriteNum-1];    break;
+					case "down":  image = down_still[spriteNum-1];  break;
+					case "left":  image = left_still[spriteNum-1];  break;
+					case "right": image = right_still[spriteNum-1]; break;
+					}
+				} else {
+					switch(direction) {
+					case "up":    image = up_walking[spriteNum-1];    break;
+					case "down":  image = down_walking[spriteNum-1];  break;
+					case "left":  image = left_walking[spriteNum-1];  break;
+					case "right": image = right_walking[spriteNum-1]; break;
+					}
 				}
 			}
 		}
@@ -214,7 +254,7 @@ public class Entity {
 			worldY + offsetX > gp.player.worldY - gp.player.screenY &&
 			worldY - offsetY < gp.player.worldY + gp.player.screenY) {
 			
-			if((type == gp.typeMonster && hpBarOn && !dying && alive) || gp.keyH.debug) {
+			if((type == gp.typeMON && hpBarOn && !dying && alive) || gp.keyH.debug) {
 				
 				double oneScale = (double)(offsetX/2)/maxHealth;
 				double healthBar = oneScale * health;
@@ -256,7 +296,7 @@ public class Entity {
 		else if(dyingCounter <  15) spriteNum = 2; 
 		else if(dyingCounter <  20) spriteNum = 3;
 		else if(dyingCounter <  25) spriteNum = 4;
-		else { spriteNum = 5; dying = false; alive = false; }
+		else { spriteNum = 5; alive = false; }
 	}
 	public void changeAlpha(Graphics2D g2, float alpha) {
 		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));

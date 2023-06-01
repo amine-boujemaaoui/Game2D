@@ -46,9 +46,11 @@ public class GamePanel extends JPanel implements Runnable {
 	//PLAYER AND OBJ
 	public Player player = new Player(this, keyH);
 	public ArrayList<Entity> entityList = new ArrayList<>();
-	public Entity obj[] = new Entity[10];
+	public ArrayList<Entity> projectileList = new ArrayList<>();
+	public Entity obj[] = new Entity[20];
 	public Entity npc[] = new Entity[10];
 	public Entity mon[] = new Entity[20];
+	public Entity itm[] = new Entity[20];
 	
 	// WORLD SETTINGS
 	public final int maxWorldCol = 61;
@@ -62,17 +64,33 @@ public class GamePanel extends JPanel implements Runnable {
 	public final int dialogueState = 3;
 	public final int equipmentWindowState = 4;
 	
-	// ENTIRY TYPES
-	public final int typePlayer = 0;
-	public final int typeObject = 1;
-	public final int typeBigObject = 2;
-	public final int typeMonster = 3;
-	public final int typeNPC = 4;
+	// TYPES
+	public final int typePLY = 0;
+	public final int typeOBJ = 1;
+	public final int typeNPC = 2;
+	public final int typeMON = 3;
+	public final int typeITM = 4;
+	
+	public final int typeARMR = 5;
+	public final int subType_ARMR_H = 6;
+	public final int subType_ARMR_C = 7;
+	public final int subType_ARMR_L = 8;
+	public final int subType_ARMR_B = 9;
+	
+	public final int typeWPN = 10;
+	public final int subType_WPN_SH = 11;
+	public final int subType_WPN_SW = 12;
+	
+	public final int typePRJ = 13;
+	
+	public int setSpeedCounter = 0;
+	public boolean startSetSpeedCounter = false;
 	
 	public String classSelectionOptions[] = {"KNIGHT", "THIEF", "ARCHER", "WIZARD", "SORCELER"};
+	public String playerStatsTitles[] = {"Attack", "Atk Speed", "Speed", "Toughness"};
 	public String statsTitles[] = {"Health", "Int", "Sta", "Def", "Mana", "Str"};
-	public int statsValues[][] = {{ 8,        4,     8,     8,     0,      8   },
-								  { 4,        4,     6,     2,     0,      6   },
+	public int statsValues[][] = {{ 8,        3,     6,     8,     0,      8   },
+								  { 4,        5,     8,     2,     0,      6   },
 								  { 4,        4,     4,     4,     0,      6   },
 								  { 6,        8,     4,     2,    10,      2   },
 								  { 6,        8,     4,    10,     4,      2   }};
@@ -87,10 +105,11 @@ public class GamePanel extends JPanel implements Runnable {
 	}
 	public void setupGame() {
 		
+		aSetter.setITM();
 		aSetter.setNPC();
 		aSetter.setOBJ();
 		aSetter.setMON();
-		playMusic(0);
+		//playMusic(0);
 		gameState = titleScreenState;
 	}
 	public void startGameThread() {
@@ -133,6 +152,10 @@ public class GamePanel extends JPanel implements Runnable {
 			for (int i = 0; i < npc.length; i++) 
 				if(npc[i] != null) npc[i].update();
 			
+			// ITMs
+			for (int i = 0; i < itm.length; i++) 
+				if(itm[i] != null) itm[i].update();
+			
 			// MONs
 			for (int i = 0; i < mon.length; i++) {
 				if(mon[i] != null) {
@@ -149,14 +172,27 @@ public class GamePanel extends JPanel implements Runnable {
 								           false);
 						
 						player.checkLevel();
-						int tempX = mon[i].worldX, tempY = mon[i].worldY;
 						mon[i] = null;
 					}
+				} 
+			}
+			
+			// PRJs
+			for (int i = 0; i < projectileList.size(); i++) {
+				if(projectileList.get(i) != null) {
+					if(projectileList.get(i).alive) projectileList.get(i).update();
+					else projectileList.remove(i);
 				} 
 			}
 		}
 		if(gameState == pauseState) {
 			
+		}
+		if(gameState == equipmentWindowState) {
+			if(keyH.enterPressed && setSpeedCounter == 0)  { playSE(4); player.selectItem(); startSetSpeedCounter = true; }
+			 
+			if(setSpeedCounter >= 20) { setSpeedCounter = 0; startSetSpeedCounter = false; } 
+			else if (startSetSpeedCounter) setSpeedCounter++;
 		}
 	}
 	public void paintComponent(Graphics g) {
@@ -176,11 +212,17 @@ public class GamePanel extends JPanel implements Runnable {
 			for (int i = 0; i < obj.length; i++) 
 				if(obj[i] != null) entityList.add(obj[i]);
 			
+			for (int i = 0; i < itm.length; i++) 
+				if(itm[i] != null) entityList.add(itm[i]);
+			
 			for (int i = 0; i < npc.length; i++) 
 				if(npc[i] != null) entityList.add(npc[i]);
 			
 			for (int i = 0; i < mon.length; i++)
 				if(mon[i] != null) entityList.add(mon[i]);
+			
+			for (int i = 0; i < projectileList.size(); i++)
+				if(projectileList.get(i) != null) entityList.add(projectileList.get(i));
 				
 			Collections.sort(entityList, new Comparator<Entity>() {
 				@Override

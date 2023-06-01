@@ -17,6 +17,7 @@ public class NPC_YoungMen extends Entity {
 		name = "Young men";
 		speed = 2;
 		
+		size = size1by2;
 		type = gp.typeNPC;
 		
 		this.worldX = worldX;
@@ -53,8 +54,16 @@ public class NPC_YoungMen extends Entity {
 			InputStream is = getClass().getResourceAsStream("/dialogues/youngMen.txt");
 			BufferedReader br = new BufferedReader(new InputStreamReader(is));
 			
-			String line; int i = 0; 
-			while ((line = br.readLine()) != null) { dialogues[i] = line; i++; }
+			String line; int i = 0, nbLigne = 0; 
+			while ((line = br.readLine()) != null) { 
+				if(line.equals("%")) i++;
+				else {
+					if(nbLigne == 5) { i++; nbLigne = 0; }
+					if(dialogues[i] == null) dialogues[i] = line;
+					else dialogues[i] += line;
+					nbLigne++;
+				}
+			}
 			br.close();
 			
 		} catch (Exception e) { e.printStackTrace(); }

@@ -12,16 +12,23 @@ public class ARMR_Boots_Leather extends Entity{
 		super(gp);
 		
 		name = "Leather Boots";
-		type = gp.typeObject;
+		description = "Simple leather boots that increases movment speed.";
+		size = size1by1;
+		type = gp.typeARMR;
+		subType = gp.subType_ARMR_B;
 	
-		speedValue = 1.5;
+		speedValue = 3;
+		maxDurability = 20;
+		durability = maxDurability;
 		
-		down_still   = new BufferedImage[6];
-		down_still[0] = setup("/objects/boots/boots_leather", gp.tileSize, gp.tileSize);
-		down_still[1] = setup("/objects/boots/boots_leather", gp.tileSize, gp.tileSize);
-		down_still[2] = setup("/objects/boots/boots_leather", gp.tileSize, gp.tileSize);
-		down_still[3] = setup("/objects/boots/boots_leather", gp.tileSize, gp.tileSize);
-		down_still[4] = setup("/objects/boots/boots_leather", gp.tileSize, gp.tileSize);
-		down_still[5] = setup("/objects/boots/boots_leather", gp.tileSize, gp.tileSize);
+		ground    = new BufferedImage[6];
+		ground[0] = setup("/objects/boots/boots_leather", gp.tileSize, gp.tileSize);
+		ground[1] = setup("/objects/boots/boots_leather", gp.tileSize, gp.tileSize);
+		ground[2] = setup("/objects/boots/boots_leather", gp.tileSize, gp.tileSize);
+		ground[3] = setup("/objects/boots/boots_leather", gp.tileSize, gp.tileSize);
+		ground[4] = setup("/objects/boots/boots_leather", gp.tileSize, gp.tileSize);
+		ground[5] = setup("/objects/boots/boots_leather", gp.tileSize, gp.tileSize);
+		
+		item_icon = setup("/objects/boots/boots_leather", gp.tileSize, gp.tileSize);
 	}
 }

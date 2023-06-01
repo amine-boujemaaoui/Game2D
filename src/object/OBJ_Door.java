@@ -12,20 +12,16 @@ public class OBJ_Door extends Entity{
 		super(gp);
 		
 		name = "Door";
-		type = gp.typeObject;
+		type = gp.typeOBJ;
+		size = size1by1;
 		
 		this.worldX = worldX;
 		this.worldY = worldY;
 		
 		collision = true;
 		
-		down_still   = new BufferedImage[6];
-		
-		down_still[0] = setup("/objects/door_closed", gp.tileSize, gp.tileSize);
-		down_still[1] = setup("/objects/door_closed", gp.tileSize, gp.tileSize);
-		down_still[2] = setup("/objects/door_closed", gp.tileSize, gp.tileSize);
-		down_still[3] = setup("/objects/door_closed", gp.tileSize, gp.tileSize);
-		down_still[4] = setup("/objects/door_closed", gp.tileSize, gp.tileSize);
-		down_still[5] = setup("/objects/door_closed", gp.tileSize, gp.tileSize);
+		ground    = new BufferedImage[6];
+		ground[0] = setup("/objects/door_closed", gp.tileSize, gp.tileSize);
+		ground[1] = setup("/objects/door_opened", gp.tileSize, gp.tileSize);
 	}
 }

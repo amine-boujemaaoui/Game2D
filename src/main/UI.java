@@ -12,6 +12,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
+import entity.Entity;
+
 public class UI {
 
 	GamePanel gp;
@@ -21,7 +23,8 @@ public class UI {
 	public Color titleScreenColor = new Color(59, 143, 202);
 	public Color barColor = new Color(24, 20, 37);
 	public Color helthColor = new Color(255, 0, 68);
-	public Color equipmentBackgroundColor = new Color(234, 212, 170);
+	public Color equipmentBGC = new Color(234, 212, 170);
+	public Color equipmentEquipedBGC = new Color(58, 68, 102);
 	public Color evtColM_damage = helthColor;
 	public Color evtColS_damage = new Color(38, 0, 10);
 	public Color evtColM_exp = new Color(99, 199, 77);
@@ -29,19 +32,19 @@ public class UI {
 	public boolean messageOn = false;
 	public String showKey = "";
 	public int x, y;
-	BufferedImage dialogueWindow, titleScreen, statsWindow, equipmentWindow, expBarOutline;
+	BufferedImage dialogueWindow, titleScreen, statsWindow, equipmentWindow, expBarOutline, inventoryWindow, itemInfosWindow, inventoryCursor;
 	BufferedImage E, SPACE;
 	BufferedImage heart_full,   heart_half,   heart_empty;
 	BufferedImage mana_full,    mana_half,    mana_empty;
 	BufferedImage stamina_full, stamina_half, stamina_empty;
-	public BufferedImage exp_bar;
-	public BufferedImage health_bar;
+	public BufferedImage exp_bar, health_bar, plus, minus;
 	public String currentDialogue = "";
 	public int selectedOption = 0;
 	public int subStateScreen = 0;
     public String indicationText;
 	ArrayList<EventMessage> eventMessages = new ArrayList<EventMessage>();
 	public String titleScreenOptions[] = {"NEW GAME", "LOAD GAME", "QUIT"};
+	public int slotCol = 0, slotRow = 0;
 	
 	public UI(GamePanel gp) {
 		
@@ -65,11 +68,21 @@ public class UI {
 			dialogueWindow = ImageIO.read(getClass().getResourceAsStream("/ui/ui_dialogue.png"));
 			gp.ut.scaleImage(dialogueWindow, gp.tileSize*20, gp.tileSize*5);
 			equipmentWindow = ImageIO.read(getClass().getResourceAsStream("/ui/ui_equipment.png"));
-			gp.ut.scaleImage(equipmentWindow, gp.tileSize*15, (int)(10.5*gp.tileSize));
+			gp.ut.scaleImage(equipmentWindow, gp.tileSize*10, gp.tileSize*11);
 			expBarOutline = ImageIO.read(getClass().getResourceAsStream("/ui/ui_equipment.png"));
 			gp.ut.scaleImage(expBarOutline, iconSize*6, 8*3);
 			expBarOutline = ImageIO.read(getClass().getResourceAsStream("/ui/ui_expBarOutline.png"));
 			gp.ut.scaleImage(expBarOutline, iconSize*6, 8*3);
+			inventoryWindow = ImageIO.read(getClass().getResourceAsStream("/ui/ui_inventory.png"));
+			gp.ut.scaleImage(inventoryWindow, gp.tileSize*9, gp.tileSize*12);
+			itemInfosWindow = ImageIO.read(getClass().getResourceAsStream("/ui/ui_item_infos.png"));
+			gp.ut.scaleImage(itemInfosWindow, gp.tileSize*9, gp.tileSize*9);
+			inventoryCursor = ImageIO.read(getClass().getResourceAsStream("/ui/ui_inventory_cursor.png"));
+			gp.ut.scaleImage(inventoryCursor, gp.tileSize*2, gp.tileSize*2);
+			plus = ImageIO.read(getClass().getResourceAsStream("/ui/icons/plus.png"));
+			gp.ut.scaleImage(plus, 24, 24);
+			minus = ImageIO.read(getClass().getResourceAsStream("/ui/icons/minus.png"));
+			gp.ut.scaleImage(minus, 24, 24);
 			
 			E = ImageIO.read(getClass().getResourceAsStream("/ui/keys/E.png"));
 			gp.ut.scaleImage(E, gp.tileSize, gp.tileSize);
@@ -125,8 +138,8 @@ public class UI {
 
 		if(gp.gameState == gp.titleScreenState    ) { drawTitleScreen(g2); }
 		if(gp.gameState == gp.pauseState          ) { drawPauseScreen(g2); }
-		if(gp.gameState == gp.dialogueState       ) { drawDialogueScreen(g2); drawGUI(g2); }
-		if(gp.gameState == gp.equipmentWindowState) { drawEquipmentWindow(g2); }
+		if(gp.gameState == gp.dialogueState       ) { drawDialogueScreen(g2); }
+		if(gp.gameState == gp.equipmentWindowState) { drawEquipmentWindow(g2); drawInventory(g2); }
 		if(gp.gameState == gp.playState           ) { drawGUI(g2); drawEventMessages(g2); }
 	}
 	public void drawTitleScreen(Graphics2D g2) {
@@ -208,20 +221,16 @@ public class UI {
 		g2.drawImage(dialogueWindow, x, y, width, height, null);
 		g2.drawImage(SPACE, x + width - gp.tileSize*2, y + height - (int)(gp.tileSize/1.5), 35*gp.scale, 14*gp.scale, null);
 
-		x += gp.tileSize; y += (int)(gp.tileSize*1.30);
-	
+		width -= (int)(gp.tileSize*2.1); height -=(int)(gp.tileSize*2.1);
+		x += gp.tileSize; y += (int)(gp.tileSize*0.95);
 		g2.setFont(g2.getFont().deriveFont(24f));
-		for(String line : currentDialogue.split("%")) {
-			//drawTextShadow(line, shadow, Color.black, x, y);
-			g2.drawString(line, x, y);
-			y += 30; 
-		}
+		gp.ut.drawMultilineString(g2, currentDialogue, x, y, width, height);
 	}
 	public void drawEquipmentWindow(Graphics2D g2) {
 
 		int x = 0, y = gp.tileSize, statValue;
 				
-		g2.drawImage(equipmentWindow, x, y, 15*gp.tileSize, (int)(10.5*gp.tileSize), null);
+		g2.drawImage(equipmentWindow, x, y, 15*gp.tileSize, (int)(16.5*gp.tileSize), null);
 		
 		x += (int)(gp.tileSize*3.5);
 		y += (int)(gp.tileSize*2.5);
@@ -230,58 +239,190 @@ public class UI {
 		
 		for(int i = 0; i < gp.statsTitles.length; i++) {
 			statValue = gp.player.getClassStats(i);
-			//if(statValue != -1) drawTextShadow(gp.statsTitles[i] + " : " + statValue, 26f, Font.PLAIN, Color.gray, Color.white, x, y);
-			//if(statValue != -1) drawTextShadow(gp.statsTitles[i] + " : " + statValue, 26f, Font.PLAIN, Color.gray, Color.white, x, y);
-			if(statValue != -1) g2.drawString(gp.statsTitles[i] + " : " + statValue, x, y);
+			if(statValue != -1) drawTextShadow(gp.statsTitles[i] + " : " + statValue, Color.gray, Color.white, x, y);
+			y += (int)(gp.tileSize*1.15);
+		}
+		
+		int tempY = y;
+		y += (int)(gp.tileSize*1.25);
+		for(int i = 0; i < gp.playerStatsTitles.length; i++) {
+			statValue = gp.player.getPlayerStats(i);
+			if(statValue != -1) drawTextShadow(gp.playerStatsTitles[i] + " : " + statValue, Color.gray, Color.white, x, y);
+			y += (int)(gp.tileSize*1.15);
+		}
+		
+		y = tempY;
+		y += (int)(gp.tileSize*1.375);
+		x += (int)(gp.tileSize*7.5);
+		for(int coinType: gp.ut.coinsType) {
+			drawTextShadow(gp.player.coinsByType.get(coinType) + "", Color.gray, Color.white, x, y);
 			y += (int)(gp.tileSize*1.15);
 		}
 		
 		// WEAPONS SLOTS
-		g2.setColor(equipmentBackgroundColor);
+		g2.setColor(equipmentBGC);
 		x = (int)(gp.tileSize*7.75); y = (int)(gp.tileSize*4.25);
-		if(gp.player.slotMele   != null) {
+		if(gp.player.slotMele != null) {
 			g2.fillRect(x, y, gp.tileSize, gp.tileSize);
-			g2.drawImage(gp.player.slotMele.down_still[0],   x, y, gp.tileSize, gp.tileSize, null); 
-			y = (int)(y+gp.tileSize*1.13);
+			g2.drawImage(gp.player.slotMele.item_icon,   x, y, gp.tileSize, gp.tileSize, null); 
 		}
+		y = (int)(y+gp.tileSize*1.13);
 		if(gp.player.slotShield != null) { 
 			g2.fillRect(x, y, gp.tileSize, gp.tileSize);
-			g2.drawImage(gp.player.slotShield.down_still[0], x, y, gp.tileSize, gp.tileSize, null); 
-			y = (int)(y+gp.tileSize*1.13); 
+			g2.drawImage(gp.player.slotShield.item_icon, x, y, gp.tileSize, gp.tileSize, null); 
 		}
-		if(gp.player.slotStaff  != null) { 
+		y = (int)(y+gp.tileSize*1.13); 
+		if(gp.player.slotStaff != null) { 
+			System.out.println(gp.player.slotStaff);
 			g2.fillRect(x, y, gp.tileSize, gp.tileSize);
-			g2.drawImage(gp.player.slotStaff.down_still[0],  x, y, gp.tileSize, gp.tileSize, null);
-			y = (int)(y+gp.tileSize*1.13);
+			g2.drawImage(gp.player.slotStaff.item_icon,  x, y, gp.tileSize, gp.tileSize, null);
 		}
-		if(gp.player.slotProjectile  != null) { 
+		y = (int)(y+gp.tileSize*1.13);
+		if(gp.player.slotProjectileWeapon != null) { 
 			g2.fillRect(x, y, gp.tileSize, gp.tileSize);
-			g2.drawImage(gp.player.slotStaff.down_still[0],  x, y, gp.tileSize, gp.tileSize, null);
-			y = (int)(y+gp.tileSize*1.13);
+			g2.drawImage(gp.player.slotProjectileWeapon.item_icon,  x, y, gp.tileSize, gp.tileSize, null);
 		}
+		y = (int)(y+gp.tileSize*1.13);
 		
 		// ARMOR SLOTS
 		x = (int)(gp.tileSize*9.25); y = (int)(gp.tileSize*3.875);
 		if(gp.player.slotHelmet  != null) { 
 			g2.fillRect(x, y, gp.tileSize, gp.tileSize);
-			g2.drawImage(gp.player.slotHelmet.down_still[0],  x, y, gp.tileSize, gp.tileSize, null);
-			y = (int)(y+gp.tileSize*1.14);
+			g2.drawImage(gp.player.slotHelmet.item_icon,  x, y, gp.tileSize, gp.tileSize, null);
 		}
+		y = (int)(y+gp.tileSize*1.14);
 		if(gp.player.slotChestplate  != null) { 
 			g2.fillRect(x, y, gp.tileSize, gp.tileSize);
-			g2.drawImage(gp.player.slotChestplate.down_still[0],  x, y, gp.tileSize, gp.tileSize, null);
-			y = (int)(y+gp.tileSize*1.14);
+			g2.drawImage(gp.player.slotChestplate.item_icon,  x, y, gp.tileSize, gp.tileSize, null);
 		}
+		y = (int)(y+gp.tileSize*1.14);
 		if(gp.player.slotLeggings  != null) { 
 			g2.fillRect(x, y, gp.tileSize, gp.tileSize);
-			g2.drawImage(gp.player.slotLeggings.down_still[0],  x, y, gp.tileSize, gp.tileSize, null);
-			y = (int)(y+gp.tileSize*1.14);
+			g2.drawImage(gp.player.slotLeggings.item_icon,  x, y, gp.tileSize, gp.tileSize, null);
 		}
+		y = (int)(y+gp.tileSize*1.14);
 		if(gp.player.slotBoots  != null) { 
 			g2.fillRect(x, y, gp.tileSize, gp.tileSize);
-			g2.drawImage(gp.player.slotBoots.down_still[0],  x, y, gp.tileSize, gp.tileSize, null);
-			y = (int)(y+gp.tileSize*1.14);
+			g2.drawImage(gp.player.slotBoots.item_icon,  x, y, gp.tileSize, gp.tileSize, null);
 		}
+	}
+	public void drawInventory(Graphics2D g2) {
+		
+		int inventoryItemsSize = (int)(gp.tileSize*1.5);
+		
+		// INVENTORY WINDOW
+		int x = gp.screenWidth - gp.tileSize - gp.tileSize*9, y = gp.tileSize;
+		g2.drawImage(inventoryWindow, x, y, gp.tileSize*9, gp.tileSize*12, null);
+		
+		// CURSOR
+		x += inventoryItemsSize; y += inventoryItemsSize;
+		
+		final int slotStartX = x; int slotX = slotStartX;
+		final int slotStartY = y; int slotY = slotStartY;
+		
+		int cursorWidth = inventoryItemsSize;
+		int cursorHeight = inventoryItemsSize;
+		int cursorX = slotStartX + cursorWidth*slotCol;
+		int cursorY = slotStartY + cursorHeight*slotRow;
+		
+		// INVENTORY ITEMS
+		Entity item;
+		for(int i = 0; i < gp.player.inventory.size(); i++) {
+			item = gp.player.inventory.get(i);
+			
+			if( item == gp.player.slotMele       || 
+			    item == gp.player.slotShield     ||
+			    item == gp.player.slotHelmet     ||
+			    item == gp.player.slotChestplate ||
+			    item == gp.player.slotLeggings   ||
+			    item == gp.player.slotBoots     ) {
+				
+				g2.setColor(equipmentEquipedBGC); 
+				g2.fillRect(slotX + 9, slotY + 9, inventoryItemsSize - 18, inventoryItemsSize - 18);
+				g2.setColor(barColor);  
+				g2.setStroke(new BasicStroke(3)); 
+				g2.drawRect(slotX + 9, slotY + 9, inventoryItemsSize - 18, inventoryItemsSize - 18);
+				g2.setStroke(new BasicStroke(1));
+			}
+			
+			g2.drawImage(gp.player.inventory.get(i).item_icon,  slotX + 9, slotY + 9, inventoryItemsSize - 18, inventoryItemsSize - 18, null);
+			slotX += inventoryItemsSize;
+
+			if(i == 3 || i == 7 || i == 11|| i == 15 || i == 19 ) { slotY += inventoryItemsSize; slotX = slotStartX; }
+		}
+		
+		
+		// ITEM INFOS WINDOW
+		if(getItemIndexInventory() < gp.player.inventory.size()) {
+			
+			item = gp.player.inventory.get(getItemIndexInventory());
+			
+			// DRAW ITEM INFOS WINDOW
+			x = gp.screenWidth - gp.tileSize*17; y = (int)(gp.tileSize*1.5);
+			g2.drawImage(itemInfosWindow, x, y, gp.tileSize*10, gp.tileSize*10, null);
+			
+			// ITEM INFOS CURRENT ITEM
+			x += (int)(gp.tileSize*1.875); y += (int)(gp.tileSize*1.875);
+			g2.drawImage(item.item_icon, x, y, (int)(gp.tileSize*1.25), (int)(gp.tileSize*1.25), null); 
+			x += (int)(gp.tileSize*1.75); y += (int)(gp.tileSize/3);
+			g2.setFont(g2.getFont().deriveFont(16f));
+			drawTextShadow(item.name, Color.gray, Color.white, x, y);
+			
+			if(item.durability >= 0) {
+				// CURRENT ITEM DURABILITY - TEXT
+				x -= (int)(gp.tileSize*0.05); y += (int)(gp.tileSize/1.75);
+				g2.setFont(g2.getFont().deriveFont(10f));
+				g2.setColor(Color.gray);  g2.drawString("durability " + item.durability + "/" + item.maxDurability, x + 1, y + 1);
+				g2.setColor(Color.white); g2.drawString("durability " + item.durability + "/" + item.maxDurability, x, y);
+				
+				float oneScale = (float)gp.tileSize*2/item.maxDurability;
+				float durabilityBar = (float)oneScale * item.durability;
+				
+				// CURRENT ITEM DURABILITY - BAR 
+				y += (int)(gp.tileSize/6);
+				g2.setStroke(new BasicStroke(3));
+				g2.drawImage(exp_bar, x, y, (int)durabilityBar, gp.tileSize/4, null);
+				g2.setColor(barColor);
+				g2.drawRect(x, y, gp.tileSize*2, gp.tileSize/4);
+				g2.setStroke(new BasicStroke(1));
+			}
+			// SKIP DURABILITY BAR
+			else y += (int)(gp.tileSize/1.75) + (int)(gp.tileSize/6);
+			
+			// DRAW DESCRIPTION
+			y += (int)(gp.tileSize); 
+			int tempY = y;
+			g2.setFont(g2.getFont().deriveFont(14f));
+			g2.setColor(Color.gray);
+			gp.ut.drawMultilineString(g2, item.description, x + 1, y + 1, gp.tileSize*3, gp.tileSize*4);
+			g2.setColor(Color.white);
+			gp.ut.drawMultilineString(g2, item.description, x, y, gp.tileSize*3, gp.tileSize*4);
+			
+			
+			y = tempY + 4; x = gp.screenWidth - gp.tileSize*17 + (int)(gp.tileSize*1.875);
+			g2.setFont(g2.getFont().deriveFont(20f));
+			
+			
+			Entity selectedItem = gp.player.inventory.get(getItemIndexInventory());
+			
+			if(selectedItem.type == gp.typeITM) {
+				g2.setColor(equipmentEquipedBGC);
+				g2.fillRect(x - 10, tempY, gp.tileSize + 10, gp.tileSize*4);
+			} 
+			else {
+				
+				for(int i = 0; i < gp.playerStatsTitles.length; i++) {
+					
+					if(selectedItem.getStatValues(i) < 0) g2.drawImage(minus, x, y, 24, 24, null);
+					else if((i != 0 && i != 1) && selectedItem.getStatValues(i) > 0) g2.drawImage(plus,  x, y, 24, 24, null);
+					drawTextShadow(selectedItem.getStatValues(i) + "", Color.gray, Color.white, x + 30, y + 20);
+					y += (gp.tileSize);
+				}
+			}
+		}
+		
+		// DRAW CURSOR
+		g2.drawImage(inventoryCursor, cursorX, cursorY, cursorWidth, cursorHeight, null);
 	}
 	public void drawGUI(Graphics2D g2) {
 		
@@ -338,7 +479,7 @@ public class UI {
 	}
 	public void drawEventMessages(Graphics2D g2) {
 		
-		int screenX, screenY;
+		int screenX, screenY, offset = 10;
 		EventMessage e; 
 		
 		if(eventMessages.size() > 0) {
@@ -351,9 +492,8 @@ public class UI {
 					screenY = e.y - gp.player.worldY + gp.player.screenY;
 				}
 				else { screenX = e.x; screenY = e.y; }
-				
 				g2.setFont(g2.getFont().deriveFont(e.fontType, e.fontSize));
-				drawTextShadow(e.message, e.shadowColor, e.textColor, screenX, screenY);
+				drawTextShadow(e.message, e.shadowColor, e.textColor, screenX, screenY - (eventMessages.size()-i)*offset);
 				
 				e.messageCounter++;
 				if(e.messageCounter > 120) eventMessages.remove(i);
@@ -391,5 +531,9 @@ public class UI {
 		
 		int length = (int)g2.getFontMetrics().getStringBounds(text, g2).getWidth();
 		return (gp.screenWidth/2 - length/2);
+	}
+	public int getItemIndexInventory() {
+		
+		return slotCol + slotRow * gp.player.maxInventoryCol;
 	}
 }

@@ -1,9 +1,10 @@
-/monster/
-/entity/
-/object/
 /main/
-/objects/
-/tile/
+/entity/
 /item/
-/fonts/
-/ui/
+/monster/
+/object/
+/dialogues/
+/projectile/
+/tile/
+/sounds/
+/objects/

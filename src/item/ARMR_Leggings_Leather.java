@@ -12,16 +12,24 @@ public class ARMR_Leggings_Leather extends Entity{
 		super(gp);
 		
 		name = "Leather Leggings";
-		type = gp.typeObject;
+		description = "Simple leather leggings that increases defense.";
+		size = size1by1;
+		type = gp.typeARMR;
+		subType = gp.subType_ARMR_L;
 		
-		defenseValue = 1;
+		speedValue = -1;
+		toughnessValue = 1;
+		maxDurability = 27;
+		durability = maxDurability;
 		
-		down_still   = new BufferedImage[6];
-		down_still[0] = setup("/objects/leggings/leggings_leather", gp.tileSize, gp.tileSize);
-		down_still[1] = setup("/objects/leggings/leggings_leather", gp.tileSize, gp.tileSize);
-		down_still[2] = setup("/objects/leggings/leggings_leather", gp.tileSize, gp.tileSize);
-		down_still[3] = setup("/objects/leggings/leggings_leather", gp.tileSize, gp.tileSize);
-		down_still[4] = setup("/objects/leggings/leggings_leather", gp.tileSize, gp.tileSize);
-		down_still[5] = setup("/objects/leggings/leggings_leather", gp.tileSize, gp.tileSize);
+		ground    = new BufferedImage[6];
+		ground[0] = setup("/objects/leggings/leggings_leather", gp.tileSize, gp.tileSize);
+		ground[1] = setup("/objects/leggings/leggings_leather", gp.tileSize, gp.tileSize);
+		ground[2] = setup("/objects/leggings/leggings_leather", gp.tileSize, gp.tileSize);
+		ground[3] = setup("/objects/leggings/leggings_leather", gp.tileSize, gp.tileSize);
+		ground[4] = setup("/objects/leggings/leggings_leather", gp.tileSize, gp.tileSize);
+		ground[5] = setup("/objects/leggings/leggings_leather", gp.tileSize, gp.tileSize);
+		
+		item_icon = setup("/objects/leggings/leggings_leather", gp.tileSize, gp.tileSize);
 	}
 }

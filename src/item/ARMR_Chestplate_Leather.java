@@ -12,16 +12,24 @@ public class ARMR_Chestplate_Leather extends Entity{
 		super(gp);
 		
 		name = "Leather Chestplate";
-		type = gp.typeObject;
+		description = "Simple leather chastplate that increases defense.";
+		size = size1by1;
+		type = gp.typeARMR;
+		subType = gp.subType_ARMR_C;
 		
-		defenseValue = 1;
+		toughnessValue = 1;
+		maxDurability = 30;
+		durability = maxDurability;
+		speedValue = -1;
 		
-		down_still   = new BufferedImage[6];
-		down_still[0] = setup("/objects/chestplate/chestplate_leather", gp.tileSize, gp.tileSize);
-		down_still[1] = setup("/objects/chestplate/chestplate_leather", gp.tileSize, gp.tileSize);
-		down_still[2] = setup("/objects/chestplate/chestplate_leather", gp.tileSize, gp.tileSize);
-		down_still[3] = setup("/objects/chestplate/chestplate_leather", gp.tileSize, gp.tileSize);
-		down_still[4] = setup("/objects/chestplate/chestplate_leather", gp.tileSize, gp.tileSize);
-		down_still[5] = setup("/objects/chestplate/chestplate_leather", gp.tileSize, gp.tileSize);
+		ground    = new BufferedImage[6];
+		ground[0] = setup("/objects/chestplate/chestplate_leather", gp.tileSize, gp.tileSize);
+		ground[1] = setup("/objects/chestplate/chestplate_leather", gp.tileSize, gp.tileSize);
+		ground[2] = setup("/objects/chestplate/chestplate_leather", gp.tileSize, gp.tileSize);
+		ground[3] = setup("/objects/chestplate/chestplate_leather", gp.tileSize, gp.tileSize);
+		ground[4] = setup("/objects/chestplate/chestplate_leather", gp.tileSize, gp.tileSize);
+		ground[5] = setup("/objects/chestplate/chestplate_leather", gp.tileSize, gp.tileSize);
+		
+		item_icon = setup("/objects/chestplate/chestplate_leather", gp.tileSize, gp.tileSize);
 	}
 }

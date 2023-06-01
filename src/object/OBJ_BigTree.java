@@ -12,7 +12,9 @@ public class OBJ_BigTree extends Entity{
 		super(gp);
 		
 		name = "Big tree";
-		type = gp.typeBigObject;
+		size = size3by4;
+		type = gp.typeOBJ;
+		
 		
 		this.worldX = worldX;
 		this.worldY = worldY;
@@ -25,13 +27,7 @@ public class OBJ_BigTree extends Entity{
 		hitBoxDefaultX = hitBox.x;
 		hitBoxDefaultY = hitBox.y;
 		
-		down_still   = new BufferedImage[6];
-		
-		down_still[0] = setup("/objects/big_tree", gp.tileSize*3, gp.tileSize*5);
-		down_still[1] = setup("/objects/big_tree", gp.tileSize*3, gp.tileSize*5);
-		down_still[2] = setup("/objects/big_tree", gp.tileSize*3, gp.tileSize*5);
-		down_still[3] = setup("/objects/big_tree", gp.tileSize*3, gp.tileSize*5);
-		down_still[4] = setup("/objects/big_tree", gp.tileSize*3, gp.tileSize*5);
-		down_still[5] = setup("/objects/big_tree", gp.tileSize*3, gp.tileSize*5);
+		ground    = new BufferedImage[1];
+		ground[0] = setup("/objects/big_tree", gp.tileSize*3, gp.tileSize*5);
 	}
 }
