@@ -3,11 +3,11 @@
 import object.*;
 import entity.*;
 import item.ARMR_Boots_Leather;
-import item.ITM_Heart;
 import item.ITM_Key;
 import item.ITM_Potion_Healing;
 import item.ITM_Potion_Mana;
 import monster.MON_BlueSlime;
+import monster.MON_RedSlime;
 
 public class AssetSetter {
 
@@ -49,13 +49,13 @@ public class AssetSetter {
 	public void setMON() {
 		
 		int i = 0;
-		gp.mon[i] = new MON_BlueSlime(gp, (int)(28  *gp.tileSize), (int)(40   *gp.tileSize)); i++;
-		gp.mon[i] = new MON_BlueSlime(gp, (int)(29  *gp.tileSize), (int)(41   *gp.tileSize)); i++;
-		gp.mon[i] = new MON_BlueSlime(gp, (int)(30  *gp.tileSize), (int)(42   *gp.tileSize)); i++;
-		gp.mon[i] = new MON_BlueSlime(gp, (int)(31  *gp.tileSize), (int)(43   *gp.tileSize)); i++;
-		gp.mon[i] = new MON_BlueSlime(gp, (int)(30  *gp.tileSize), (int)(42   *gp.tileSize)); i++;
-		gp.mon[i] = new MON_BlueSlime(gp, (int)(31  *gp.tileSize), (int)(43   *gp.tileSize)); i++;
-		gp.mon[i] = new MON_BlueSlime(gp, (int)(29  *gp.tileSize), (int)(40   *gp.tileSize)); i++;
-		gp.mon[i] = new MON_BlueSlime(gp, (int)(30  *gp.tileSize), (int)(41   *gp.tileSize)); i++;
+		gp.mon[i] = new MON_BlueSlime (gp, (int)(28  *gp.tileSize), (int)(40   *gp.tileSize)); i++;
+		gp.mon[i] = new MON_BlueSlime (gp, (int)(29  *gp.tileSize), (int)(41   *gp.tileSize)); i++;
+		gp.mon[i] = new MON_BlueSlime (gp, (int)(30  *gp.tileSize), (int)(42   *gp.tileSize)); i++;
+		gp.mon[i] = new MON_BlueSlime (gp, (int)(31  *gp.tileSize), (int)(43   *gp.tileSize)); i++;
+		gp.mon[i] = new MON_RedSlime  (gp, (int)(29  *gp.tileSize), (int)(40   *gp.tileSize)); i++;
+		gp.mon[i] = new MON_RedSlime  (gp, (int)(30  *gp.tileSize), (int)(41   *gp.tileSize)); i++;
+		gp.mon[i] = new MON_RedSlime  (gp, (int)(31  *gp.tileSize), (int)(42   *gp.tileSize)); i++;
+		gp.mon[i] = new MON_RedSlime  (gp, (int)(32  *gp.tileSize), (int)(43   *gp.tileSize)); i++;
 	}
 }

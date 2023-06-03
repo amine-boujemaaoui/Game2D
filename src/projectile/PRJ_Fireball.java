@@ -10,12 +10,13 @@ public class PRJ_Fireball extends PRJ {
 		super(gp);
 		
 		name = "Fireball";
-		speed = 5;
-		maxHealth = 80;
+		speed = 6;
+		maxHealth = 60;
 		health = maxHealth;
-		attackValue = 3;
-		useCost = 0;
+		attackValue = 4;
+		useCost = 1;
 		alive = false;
+		spellCooldown = 80;
 		getImages();
 	}
 	public void getImages() {

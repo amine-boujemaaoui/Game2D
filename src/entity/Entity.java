@@ -65,6 +65,7 @@ public class Entity {
 	public int invincibleCounter = 0;
 	public int dyingCounter = 0;
 	public int hpBarOnCounter = 0;
+	public int projectileCounter = 0; 
 	
 	// STATS
 	public int level;
@@ -81,6 +82,7 @@ public class Entity {
 	public int speed, defaultSpeed;
 	public int defaultAttackSpeed, attackSpeed;
 	public int coins;
+	public int spellCooldown;
 	public Map<Integer, Integer> coinsByType;
 	
 	// EQUIPMENTS
@@ -109,19 +111,13 @@ public class Entity {
 		gp.cChecker.checkEntity(this, gp.mon);
 		boolean contactPlayer = gp.cChecker.checkPlayer(this);
 		
-		if(this.type == gp.typeMON &&
-		   contactPlayer &&
-		   !gp.player.invincible &&
-		   gp.player.health > 0 &&
-		   alive) {
+		if( this.type == gp.typeMON &&
+		    contactPlayer &&
+		    !gp.player.invincible &&
+		    gp.player.health > 0 &&
+		    alive) {
 			
-		   gp.playSE(15); 
-		   
-		   int damage = attack - gp.player.toughness;
-			if(damage < 0) damage = 0;
-			
-		   gp.player.health -= damage; 
-		   gp.player.invincible = true;
+			damagePlayer(attack);
 		}
 		
 		// CHECK COLLISION
@@ -149,6 +145,10 @@ public class Entity {
 				invincible = false;
 				invincibleCounter = 0;
 			}
+		}
+		
+		if(slotProjectile != null && projectileCounter < slotProjectile.spellCooldown) {
+			projectileCounter++;
 		}
 	}
 	public boolean use(Entity entity) {
@@ -278,7 +278,7 @@ public class Entity {
 				else                     
 					changeAlpha(g2, 0.4f);
 			}
-			g2.drawImage(image, newScreenX, newScreenY, offsetX, offsetY, null); changeAlpha(g2, 1f);
+			g2.drawImage(image, newScreenX, newScreenY, null); changeAlpha(g2, 1f);
 		}
 		if(gp.keyH.debug) {
 			g2.setColor(new Color(0, 255, 0, 100));
@@ -300,5 +300,16 @@ public class Entity {
 	}
 	public void changeAlpha(Graphics2D g2, float alpha) {
 		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+	}
+	public void damagePlayer(int attack) {
+		
+		
+		   gp.playSE(15); 
+		   
+		   int damage = attack - gp.player.toughness;
+			if(damage < 0) damage = 0;
+			
+		   gp.player.health -= damage; 
+		   gp.player.invincible = true;
 	}
 }

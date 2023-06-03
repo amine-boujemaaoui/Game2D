@@ -28,6 +28,6 @@ public class OBJ_BigTree extends Entity{
 		hitBoxDefaultY = hitBox.y;
 		
 		ground    = new BufferedImage[1];
-		ground[0] = setup("/objects/big_tree", gp.tileSize*3, gp.tileSize*5);
+		ground[0] = setup("/objects/big_tree", gp.tileSize*3, gp.tileSize*4);
 	}
 }

@@ -5,6 +5,7 @@ import java.util.Random;
 
 import entity.Entity;
 import main.GamePanel;
+import projectile.PRJ_Waterball;
 
 public class MON_BlueSlime extends Entity {
 
@@ -25,6 +26,8 @@ public class MON_BlueSlime extends Entity {
 		toughness = 2;
 		exp = 1;
 		
+		slotProjectile = new PRJ_Waterball(gp);
+		
 		hitBox.x = 6;      hitBox.y = 16;
 		hitBox.width = 34; hitBox.height = 20;
 		
@@ -43,39 +46,52 @@ public class MON_BlueSlime extends Entity {
 		up_dying    = new BufferedImage[spritesNum]; down_dying    = new BufferedImage[spritesNum];
 		left_dying  = new BufferedImage[spritesNum]; right_dying   = new BufferedImage[spritesNum];
 		
-		for (int i = 0; i < spritesNum; i++) up_still[i]    = setup("/monsters/slime/right/still/" + (i+1), gp.tileSize*2, gp.tileSize*2);
-		for (int i = 0; i < spritesNum; i++) down_still[i]  = setup("/monsters/slime/left/still/"  + (i+1), gp.tileSize*2, gp.tileSize*2);
-		for (int i = 0; i < spritesNum; i++) left_still[i]  = setup("/monsters/slime/left/still/"  + (i+1), gp.tileSize*2, gp.tileSize*2);
-		for (int i = 0; i < spritesNum; i++) right_still[i] = setup("/monsters/slime/right/still/" + (i+1), gp.tileSize*2, gp.tileSize*2);
+		for (int i = 0; i < spritesNum; i++) up_still[i]    = setup("/monsters/slime/blue/right/still/" + (i+1), gp.tileSize*2, gp.tileSize*2);
+		for (int i = 0; i < spritesNum; i++) down_still[i]  = setup("/monsters/slime/blue/left/still/"  + (i+1), gp.tileSize*2, gp.tileSize*2);
+		for (int i = 0; i < spritesNum; i++) left_still[i]  = setup("/monsters/slime/blue/left/still/"  + (i+1), gp.tileSize*2, gp.tileSize*2);
+		for (int i = 0; i < spritesNum; i++) right_still[i] = setup("/monsters/slime/blue/right/still/" + (i+1), gp.tileSize*2, gp.tileSize*2);
 		
-		for (int i = 0; i < spritesNum; i++) up_walking[i]    = setup("/monsters/slime/right/walking/" + (i+1), gp.tileSize*2, gp.tileSize*2);
-		for (int i = 0; i < spritesNum; i++) down_walking[i]  = setup("/monsters/slime/left/walking/"  + (i+1), gp.tileSize*2, gp.tileSize*2);
-		for (int i = 0; i < spritesNum; i++) left_walking[i]  = setup("/monsters/slime/left/walking/"  + (i+1), gp.tileSize*2, gp.tileSize*2);
-		for (int i = 0; i < spritesNum; i++) right_walking[i] = setup("/monsters/slime/right/walking/" + (i+1), gp.tileSize*2, gp.tileSize*2);
+		for (int i = 0; i < spritesNum; i++) up_walking[i]    = setup("/monsters/slime/blue/right/walking/" + (i+1), gp.tileSize*2, gp.tileSize*2);
+		for (int i = 0; i < spritesNum; i++) down_walking[i]  = setup("/monsters/slime/blue/left/walking/"  + (i+1), gp.tileSize*2, gp.tileSize*2);
+		for (int i = 0; i < spritesNum; i++) left_walking[i]  = setup("/monsters/slime/blue/left/walking/"  + (i+1), gp.tileSize*2, gp.tileSize*2);
+		for (int i = 0; i < spritesNum; i++) right_walking[i] = setup("/monsters/slime/blue/right/walking/" + (i+1), gp.tileSize*2, gp.tileSize*2);
 		
-		for (int i = 0; i < spritesNum-1; i++) up_dying[i]    = setup("/monsters/slime/right/dying/" + (i+1), gp.tileSize*2, gp.tileSize*2);
-		for (int i = 0; i < spritesNum-1; i++) down_dying[i]  = setup("/monsters/slime/left/dying/"  + (i+1), gp.tileSize*2, gp.tileSize*2);
-		for (int i = 0; i < spritesNum-1; i++) left_dying[i]  = setup("/monsters/slime/left/dying/"  + (i+1), gp.tileSize*2, gp.tileSize*2);
-		for (int i = 0; i < spritesNum-1; i++) right_dying[i] = setup("/monsters/slime/right/dying/" + (i+1), gp.tileSize*2, gp.tileSize*2);
+		for (int i = 0; i < spritesNum-1; i++) up_dying[i]    = setup("/monsters/slime/blue/right/dying/" + (i+1), gp.tileSize*2, gp.tileSize*2);
+		for (int i = 0; i < spritesNum-1; i++) down_dying[i]  = setup("/monsters/slime/blue/left/dying/"  + (i+1), gp.tileSize*2, gp.tileSize*2);
+		for (int i = 0; i < spritesNum-1; i++) left_dying[i]  = setup("/monsters/slime/blue/left/dying/"  + (i+1), gp.tileSize*2, gp.tileSize*2);
+		for (int i = 0; i < spritesNum-1; i++) right_dying[i] = setup("/monsters/slime/blue/right/dying/" + (i+1), gp.tileSize*2, gp.tileSize*2);
 		
-		up_dying[spritesNum-1]    = setup("/monsters/slime/right/dying/" + (spritesNum-1), gp.tileSize*2, gp.tileSize*2);
-		down_dying[spritesNum-1]  = setup("/monsters/slime/left/dying/"  + (spritesNum-1), gp.tileSize*2, gp.tileSize*2);
-		left_dying[spritesNum-1]  = setup("/monsters/slime/left/dying/"  + (spritesNum-1), gp.tileSize*2, gp.tileSize*2);
-		right_dying[spritesNum-1] = setup("/monsters/slime/right/dying/" + (spritesNum-1), gp.tileSize*2, gp.tileSize*2);
+		up_dying[spritesNum-1]    = setup("/monsters/slime/blue/right/dying/" + (spritesNum-1), gp.tileSize*2, gp.tileSize*2);
+		down_dying[spritesNum-1]  = setup("/monsters/slime/blue/left/dying/"  + (spritesNum-1), gp.tileSize*2, gp.tileSize*2);
+		left_dying[spritesNum-1]  = setup("/monsters/slime/blue/left/dying/"  + (spritesNum-1), gp.tileSize*2, gp.tileSize*2);
+		right_dying[spritesNum-1] = setup("/monsters/slime/blue/right/dying/" + (spritesNum-1), gp.tileSize*2, gp.tileSize*2);
 	}
 	public void setAction() {
 		
+		Random r = new Random(); int rand;
+		
 		actionCounter++;
 		if(actionCounter == 60) {
-			Random r = new Random();
-			int i = r.nextInt(100)+1;
+
+			rand = r.nextInt(100)+1;
 			
-			     if(i > 90) { direction = "up";    walking = true;  }
-			else if(i > 70) { direction = "down";  walking = true;  }
-			else if(i > 60) { direction = "left";  walking = true;  }
-			else if(i > 50) { direction = "right"; walking = true;  }
+			     if(rand > 90) { direction = "up";    walking = true;  }
+			else if(rand > 70) { direction = "down";  walking = true;  }
+			else if(rand > 60) { direction = "left";  walking = true;  }
+			else if(rand > 50) { direction = "right"; walking = true;  }
 			else            {                      walking = false; }
 			actionCounter = 0;
+		}
+		
+		rand = r.nextInt(200)+1;
+		
+		if(rand > 199 && !slotProjectile.alive && projectileCounter == slotProjectile.spellCooldown) {
+			
+			slotProjectile.set(worldX, worldY, direction, true, this);
+			if(!gp.projectileList.contains(slotProjectile))
+				gp.projectileList.add(slotProjectile);
+			gp.playSE(13);
+			projectileCounter = 0;
 		}
 	}
 }

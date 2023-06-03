@@ -23,6 +23,23 @@ public class PRJ extends Entity{
 	}
 	public void update() {
 		
+		if(user == gp.player ) {
+			
+			int monIndex = gp.cChecker.checkEntity(this, gp.mon);
+			if(monIndex != 999) {
+				gp.player.damageMonster(monIndex, attackValue, true);
+				alive = false;
+			}
+		} else {
+			
+			boolean playerCollision = gp.cChecker.checkPlayer(this);
+			if(!gp.player.invincible && playerCollision) {
+				
+				damagePlayer(attackValue);
+				alive = false;
+			}
+		}
+		
 		switch(direction) {
 		case "up":    worldY -= speed; break;
 		case "down":  worldY += speed; break;
@@ -33,7 +50,7 @@ public class PRJ extends Entity{
 		
 		health--;
 		if(health <= 0) alive = false;
-		
+
 		spriteCounter++;
 		if(spriteCounter > 10 - speed) {
 			spriteNum++; if(spriteNum > 4) spriteNum = 1;

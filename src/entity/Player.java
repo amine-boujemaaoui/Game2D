@@ -107,10 +107,13 @@ public class Player extends Entity {
 		
 		speed = defaultSpeed;
 		
-		if(slotHelmet != null)     speed += slotHelmet.speedValue;
-		if(slotChestplate != null) speed += slotChestplate.speedValue;
-		if(slotLeggings != null)   speed += slotLeggings.speedValue;
-		if(slotBoots != null)      speed += slotBoots.speedValue;
+		if(slotHelmet     != null)   speed += slotHelmet.speedValue;
+		if(slotChestplate != null)   speed += slotChestplate.speedValue;
+		if(slotLeggings   != null)   speed += slotLeggings.speedValue;
+		if(slotBoots      != null && 
+		  (slotHelmet     == null ||
+		   slotChestplate == null ||
+		   slotLeggings   == null )) speed += slotBoots.speedValue/2;
 	}
 	public void setClassStats() {
 		
@@ -272,11 +275,11 @@ public class Player extends Entity {
 			
 		}
 	}
-	public void damageMonster(int index) {
+	public void damageMonster(int index, int attack, boolean spell) {
 		
 		if(index != 999) {
 			
-			
+		
 		if(!gp.mon[index].invincible) {
 				
 				gp.playSE(14);
@@ -305,17 +308,19 @@ public class Player extends Entity {
 				else gp.mon[index].health -= damage; 
 				
 				gp.mon[index].invincible = true;
-				if(slotMele != null) {
-					slotMele.durability--;
-					if(slotMele.durability <= 0) { 
-						gp.playSE(16); 
-						gp.player.inventory.remove(slotMele); 
-						slotMele = null; 
-						setAttack(); setAttackSpeed(); 
+				if(!spell) {
+					if(slotMele != null) {
+						slotMele.durability--;
+						if(slotMele.durability <= 0) { 
+							gp.playSE(16); 
+							gp.player.inventory.remove(slotMele); 
+							slotMele = null; 
+							setAttack(); setAttackSpeed(); 
+						}
 					}
 				}
 			}
-			else if(gp.mon[index].health <= 0) gp.mon[index].dying = true; 
+			if(gp.mon[index].health <= 0) gp.mon[index].dying = true; 
 		}
 	}
 	public void checkLevel() {
@@ -369,7 +374,7 @@ public class Player extends Entity {
 			hitBox.height = attackHitBox.height;
 			
 			int monIndex = gp.cChecker.checkEntity(this, gp.mon);
-			damageMonster(monIndex);
+			damageMonster(monIndex, attack, false);
 			
 			worldX = currentWorldX;     worldY = currentWorldY;
 			hitBox.width = hitBoxWidth; hitBox.height = hitBoxHeight;
@@ -380,12 +385,13 @@ public class Player extends Entity {
 	}
 	public void castingSpell() {
 		
+		
 		spriteCounter++; 
 		     if(spriteCounter < attackSpeed * 1) spriteNum = 1;
 		else if(spriteCounter < attackSpeed * 2) spriteNum = 2;
 		else if(spriteCounter < attackSpeed * 3) spriteNum = 3;
 		else if(spriteCounter < attackSpeed * 4) spriteNum = 4;
-		else { spriteNum = 1; spriteCounter = 0; castingSpell = false; }
+		else { spriteNum = 1; spriteCounter = 0; castingSpell = false; } 
 	}
 	public void selectItem() {
 		
@@ -420,10 +426,11 @@ public class Player extends Entity {
 		
 		if(attacking) {
 			attacking();
-		} else if (castingSpell){
+		}
+		else if(castingSpell) {
 			castingSpell();
 		}
-		else{
+		else {
 			
 			if (keyH.upPressed)    { if(keyH.shiftPressed && stamina > 0) running = true; direction = "up";    walking = true; }
 			if (keyH.downPressed)  { if(keyH.shiftPressed && stamina > 0) running = true; direction = "down";  walking = true; }
@@ -472,12 +479,6 @@ public class Player extends Entity {
 				spriteCounter = 0;
 			}
 			
-			if((caracterClass == 3 || caracterClass == 4) && keyH.spellPressed && mana > slotProjectile.useCost && !attackCanceled) {
-				castingSpell = true; 
-				gp.playSE(13);
-				spriteCounter = 0;
-			}
-			
 			attackCanceled = false;
 			collisionOn = false;
 			
@@ -508,11 +509,16 @@ public class Player extends Entity {
 			keyH.eventPressed = false;
 			keyH.enterPressed = false;
 		}
-		if (keyH.spellPressed && (caracterClass == 3 || caracterClass == 4) && !slotProjectile.alive) {
+		
+		if (keyH.spellPressed && (caracterClass == 3 || caracterClass == 4) && !slotProjectile.alive && projectileCounter == slotProjectile.spellCooldown) {
 			if(mana >= slotProjectile.useCost) {
+				castingSpell = true;
 				slotProjectile.set(worldX, worldY, direction, true, this);
-				gp.projectileList.add(slotProjectile);
+				if(!gp.projectileList.contains(slotProjectile))
+					gp.projectileList.add(slotProjectile);
+				gp.playSE(13);
 				mana -= slotProjectile.useCost;
+				projectileCounter = 0;
 			}
 		}
 		
@@ -523,6 +529,10 @@ public class Player extends Entity {
 				invincible = false;
 				invincibleCounter = 0;
 			}
+		}
+
+		if((caracterClass == 3 || caracterClass == 4) && projectileCounter < slotProjectile.spellCooldown) {
+			projectileCounter++;
 		}
 	}
 	@Override
