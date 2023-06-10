@@ -21,7 +21,7 @@ public class OBJ_Chest extends Entity{
 		collision = true;
 		
 		ground    = new BufferedImage[2];
-		ground[0] = setup("/objects/chest", gp.tileSize, gp.tileSize);
-		ground[1] = setup("/objects/chest_opened", gp.tileSize, gp.tileSize);
+		ground[0] = gp.ut.setup("/objects/chest", gp.tileSize, gp.tileSize);
+		ground[1] = gp.ut.setup("/objects/chest_opened", gp.tileSize, gp.tileSize);
 	}
 }

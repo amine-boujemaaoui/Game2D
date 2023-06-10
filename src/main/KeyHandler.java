@@ -18,6 +18,7 @@ public class KeyHandler implements KeyListener {
 				 	attackPressed,
 				 	equipmentWindowPressed,
 				 	spellPressed;
+	public int spell = 0;
 	
 	public KeyHandler(GamePanel gp) {
 		
@@ -51,6 +52,8 @@ public class KeyHandler implements KeyListener {
 		if (code == KeyEvent.VK_E)     eventPressed  = false;
 		if (code == KeyEvent.VK_H)     attackPressed = false;
 		if (code == KeyEvent.VK_J)     spellPressed  = false;
+		if (code == KeyEvent.VK_K)     spellPressed  = false;
+		if (code == KeyEvent.VK_L)     spellPressed  = false;
 	}
 	public void titleScreenState(int code) {
 		
@@ -109,7 +112,9 @@ public class KeyHandler implements KeyListener {
 		if (code == KeyEvent.VK_D)     rightPressed  = true;
 		if (code == KeyEvent.VK_H)     attackPressed = true;
 		if (code == KeyEvent.VK_E)     eventPressed  = true;
-		if (code == KeyEvent.VK_J)     spellPressed  = true;
+		if (code == KeyEvent.VK_J)   { spellPressed  = true; spell = 0; }
+		if (code == KeyEvent.VK_K)   { spellPressed  = true; spell = 1; }
+		if (code == KeyEvent.VK_L)   { spellPressed  = true; spell = 2; }
 		if (code == KeyEvent.VK_T)     debug = !debug;
 		if (code == KeyEvent.VK_I) {   
 			 gp.gameState = gp.equipmentWindowState; gp.playSE(1); 

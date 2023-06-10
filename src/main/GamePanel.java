@@ -18,11 +18,11 @@ import tile.TileManager;
 
 public class GamePanel extends JPanel implements Runnable {
 	private static final long serialVersionUID = 1L;
-	Random r = new Random();
+	public Random r = new Random();
 	
 	// SCREEN SETTINGS
 	final int originalTileSize = 16;
-	final int scale = 3;
+	public final int scale = 3;
 	public final int tileSize = originalTileSize * scale;
 	public final int maxScreenCol = 32;
 	public final int maxScreenRow = 18;
@@ -50,7 +50,7 @@ public class GamePanel extends JPanel implements Runnable {
 	public Entity obj[] = new Entity[20];
 	public Entity npc[] = new Entity[10];
 	public Entity mon[] = new Entity[20];
-	public Entity itm[] = new Entity[20];
+	public Entity itm[] = new Entity[40];
 	
 	// WORLD SETTINGS
 	public final int maxWorldCol = 61;
@@ -172,6 +172,7 @@ public class GamePanel extends JPanel implements Runnable {
 								           false);
 						
 						player.checkLevel();
+						mon[i].checkDrop();
 						mon[i] = null;
 					}
 				} 

@@ -21,7 +21,7 @@ public class OBJ_Door extends Entity{
 		collision = true;
 		
 		ground    = new BufferedImage[6];
-		ground[0] = setup("/objects/door_closed", gp.tileSize, gp.tileSize);
-		ground[1] = setup("/objects/door_opened", gp.tileSize, gp.tileSize);
+		ground[0] = gp.ut.setup("/objects/door_closed", gp.tileSize, gp.tileSize);
+		ground[1] = gp.ut.setup("/objects/door_opened", gp.tileSize, gp.tileSize);
 	}
 }

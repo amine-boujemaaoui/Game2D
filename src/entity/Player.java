@@ -12,6 +12,7 @@ import item.*;
 import main.GamePanel;
 import main.KeyHandler;
 import projectile.PRJ_Fireball;
+import projectile.PRJ_Waterball;
 
 public class Player extends Entity {
 	
@@ -27,6 +28,7 @@ public class Player extends Entity {
 	public final int maxInventorySize = 24;
 	public final int maxInventoryCol = 4;
 	public final int maxInventoryRow = 6;
+	public boolean hit = false;
 	
 	public Player(GamePanel gp, KeyHandler keyH) {
 		
@@ -89,10 +91,10 @@ public class Player extends Entity {
 	public void setToughness() {
 		
 		double totalToughnessValue = 1;
-		if(slotHelmet != null)     totalToughnessValue += slotHelmet.toughnessValue;
+		if(slotHelmet     != null) totalToughnessValue += slotHelmet.toughnessValue;
 		if(slotChestplate != null) totalToughnessValue += slotChestplate.toughnessValue;
-		if(slotLeggings != null)   totalToughnessValue += slotLeggings.toughnessValue;
-		if(slotBoots != null)      totalToughnessValue += slotBoots.toughnessValue;
+		if(slotLeggings   != null) totalToughnessValue += slotLeggings.toughnessValue;
+		if(slotBoots      != null) totalToughnessValue += slotBoots.toughnessValue;
 
 		toughness = (int)(defense * totalToughnessValue/10);
 	}
@@ -110,10 +112,15 @@ public class Player extends Entity {
 		if(slotHelmet     != null)   speed += slotHelmet.speedValue;
 		if(slotChestplate != null)   speed += slotChestplate.speedValue;
 		if(slotLeggings   != null)   speed += slotLeggings.speedValue;
-		if(slotBoots      != null && 
-		  (slotHelmet     == null ||
-		   slotChestplate == null ||
-		   slotLeggings   == null )) speed += slotBoots.speedValue/2;
+		if(slotBoots      != null) {
+			
+		 if(slotHelmet     == null ||
+		    slotChestplate == null ||
+		    slotLeggings   == null  ) speed += slotBoots.speedValue;
+		 
+		 else speed += slotBoots.speedValue/2;
+		}
+		
 	}
 	public void setClassStats() {
 		
@@ -125,7 +132,8 @@ public class Player extends Entity {
 		strenght    = gp.statsValues[caracterClass][5];
 		
 		if(caracterClass == 3 || caracterClass == 4) {
-			slotProjectile = new PRJ_Fireball(gp); 
+			slotProjectiles[0] = new PRJ_Fireball(gp); 
+			slotProjectiles[1] = new PRJ_Waterball(gp);
 		}
 		
 		setAttack();
@@ -161,15 +169,15 @@ public class Player extends Entity {
 		left_still  = new BufferedImage[spritesNum]; left_walking  = new BufferedImage[spritesNum]; 
 		right_still = new BufferedImage[spritesNum]; right_walking = new BufferedImage[spritesNum];
 		
-		for (int i = 0; i < spritesNum; i++) up_still[i]    = setup("/player/up/still/"    + (i+1), gp.tileSize, gp.tileSize*2);
-		for (int i = 0; i < spritesNum; i++) down_still[i]  = setup("/player/down/still/"  + (i+1), gp.tileSize, gp.tileSize*2);
-		for (int i = 0; i < spritesNum; i++) left_still[i]  = setup("/player/left/still/"  + (i+1), gp.tileSize, gp.tileSize*2);
-		for (int i = 0; i < spritesNum; i++) right_still[i] = setup("/player/right/still/" + (i+1), gp.tileSize, gp.tileSize*2);
+		for (int i = 0; i < spritesNum; i++) up_still[i]    = gp.ut.setup("/player/up/still/"    + (i+1), gp.tileSize, gp.tileSize*2);
+		for (int i = 0; i < spritesNum; i++) down_still[i]  = gp.ut.setup("/player/down/still/"  + (i+1), gp.tileSize, gp.tileSize*2);
+		for (int i = 0; i < spritesNum; i++) left_still[i]  = gp.ut.setup("/player/left/still/"  + (i+1), gp.tileSize, gp.tileSize*2);
+		for (int i = 0; i < spritesNum; i++) right_still[i] = gp.ut.setup("/player/right/still/" + (i+1), gp.tileSize, gp.tileSize*2);
 		
-		for (int i = 0; i < spritesNum; i++) up_walking[i]    = setup("/player/up/walking/"   + (i+1), gp.tileSize, gp.tileSize*2);
-		for (int i = 0; i < spritesNum; i++) down_walking[i]  = setup("/player/down/walking/"  + (i+1), gp.tileSize, gp.tileSize*2);
-		for (int i = 0; i < spritesNum; i++) left_walking[i]  = setup("/player/left/walking/"  + (i+1), gp.tileSize, gp.tileSize*2);
-		for (int i = 0; i < spritesNum; i++) right_walking[i] = setup("/player/right/walking/" + (i+1), gp.tileSize, gp.tileSize*2);
+		for (int i = 0; i < spritesNum; i++) up_walking[i]    = gp.ut.setup("/player/up/walking/"   + (i+1), gp.tileSize, gp.tileSize*2);
+		for (int i = 0; i < spritesNum; i++) down_walking[i]  = gp.ut.setup("/player/down/walking/"  + (i+1), gp.tileSize, gp.tileSize*2);
+		for (int i = 0; i < spritesNum; i++) left_walking[i]  = gp.ut.setup("/player/left/walking/"  + (i+1), gp.tileSize, gp.tileSize*2);
+		for (int i = 0; i < spritesNum; i++) right_walking[i] = gp.ut.setup("/player/right/walking/" + (i+1), gp.tileSize, gp.tileSize*2);
 	}
 	public void getAttackImages() {
 		
@@ -181,35 +189,35 @@ public class Player extends Entity {
 		
 		if(slotMele != null) {
 			
-			for (int i = 0; i < spritesNum; i++) up_attack[i]    = setup("/player/up/sword/"    + (i+1), gp.tileSize*3, gp.tileSize*2);
-			for (int i = 0; i < spritesNum; i++) down_attack[i]  = setup("/player/down/sword/"  + (i+1), gp.tileSize*3, gp.tileSize*2);
-			for (int i = 0; i < spritesNum; i++) left_attack[i]  = setup("/player/left/sword/"  + (i+1), gp.tileSize*3, gp.tileSize*2);
-			for (int i = 0; i < spritesNum; i++) right_attack[i] = setup("/player/right/sword/" + (i+1), gp.tileSize*3, gp.tileSize*2);
+			for (int i = 0; i < spritesNum; i++) up_attack[i]    = gp.ut.setup("/player/up/sword/"    + (i+1), gp.tileSize*3, gp.tileSize*2);
+			for (int i = 0; i < spritesNum; i++) down_attack[i]  = gp.ut.setup("/player/down/sword/"  + (i+1), gp.tileSize*3, gp.tileSize*2);
+			for (int i = 0; i < spritesNum; i++) left_attack[i]  = gp.ut.setup("/player/left/sword/"  + (i+1), gp.tileSize*3, gp.tileSize*2);
+			for (int i = 0; i < spritesNum; i++) right_attack[i] = gp.ut.setup("/player/right/sword/" + (i+1), gp.tileSize*3, gp.tileSize*2);
 			
-			up_attack[spritesNum]      = setup("/player/up/sword/"    + (spritesNum-1), gp.tileSize*3, gp.tileSize*2);
-			down_attack[spritesNum]    = setup("/player/down/sword/"  + (spritesNum-1), gp.tileSize*3, gp.tileSize*2);
-			left_attack[spritesNum]    = setup("/player/left/sword/"  + (spritesNum-1), gp.tileSize*3, gp.tileSize*2);
-			right_attack[spritesNum]   = setup("/player/right/sword/" + (spritesNum-1), gp.tileSize*3, gp.tileSize*2);
-			up_attack[spritesNum+1]    = setup("/player/up/sword/"    + (spritesNum-2), gp.tileSize*3, gp.tileSize*2);
-			down_attack[spritesNum+1]  = setup("/player/down/sword/"  + (spritesNum-2), gp.tileSize*3, gp.tileSize*2);
-			left_attack[spritesNum+1]  = setup("/player/left/sword/"  + (spritesNum-2), gp.tileSize*3, gp.tileSize*2);
-			right_attack[spritesNum+1] = setup("/player/right/sword/" + (spritesNum-2), gp.tileSize*3, gp.tileSize*2);
+			up_attack[spritesNum]      = gp.ut.setup("/player/up/sword/"    + (spritesNum-1), gp.tileSize*3, gp.tileSize*2);
+			down_attack[spritesNum]    = gp.ut.setup("/player/down/sword/"  + (spritesNum-1), gp.tileSize*3, gp.tileSize*2);
+			left_attack[spritesNum]    = gp.ut.setup("/player/left/sword/"  + (spritesNum-1), gp.tileSize*3, gp.tileSize*2);
+			right_attack[spritesNum]   = gp.ut.setup("/player/right/sword/" + (spritesNum-1), gp.tileSize*3, gp.tileSize*2);
+			up_attack[spritesNum+1]    = gp.ut.setup("/player/up/sword/"    + (spritesNum-2), gp.tileSize*3, gp.tileSize*2);
+			down_attack[spritesNum+1]  = gp.ut.setup("/player/down/sword/"  + (spritesNum-2), gp.tileSize*3, gp.tileSize*2);
+			left_attack[spritesNum+1]  = gp.ut.setup("/player/left/sword/"  + (spritesNum-2), gp.tileSize*3, gp.tileSize*2);
+			right_attack[spritesNum+1] = gp.ut.setup("/player/right/sword/" + (spritesNum-2), gp.tileSize*3, gp.tileSize*2);
 		}
 		else {
 			
-			for (int i = 0; i < spritesNum; i++) up_attack[i]    = setup("/player/up/fist/"    + (i+1), gp.tileSize*3, gp.tileSize*2);
-			for (int i = 0; i < spritesNum; i++) down_attack[i]  = setup("/player/down/fist/"  + (i+1), gp.tileSize*3, gp.tileSize*2);
-			for (int i = 0; i < spritesNum; i++) left_attack[i]  = setup("/player/left/fist/"  + (i+1), gp.tileSize*3, gp.tileSize*2);
-			for (int i = 0; i < spritesNum; i++) right_attack[i] = setup("/player/right/fist/" + (i+1), gp.tileSize*3, gp.tileSize*2);
+			for (int i = 0; i < spritesNum; i++) up_attack[i]    = gp.ut.setup("/player/up/fist/"    + (i+1), gp.tileSize*3, gp.tileSize*2);
+			for (int i = 0; i < spritesNum; i++) down_attack[i]  = gp.ut.setup("/player/down/fist/"  + (i+1), gp.tileSize*3, gp.tileSize*2);
+			for (int i = 0; i < spritesNum; i++) left_attack[i]  = gp.ut.setup("/player/left/fist/"  + (i+1), gp.tileSize*3, gp.tileSize*2);
+			for (int i = 0; i < spritesNum; i++) right_attack[i] = gp.ut.setup("/player/right/fist/" + (i+1), gp.tileSize*3, gp.tileSize*2);
 			
-			up_attack[spritesNum]      = setup("/player/up/fist/"    + (spritesNum-1), gp.tileSize*3, gp.tileSize*2);
-			down_attack[spritesNum]    = setup("/player/down/fist/"  + (spritesNum-1), gp.tileSize*3, gp.tileSize*2);
-			left_attack[spritesNum]    = setup("/player/left/fist/"  + (spritesNum-1), gp.tileSize*3, gp.tileSize*2);
-			right_attack[spritesNum]   = setup("/player/right/fist/" + (spritesNum-1), gp.tileSize*3, gp.tileSize*2);
-			up_attack[spritesNum+1]    = setup("/player/up/fist/"    + (spritesNum-2), gp.tileSize*3, gp.tileSize*2);
-			down_attack[spritesNum+1]  = setup("/player/down/fist/"  + (spritesNum-2), gp.tileSize*3, gp.tileSize*2);
-			left_attack[spritesNum+1]  = setup("/player/left/fist/"  + (spritesNum-2), gp.tileSize*3, gp.tileSize*2);
-			right_attack[spritesNum+1] = setup("/player/right/fist/" + (spritesNum-2), gp.tileSize*3, gp.tileSize*2);
+			up_attack[spritesNum]      = gp.ut.setup("/player/up/fist/"    + (spritesNum-1), gp.tileSize*3, gp.tileSize*2);
+			down_attack[spritesNum]    = gp.ut.setup("/player/down/fist/"  + (spritesNum-1), gp.tileSize*3, gp.tileSize*2);
+			left_attack[spritesNum]    = gp.ut.setup("/player/left/fist/"  + (spritesNum-1), gp.tileSize*3, gp.tileSize*2);
+			right_attack[spritesNum]   = gp.ut.setup("/player/right/fist/" + (spritesNum-1), gp.tileSize*3, gp.tileSize*2);
+			up_attack[spritesNum+1]    = gp.ut.setup("/player/up/fist/"    + (spritesNum-2), gp.tileSize*3, gp.tileSize*2);
+			down_attack[spritesNum+1]  = gp.ut.setup("/player/down/fist/"  + (spritesNum-2), gp.tileSize*3, gp.tileSize*2);
+			left_attack[spritesNum+1]  = gp.ut.setup("/player/left/fist/"  + (spritesNum-2), gp.tileSize*3, gp.tileSize*2);
+			right_attack[spritesNum+1] = gp.ut.setup("/player/right/fist/" + (spritesNum-2), gp.tileSize*3, gp.tileSize*2);
 		}
 	}
 	public void setItems() {
@@ -225,21 +233,32 @@ public class Player extends Entity {
 	public void pickUpItm(int index) {
 		
 		if(index != 999) {
-			if(inventory.size() != maxInventorySize) {
-				
-				inventory.add(gp.itm[index]);
-				gp.playSE(7);
-				
-				gp.ui.addEventMessage("picked up " + gp.itm[index].name, 
-			              12f, 
-			              Font.BOLD, 
-			              Color.white, 
-			              Color.gray, 
-			              screenX + gp.tileSize,
-			              screenY + gp.tileSize,
-			              true);
-				
+			
+			//PICKUP ONLY 
+			if(gp.itm[index].pickupOnly) {
+				gp.itm[index].use(this);
 				gp.itm[index] = null;
+			}
+			
+			// INVENTORY
+			else {
+				
+				if(inventory.size() != maxInventorySize) {
+					
+					inventory.add(gp.itm[index]);
+					gp.playSE(7);
+					
+					gp.ui.addEventMessage("picked up " + gp.itm[index].name, 
+							12f, 
+							Font.BOLD, 
+							Color.white, 
+							Color.gray, 
+							screenX + gp.tileSize,
+							screenY + gp.tileSize,
+							true);
+					
+					gp.itm[index] = null;
+				}
 			}
 		}
 	}
@@ -263,6 +282,11 @@ public class Player extends Entity {
 				
 				int damage = gp.mon[index].attack - toughness;
 				if(damage < 0) damage = 0;
+				
+				if(slotHelmet     != null) slotHelmet.durability--;
+				if(slotChestplate != null) slotChestplate.durability--;
+				if(slotLeggings   != null) slotLeggings.durability--;
+				if(slotBoots      != null) slotBoots.durability--;
 				
 				health -= damage; 
 				invincible = true;
@@ -342,7 +366,7 @@ public class Player extends Entity {
 			nextLevelExp *= 2;
 			if(level%2 == 0) {
 				maxHealth += 2;
-				stamina += 2;
+				maxStamina += 2;
 				if(maxMana > 0) maxMana += 2;
 				attack++;
 				defense++;
@@ -356,10 +380,11 @@ public class Player extends Entity {
 	public void attacking() {
 		
 		spriteCounter++; 
-		     if(spriteCounter < attackSpeed * 1)   spriteNum = 1;
-		else if(spriteCounter < attackSpeed * 2) { spriteNum = 2; 
+		if(spriteCounter < attackSpeed * 1) {
 			
-			int currentWorldX = worldX,       currentWorldY = worldY;
+			spriteNum = 1;
+	     
+	     	int currentWorldX = worldX,       currentWorldY = worldY;
 			int hitBoxWidth   = hitBox.width, hitBoxHeight  = hitBox.height;
 			
 			switch(direction) {
@@ -374,14 +399,19 @@ public class Player extends Entity {
 			hitBox.height = attackHitBox.height;
 			
 			int monIndex = gp.cChecker.checkEntity(this, gp.mon);
-			damageMonster(monIndex, attack, false);
+			if(monIndex != 999 && stamina > 0) { damageMonster(monIndex, attack, false); hit = true; }
 			
 			worldX = currentWorldX;     worldY = currentWorldY;
 			hitBox.width = hitBoxWidth; hitBox.height = hitBoxHeight;
 		}
+		else if(spriteCounter < attackSpeed * 2) spriteNum = 2; 
 		else if(spriteCounter < attackSpeed * 3) spriteNum = 3;
 		else if(spriteCounter < attackSpeed * 4) spriteNum = 4;
-		else { spriteNum = 1; spriteCounter = 0; attacking = false; }
+		else {
+			spriteNum = 1; spriteCounter = 0; attacking = false; 
+			if(hit) stamina--; hit = false; 
+		}
+		
 	}
 	public void castingSpell() {
 		
@@ -432,10 +462,10 @@ public class Player extends Entity {
 		}
 		else {
 			
-			if (keyH.upPressed)    { if(keyH.shiftPressed && stamina > 0) running = true; direction = "up";    walking = true; }
-			if (keyH.downPressed)  { if(keyH.shiftPressed && stamina > 0) running = true; direction = "down";  walking = true; }
-			if (keyH.leftPressed)  { if(keyH.shiftPressed && stamina > 0) running = true; direction = "left";  walking = true; }
-			if (keyH.rightPressed) { if(keyH.shiftPressed && stamina > 0) running = true; direction = "right"; walking = true; }
+			if (keyH.upPressed    && !keyH.downPressed ) { if(keyH.shiftPressed && stamina > 0) running = true; direction = "up";    walking = true; }
+			if (keyH.downPressed  && !keyH.upPressed   ) { if(keyH.shiftPressed && stamina > 0) running = true; direction = "down";  walking = true; }
+			if (keyH.leftPressed  && !keyH.rightPressed) { if(keyH.shiftPressed && stamina > 0) running = true; direction = "left";  walking = true; }
+			if (keyH.rightPressed && !keyH.leftPressed ) { if(keyH.shiftPressed && stamina > 0) running = true; direction = "right"; walking = true; }
 			
 			if (!keyH.upPressed && !keyH.downPressed && !keyH.leftPressed && !keyH.rightPressed) walking = false;
 			if (!keyH.shiftPressed) running = false;
@@ -510,15 +540,17 @@ public class Player extends Entity {
 			keyH.enterPressed = false;
 		}
 		
-		if (keyH.spellPressed && (caracterClass == 3 || caracterClass == 4) && !slotProjectile.alive && projectileCounter == slotProjectile.spellCooldown) {
-			if(mana >= slotProjectile.useCost) {
+		
+		if (keyH.spellPressed && (caracterClass == 3 || caracterClass == 4) && slotProjectiles[keyH.spell] != null && !slotProjectiles[keyH.spell].alive && projectileCounter[keyH.spell] == slotProjectiles[keyH.spell].spellCooldown) {
+			if(mana >= slotProjectiles[keyH.spell].useCost) {
 				castingSpell = true;
-				slotProjectile.set(worldX, worldY, direction, true, this);
-				if(!gp.projectileList.contains(slotProjectile))
-					gp.projectileList.add(slotProjectile);
+				System.out.println(keyH.spell);
+				slotProjectiles[keyH.spell].set(worldX, worldY, direction, true, this);
+				if(!gp.projectileList.contains(slotProjectiles[keyH.spell]))
+					gp.projectileList.add(slotProjectiles[keyH.spell]);
 				gp.playSE(13);
-				mana -= slotProjectile.useCost;
-				projectileCounter = 0;
+				mana -= slotProjectiles[keyH.spell].useCost;
+				projectileCounter[keyH.spell] = 0;
 			}
 		}
 		
@@ -530,10 +562,11 @@ public class Player extends Entity {
 				invincibleCounter = 0;
 			}
 		}
-
-		if((caracterClass == 3 || caracterClass == 4) && projectileCounter < slotProjectile.spellCooldown) {
-			projectileCounter++;
-		}
+		for(int i = 0; i < 3; i++) 
+			if(slotProjectiles[i] != null) 
+				if((caracterClass == 3 || caracterClass == 4) && projectileCounter[i] < slotProjectiles[i].spellCooldown) 
+					projectileCounter[i]++;
+				
 	}
 	@Override
 	public void draw(Graphics2D g2, GamePanel gp) {

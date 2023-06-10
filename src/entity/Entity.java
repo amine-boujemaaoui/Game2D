@@ -40,6 +40,8 @@ public class Entity {
 	public String direction = "down";
 	public boolean walking = false;
 	public boolean collisionOn = false;
+	public int collisionV = 0;
+	public int collisionH = 0;
 	public boolean collision = false;
 	public boolean invincible = false;
 	public boolean attacking = false;
@@ -48,6 +50,7 @@ public class Entity {
 	public boolean dying = false;
 	public boolean hpBarOn = false;
 	public int type, subType;
+	public boolean pickupOnly = false;
 	public int OBJstate = 0;
 	
 	// ENTITY SIZE
@@ -65,7 +68,7 @@ public class Entity {
 	public int invincibleCounter = 0;
 	public int dyingCounter = 0;
 	public int hpBarOnCounter = 0;
-	public int projectileCounter = 0; 
+	public int[] projectileCounter = {0, 0, 0}; 
 	
 	// STATS
 	public int level;
@@ -90,10 +93,10 @@ public class Entity {
 	public Entity slotMele,    slotShield,     slotStaff,    slotProjectileWeapon;
 	public Entity slotRing1,   slotRing2,      slotNecklace, slotBelt;
 	public Entity slotPickaxe, slotAxe;
-	public int attackValue, toughnessValue, attackSpeedValue, speedValue;
+	public int attackValue, toughnessValue, attackSpeedValue, speedValue, amountValue;
 	public String description = " ";
 	public int durability = -1, maxDurability;
-	public PRJ slotProjectile;
+	public PRJ[] slotProjectiles = new PRJ[3];
 	public int useCost;
 	
 	public Entity(GamePanel gp) {
@@ -147,22 +150,33 @@ public class Entity {
 			}
 		}
 		
-		if(slotProjectile != null && projectileCounter < slotProjectile.spellCooldown) {
-			projectileCounter++;
+		for(int i = 0; i < 3; i++)
+			if(slotProjectiles[i] != null)
+				if(slotProjectiles[i] != null && projectileCounter[i] < slotProjectiles[i].spellCooldown) {
+					projectileCounter[i]++;
 		}
 	}
 	public boolean use(Entity entity) {
+		
 		return false;
+	}
+	public void checkDrop() {
+		
+		
+	}
+	public void drop(Entity dropITM) {
+		
+		for(int i = 0; i < gp.itm.length; i++)
+			if( gp.itm[i] == null) {
+				gp.itm[i] = dropITM;
+				gp.itm[i].worldX = worldX;
+				gp.itm[i].worldY = worldY;
+				break;
+			}
+		
 	}
 	public void setAction () {
 		
-	}
-	public BufferedImage setup(String imagePath, int width, int height) {
-		
-		BufferedImage image = null;
-		try { image = ImageIO.read(getClass().getResourceAsStream(imagePath + ".png")); }
-		catch (IOException e) { e.printStackTrace(); }
-		return gp.ut.scaleImage(image, width, height);
 	}
 	public void speak() {
 		
@@ -309,7 +323,20 @@ public class Entity {
 		   int damage = attack - gp.player.toughness;
 			if(damage < 0) damage = 0;
 			
+			if(slotHelmet     != null) slotHelmet.durability--;
+			if(slotChestplate != null) slotChestplate.durability--;
+			if(slotLeggings   != null) slotLeggings.durability--;
+			if(slotBoots      != null) slotBoots.durability--;
+			
 		   gp.player.health -= damage; 
 		   gp.player.invincible = true;
+	}
+	public void modifyStat(int stat, int value) {
+		
+		switch(stat) {
+		case 1: if(health  + value > maxHealth ) health  = maxHealth;  else if(health  + value < 0) health = 0;  else health  += value; break;
+		case 2: if(mana    + value > maxMana   ) mana    = maxMana;    else if(mana    + value < 0) mana = 0;    else mana    += value; break;
+		case 3: if(stamina + value > maxStamina) stamina = maxStamina; else if(stamina + value < 0) stamina = 0; else stamina += value; break;
+		}
 	}
 }

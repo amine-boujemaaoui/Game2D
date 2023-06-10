@@ -17,6 +17,7 @@ public class ITM_Potion_Mana extends Entity{
 		description = "A potion that can regenerate the players mana by 2 points.";
 		size = size1by2;
 		type = gp.typeITM;
+		amountValue = 6;
 		
 		hitBox.x = 9;
 		hitBox.width = 30;
@@ -24,19 +25,19 @@ public class ITM_Potion_Mana extends Entity{
 		hitBoxDefaultX = hitBox.x;
 		
 		ground    = new BufferedImage[6];
-		ground[0] = setup("/objects/potions/mana/1", gp.tileSize, gp.tileSize*2);
-		ground[1] = setup("/objects/potions/mana/2", gp.tileSize, gp.tileSize*2);
-		ground[2] = setup("/objects/potions/mana/3", gp.tileSize, gp.tileSize*2);
-		ground[3] = setup("/objects/potions/mana/3", gp.tileSize, gp.tileSize*2);
-		ground[4] = setup("/objects/potions/mana/2", gp.tileSize, gp.tileSize*2);
-		ground[5] = setup("/objects/potions/mana/1", gp.tileSize, gp.tileSize*2);
+		ground[0] = gp.ut.setup("/items/potions/mana/1", gp.tileSize, gp.tileSize*2);
+		ground[1] = gp.ut.setup("/items/potions/mana/2", gp.tileSize, gp.tileSize*2);
+		ground[2] = gp.ut.setup("/items/potions/mana/3", gp.tileSize, gp.tileSize*2);
+		ground[3] = gp.ut.setup("/items/potions/mana/3", gp.tileSize, gp.tileSize*2);
+		ground[4] = gp.ut.setup("/items/potions/mana/2", gp.tileSize, gp.tileSize*2);
+		ground[5] = gp.ut.setup("/items/potions/mana/1", gp.tileSize, gp.tileSize*2);
 		
-		item_icon = setup("/objects/potions/mana/item", gp.tileSize, gp.tileSize);
+		item_icon = gp.ut.setup("/items/potions/mana/item", gp.tileSize, gp.tileSize);
 	}
 	public boolean use(Entity entity) {
 		
 		gp.playSE(17);
-		gp.ui.addEventMessage("regenerated mana by 2", 
+		gp.ui.addEventMessage("regenerated mana by " + amountValue, 
 	              12f, 
 	              Font.BOLD, 
 	              Color.white, 
@@ -45,8 +46,7 @@ public class ITM_Potion_Mana extends Entity{
 	              gp.player.screenY + gp.tileSize,
 	              true);
 		
-		if(entity.mana + 2 > entity.maxMana) entity.mana = entity.maxMana;
-		else entity.mana += 2;
+		entity.mana += amountValue;
 		return true;
 	}
 }

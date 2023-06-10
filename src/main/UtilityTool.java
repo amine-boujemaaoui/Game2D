@@ -6,23 +6,31 @@ import java.awt.font.LineBreakMeasurer;
 import java.awt.font.TextAttribute;
 import java.awt.font.TextLayout;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.imageio.ImageIO;
+
 public class UtilityTool {
 	
-	public final int[] coinsType = {1, 10, 50, 250};
+	public final int[] coinsType = {1, 50, 250, 1000};
 
-	public BufferedImage scaleImage(BufferedImage original,  int width, int height) {
-		BufferedImage scaledImage = new BufferedImage(width, height, original.getType());
+	public BufferedImage setup(String imagePath, int width, int height) {
+		
+		BufferedImage image = null;
+		try { image = ImageIO.read(getClass().getResourceAsStream(imagePath + ".png")); }
+		catch (IOException e) { e.printStackTrace(); }
+		
+		BufferedImage scaledImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2 = scaledImage.createGraphics();
-		g2.drawImage(original, 0, 0, width, height, null);
+		g2.drawImage(image, 0, 0, width, height, null);
 		g2.dispose();
+		
 		return scaledImage;
 	}
-	
 	public void drawMultilineString(Graphics2D g2, String text, int x, int y, int width, int height) {
 		
 		AttributedString attributedString = new AttributedString(text);
@@ -40,7 +48,6 @@ public class UtilityTool {
 			y += textLayout.getDescent() + textLayout.getLeading();
 		}
 	}
-	
     public Map<Integer, Integer> calculerPieces(int montant) {
     	
         Map<Integer, Integer> nombrePieces = new HashMap<>();

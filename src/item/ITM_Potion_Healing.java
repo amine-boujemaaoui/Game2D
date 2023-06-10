@@ -17,6 +17,7 @@ public class ITM_Potion_Healing extends Entity{
 		description = "A potion that can heal by 2 points the players health.";
 		size = size1by2;
 		type = gp.typeITM;
+		amountValue = 2;
 		
 		hitBox.x = 9;
 		hitBox.width = 30;
@@ -24,19 +25,19 @@ public class ITM_Potion_Healing extends Entity{
 		hitBoxDefaultX = hitBox.x;
 		
 		ground    = new BufferedImage[6];
-		ground[0] = setup("/objects/potions/healing/1", gp.tileSize, gp.tileSize*2);
-		ground[1] = setup("/objects/potions/healing/2", gp.tileSize, gp.tileSize*2);
-		ground[2] = setup("/objects/potions/healing/3", gp.tileSize, gp.tileSize*2);
-		ground[3] = setup("/objects/potions/healing/3", gp.tileSize, gp.tileSize*2);
-		ground[4] = setup("/objects/potions/healing/2", gp.tileSize, gp.tileSize*2);
-		ground[5] = setup("/objects/potions/healing/1", gp.tileSize, gp.tileSize*2);
+		ground[0] = gp.ut.setup("/items/potions/healing/1", gp.tileSize, gp.tileSize*2);
+		ground[1] = gp.ut.setup("/items/potions/healing/2", gp.tileSize, gp.tileSize*2);
+		ground[2] = gp.ut.setup("/items/potions/healing/3", gp.tileSize, gp.tileSize*2);
+		ground[3] = gp.ut.setup("/items/potions/healing/3", gp.tileSize, gp.tileSize*2);
+		ground[4] = gp.ut.setup("/items/potions/healing/2", gp.tileSize, gp.tileSize*2);
+		ground[5] = gp.ut.setup("/items/potions/healing/1", gp.tileSize, gp.tileSize*2);
 		
-		item_icon = setup("/objects/potions/healing/item", gp.tileSize, gp.tileSize);
+		item_icon = gp.ut.setup("/items/potions/healing/item", gp.tileSize, gp.tileSize);
 	}
 	public boolean use(Entity entity) {
 		
 		gp.playSE(17);
-		gp.ui.addEventMessage("heald by 2", 
+		gp.ui.addEventMessage("heald by " + amountValue, 
 	              12f, 
 	              Font.BOLD, 
 	              Color.white, 
@@ -45,8 +46,7 @@ public class ITM_Potion_Healing extends Entity{
 	              gp.player.screenY + gp.tileSize,
 	              true);
 		
-		if(entity.health + 2 > entity.maxHealth) entity.health = entity.maxHealth;
-		else entity.health += 2;
+		entity.health += amountValue;
 		return true;
 	}
 }

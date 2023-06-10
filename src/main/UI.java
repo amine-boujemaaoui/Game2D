@@ -48,74 +48,43 @@ public class UI {
 	
 	public UI(GamePanel gp) {
 		
-		 this.gp = gp;
+		this.gp = gp;
 
-		 InputStream is = getClass().getResourceAsStream("/fonts/Minecraft.TTF");
-		 try {
-			pixelFont = Font.createFont(Font.TRUETYPE_FONT, is);
-		} catch (FontFormatException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		 try {
-			int iconSize = (int)(gp.tileSize*0.75);
+		InputStream is = getClass().getResourceAsStream("/fonts/Minecraft.TTF");
+		try { pixelFont = Font.createFont(Font.TRUETYPE_FONT, is); } 
+		catch (Exception e) { e.printStackTrace(); }
+		 
+		int iconSize = (int)(gp.tileSize*0.75);
 			
-			titleScreen = ImageIO.read(getClass().getResourceAsStream("/ui/ui_titleScreen.png"));
-			gp.ut.scaleImage(titleScreen, gp.screenHeight, gp.screenHeight);
-			statsWindow = ImageIO.read(getClass().getResourceAsStream("/ui/ui_stats.png"));
-			gp.ut.scaleImage(statsWindow, gp.tileSize*14, gp.tileSize*14);
-			dialogueWindow = ImageIO.read(getClass().getResourceAsStream("/ui/ui_dialogue.png"));
-			gp.ut.scaleImage(dialogueWindow, gp.tileSize*20, gp.tileSize*5);
-			equipmentWindow = ImageIO.read(getClass().getResourceAsStream("/ui/ui_equipment.png"));
-			gp.ut.scaleImage(equipmentWindow, gp.tileSize*10, gp.tileSize*11);
-			expBarOutline = ImageIO.read(getClass().getResourceAsStream("/ui/ui_equipment.png"));
-			gp.ut.scaleImage(expBarOutline, iconSize*6, 8*3);
-			expBarOutline = ImageIO.read(getClass().getResourceAsStream("/ui/ui_expBarOutline.png"));
-			gp.ut.scaleImage(expBarOutline, iconSize*6, 8*3);
-			inventoryWindow = ImageIO.read(getClass().getResourceAsStream("/ui/ui_inventory.png"));
-			gp.ut.scaleImage(inventoryWindow, gp.tileSize*9, gp.tileSize*12);
-			itemInfosWindow = ImageIO.read(getClass().getResourceAsStream("/ui/ui_item_infos.png"));
-			gp.ut.scaleImage(itemInfosWindow, gp.tileSize*9, gp.tileSize*9);
-			inventoryCursor = ImageIO.read(getClass().getResourceAsStream("/ui/ui_inventory_cursor.png"));
-			gp.ut.scaleImage(inventoryCursor, gp.tileSize*2, gp.tileSize*2);
-			plus = ImageIO.read(getClass().getResourceAsStream("/ui/icons/plus.png"));
-			gp.ut.scaleImage(plus, 24, 24);
-			minus = ImageIO.read(getClass().getResourceAsStream("/ui/icons/minus.png"));
-			gp.ut.scaleImage(minus, 24, 24);
+		// WINDOWS
+		titleScreen     = gp.ut.setup("/ui/ui_titleScreen",      gp.tileSize*18,           gp.tileSize*18         );
+		statsWindow     = gp.ut.setup("/ui/ui_stats",            gp.tileSize*14,           gp.tileSize*14         );
+		dialogueWindow  = gp.ut.setup("/ui/ui_dialogue",         gp.tileSize*20,           gp.tileSize*5          );
+		equipmentWindow = gp.ut.setup("/ui/ui_equipment",        gp.tileSize*15,           gp.tileSize*16         );
+		expBarOutline   = gp.ut.setup("/ui/ui_expBarOutline",    iconSize*6,               8*3                    );
+		inventoryWindow = gp.ut.setup("/ui/ui_inventory",        gp.tileSize*9,            gp.tileSize*12         );
+		itemInfosWindow = gp.ut.setup("/ui/ui_item_infos",       gp.tileSize*10,           gp.tileSize*10         );
+		inventoryCursor = gp.ut.setup("/ui/ui_inventory_cursor", (int)(gp.tileSize*1.5),   (int)(gp.tileSize*1.5) );
+		
+		// ICONS
+		plus          = gp.ut.setup("/ui/icons/plus",          gp.tileSize/2, gp.tileSize/2 );
+		minus         = gp.ut.setup("/ui/icons/minus",         gp.tileSize/2, gp.tileSize/2 );
+		heart_full    = gp.ut.setup("/ui/icons/heart/full",    iconSize,      iconSize      );
+		heart_half    = gp.ut.setup("/ui/icons/heart/half",    iconSize,      iconSize      );
+		heart_empty   = gp.ut.setup("/ui/icons/heart/empty",   iconSize,      iconSize      );
+		mana_full     = gp.ut.setup("/ui/icons/mana/full",     iconSize,      iconSize      );
+		mana_half     = gp.ut.setup("/ui/icons/mana/half",     iconSize,      iconSize      );
+		mana_empty    = gp.ut.setup("/ui/icons/mana/empty",    iconSize,      iconSize      );
+		stamina_full  = gp.ut.setup("/ui/icons/stamina/full",  iconSize,      iconSize      );
+		stamina_half  = gp.ut.setup("/ui/icons/stamina/half",  iconSize,      iconSize      );
+		stamina_empty = gp.ut.setup("/ui/icons/stamina/empty", iconSize,      iconSize      );
+		health_bar    = gp.ut.setup("/ui/icons/health_bar",    4,             4             );
+		exp_bar       = gp.ut.setup("/ui/icons/exp_bar",       4,             4             );
+	
+		// KEYS
+		E     = gp.ut.setup("/ui/keys/E",     gp.tileSize/3, gp.tileSize/3 );
+		SPACE = gp.ut.setup("/ui/keys/SPACE", 2*gp.tileSize, 2*gp.tileSize/3 );
 			
-			E = ImageIO.read(getClass().getResourceAsStream("/ui/keys/E.png"));
-			gp.ut.scaleImage(E, gp.tileSize, gp.tileSize);
-			SPACE = ImageIO.read(getClass().getResourceAsStream("/ui/keys/SPACE.png"));
-			gp.ut.scaleImage(SPACE, 35*gp.scale, 14*gp.scale);
-			
-			heart_full = ImageIO.read(getClass().getResourceAsStream("/ui/icons/heart/full.png"));
-			gp.ut.scaleImage(heart_full, iconSize, iconSize);
-			heart_half = ImageIO.read(getClass().getResourceAsStream("/ui/icons/heart/half.png"));
-			gp.ut.scaleImage(heart_half, iconSize, iconSize);
-			heart_empty = ImageIO.read(getClass().getResourceAsStream("/ui/icons/heart/empty.png"));
-			gp.ut.scaleImage(heart_empty, iconSize, iconSize);
-			
-			mana_full = ImageIO.read(getClass().getResourceAsStream("/ui/icons/mana/full.png"));
-			gp.ut.scaleImage(mana_full, iconSize, iconSize);
-			mana_half = ImageIO.read(getClass().getResourceAsStream("/ui/icons/mana/half.png"));
-			gp.ut.scaleImage(mana_half, iconSize, iconSize);
-			mana_empty = ImageIO.read(getClass().getResourceAsStream("/ui/icons/mana/empty.png"));
-			gp.ut.scaleImage(mana_empty, iconSize, iconSize);
-			
-			stamina_full = ImageIO.read(getClass().getResourceAsStream("/ui/icons/stamina/full.png"));
-			gp.ut.scaleImage(stamina_full, iconSize, iconSize);
-			stamina_half = ImageIO.read(getClass().getResourceAsStream("/ui/icons/stamina/half.png"));
-			gp.ut.scaleImage(stamina_half, iconSize, iconSize);
-			stamina_empty = ImageIO.read(getClass().getResourceAsStream("/ui/icons/stamina/empty.png"));
-			gp.ut.scaleImage(stamina_empty, iconSize, iconSize);
-			
-			health_bar = ImageIO.read(getClass().getResourceAsStream("/ui/icons/health_bar.png"));
-			gp.ut.scaleImage(health_bar, 4, 4);
-			exp_bar = ImageIO.read(getClass().getResourceAsStream("/ui/icons/exp_bar.png"));
-			gp.ut.scaleImage(exp_bar, 4, 4);
-			
-		} catch (IOException e) { e.printStackTrace(); }
 	}
 	public void showMessage(String key, String text, int x, int y) {
 		messageOn = true;
@@ -150,7 +119,7 @@ public class UI {
 			title = "Game2D";
 			g2.setColor(titleScreenColor);
 			g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
-			g2.drawImage(titleScreen, 0, 0, gp.screenHeight, gp.screenHeight, null);
+			g2.drawImage(titleScreen, 0, 0, null);
 			g2.setFont(g2.getFont().deriveFont(120f));
 			
 			drawTextShadow(title, Color.gray, Color.white, getXforCenteredText(title) + gp.screenHeight/3, gp.tileSize*4);
@@ -171,7 +140,7 @@ public class UI {
 			title = "Choose your class";
 			g2.setColor(titleScreenColor);
 			g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
-			g2.drawImage(statsWindow,  gp.tileSize*2, gp.screenHeight/2-gp.tileSize*7, gp.tileSize*14, gp.tileSize*14, null);
+			g2.drawImage(statsWindow,  gp.tileSize*2, gp.screenHeight/2-gp.tileSize*7, null);
 			
 			g2.setFont(g2.getFont().deriveFont(70f));
 			drawTextShadow(title, Color.gray, Color.white, getXforCenteredText(title) + (int)(gp.screenHeight/2.5), gp.tileSize*4);
@@ -218,8 +187,8 @@ public class UI {
 		int x = gp.screenWidth/2 - gp.tileSize * 10, y =  gp.screenHeight - gp.tileSize*6;
 		int width =  gp.tileSize * 20, height =  gp.tileSize * 5;
 		
-		g2.drawImage(dialogueWindow, x, y, width, height, null);
-		g2.drawImage(SPACE, x + width - gp.tileSize*2, y + height - (int)(gp.tileSize/1.5), 35*gp.scale, 14*gp.scale, null);
+		g2.drawImage(dialogueWindow, x, y, null);
+		g2.drawImage(SPACE, x + width - gp.tileSize*2, y + height - (int)(gp.tileSize/1.5), null);
 
 		width -= (int)(gp.tileSize*2.1); height -=(int)(gp.tileSize*2.1);
 		x += gp.tileSize; y += (int)(gp.tileSize*0.95);
@@ -230,7 +199,7 @@ public class UI {
 
 		int x = 0, y = gp.tileSize, statValue;
 				
-		g2.drawImage(equipmentWindow, x, y, 15*gp.tileSize, (int)(16.5*gp.tileSize), null);
+		g2.drawImage(equipmentWindow, x, y, null);
 		
 		x += (int)(gp.tileSize*3.5);
 		y += (int)(gp.tileSize*2.5);
@@ -264,46 +233,46 @@ public class UI {
 		x = (int)(gp.tileSize*7.75); y = (int)(gp.tileSize*4.25);
 		if(gp.player.slotMele != null) {
 			g2.fillRect(x, y, gp.tileSize, gp.tileSize);
-			g2.drawImage(gp.player.slotMele.item_icon,   x, y, gp.tileSize, gp.tileSize, null); 
+			g2.drawImage(gp.player.slotMele.item_icon,   x, y, null); 
 		}
-		y = (int)(y+gp.tileSize*1.13);
+		y = (int)(y+gp.tileSize*1.1);
 		if(gp.player.slotShield != null) { 
 			g2.fillRect(x, y, gp.tileSize, gp.tileSize);
-			g2.drawImage(gp.player.slotShield.item_icon, x, y, gp.tileSize, gp.tileSize, null); 
+			g2.drawImage(gp.player.slotShield.item_icon, x, y, null); 
 		}
-		y = (int)(y+gp.tileSize*1.13); 
+		y = (int)(y+gp.tileSize*1.1); 
 		if(gp.player.slotStaff != null) { 
 			System.out.println(gp.player.slotStaff);
 			g2.fillRect(x, y, gp.tileSize, gp.tileSize);
-			g2.drawImage(gp.player.slotStaff.item_icon,  x, y, gp.tileSize, gp.tileSize, null);
+			g2.drawImage(gp.player.slotStaff.item_icon,  x, y, null);
 		}
-		y = (int)(y+gp.tileSize*1.13);
+		y = (int)(y+gp.tileSize*1.1);
 		if(gp.player.slotProjectileWeapon != null) { 
 			g2.fillRect(x, y, gp.tileSize, gp.tileSize);
-			g2.drawImage(gp.player.slotProjectileWeapon.item_icon,  x, y, gp.tileSize, gp.tileSize, null);
+			g2.drawImage(gp.player.slotProjectileWeapon.item_icon,  x, y, null);
 		}
-		y = (int)(y+gp.tileSize*1.13);
+		y = (int)(y+gp.tileSize*1.1);
 		
 		// ARMOR SLOTS
-		x = (int)(gp.tileSize*9.25); y = (int)(gp.tileSize*3.875);
+		x = (int)(gp.tileSize*9.26); y = (int)(gp.tileSize*3.875);
 		if(gp.player.slotHelmet  != null) { 
 			g2.fillRect(x, y, gp.tileSize, gp.tileSize);
-			g2.drawImage(gp.player.slotHelmet.item_icon,  x, y, gp.tileSize, gp.tileSize, null);
+			g2.drawImage(gp.player.slotHelmet.item_icon,  x, y, null);
 		}
-		y = (int)(y+gp.tileSize*1.14);
+		y = (int)(y+gp.tileSize*1.1);
 		if(gp.player.slotChestplate  != null) { 
 			g2.fillRect(x, y, gp.tileSize, gp.tileSize);
-			g2.drawImage(gp.player.slotChestplate.item_icon,  x, y, gp.tileSize, gp.tileSize, null);
+			g2.drawImage(gp.player.slotChestplate.item_icon,  x, y, null);
 		}
-		y = (int)(y+gp.tileSize*1.14);
+		y = (int)(y+gp.tileSize*1.1);
 		if(gp.player.slotLeggings  != null) { 
 			g2.fillRect(x, y, gp.tileSize, gp.tileSize);
-			g2.drawImage(gp.player.slotLeggings.item_icon,  x, y, gp.tileSize, gp.tileSize, null);
+			g2.drawImage(gp.player.slotLeggings.item_icon,  x, y, null);
 		}
-		y = (int)(y+gp.tileSize*1.14);
+		y = (int)(y+gp.tileSize*1.1);
 		if(gp.player.slotBoots  != null) { 
 			g2.fillRect(x, y, gp.tileSize, gp.tileSize);
-			g2.drawImage(gp.player.slotBoots.item_icon,  x, y, gp.tileSize, gp.tileSize, null);
+			g2.drawImage(gp.player.slotBoots.item_icon,  x, y, null);
 		}
 	}
 	public void drawInventory(Graphics2D g2) {
@@ -312,7 +281,7 @@ public class UI {
 		
 		// INVENTORY WINDOW
 		int x = gp.screenWidth - gp.tileSize - gp.tileSize*9, y = gp.tileSize;
-		g2.drawImage(inventoryWindow, x, y, gp.tileSize*9, gp.tileSize*12, null);
+		g2.drawImage(inventoryWindow, x, y, null);
 		
 		// CURSOR
 		x += inventoryItemsSize; y += inventoryItemsSize;
@@ -359,11 +328,11 @@ public class UI {
 			
 			// DRAW ITEM INFOS WINDOW
 			x = gp.screenWidth - gp.tileSize*17; y = (int)(gp.tileSize*1.5);
-			g2.drawImage(itemInfosWindow, x, y, gp.tileSize*10, gp.tileSize*10, null);
+			g2.drawImage(itemInfosWindow, x, y, null);
 			
 			// ITEM INFOS CURRENT ITEM
 			x += (int)(gp.tileSize*1.875); y += (int)(gp.tileSize*1.875);
-			g2.drawImage(item.item_icon, x, y, (int)(gp.tileSize*1.25), (int)(gp.tileSize*1.25), null); 
+			g2.drawImage(item.item_icon, x, y, null); 
 			x += (int)(gp.tileSize*1.75); y += (int)(gp.tileSize/3);
 			g2.setFont(g2.getFont().deriveFont(16f));
 			drawTextShadow(item.name, Color.gray, Color.white, x, y);
@@ -413,8 +382,8 @@ public class UI {
 				
 				for(int i = 0; i < gp.playerStatsTitles.length; i++) {
 					
-					if(selectedItem.getStatValues(i) < 0) g2.drawImage(minus, x, y, 24, 24, null);
-					else if((i != 0 && i != 1) && selectedItem.getStatValues(i) > 0) g2.drawImage(plus,  x, y, 24, 24, null);
+					if(selectedItem.getStatValues(i) < 0) g2.drawImage(minus, x, y, null);
+					else if((i != 0 && i != 1) && selectedItem.getStatValues(i) > 0) g2.drawImage(plus,  x, y, null);
 					drawTextShadow(selectedItem.getStatValues(i) + "", Color.gray, Color.white, x + 30, y + 20);
 					y += (gp.tileSize);
 				}
@@ -422,7 +391,7 @@ public class UI {
 		}
 		
 		// DRAW CURSOR
-		g2.drawImage(inventoryCursor, cursorX, cursorY, cursorWidth, cursorHeight, null);
+		g2.drawImage(inventoryCursor, cursorX, cursorY, null);
 	}
 	public void drawGUI(Graphics2D g2) {
 		
@@ -432,18 +401,18 @@ public class UI {
 		int y = gp.screenHeight - gp.tileSize*4;
 		
 		// BLANK BARS
-		for(i = 0; i < gp.player.maxHealth/2;  i++) { g2.drawImage(heart_empty,   x, y, iconSize, iconSize, null); x += iconSize - 6;  } x = gp.tileSize*2; y += iconSize + 2;
-		for(i = 0; i < gp.player.maxStamina/2; i++) { g2.drawImage(stamina_empty, x, y, iconSize, iconSize, null); x += iconSize - 14; } x = gp.tileSize*2; y += iconSize + 2;
+		for(i = 0; i < gp.player.maxHealth/2;  i++) { g2.drawImage(heart_empty,   x, y, null); x += iconSize - 6;  } x = gp.tileSize*2; y += iconSize + 2;
+		for(i = 0; i < gp.player.maxStamina/2; i++) { g2.drawImage(stamina_empty, x, y, null); x += iconSize - 14; } x = gp.tileSize*2; y += iconSize + 2;
 		if(gp.player.maxMana > 0)
-		for(i = 0; i < gp.player.maxMana/2;    i++) { g2.drawImage(mana_empty,    x, y, iconSize, iconSize, null); x += iconSize - 10;  } 
+		for(i = 0; i < gp.player.maxMana/2;    i++) { g2.drawImage(mana_empty,    x, y, null); x += iconSize - 10;  } 
 		
 		// FILL BARS
 		x = gp.tileSize*2;
 		y = gp.screenHeight - gp.tileSize*4;
 		i = 0;
 		while(i < gp.player.health) {
-			g2.drawImage(heart_half,   x, y, iconSize, iconSize, null); i++;
-			if(i < gp.player.health) g2.drawImage(heart_full,   x, y, iconSize, iconSize, null);
+			g2.drawImage(heart_half,   x, y, null); i++;
+			if(i < gp.player.health) g2.drawImage(heart_full,   x, y, null);
 			i++; x += iconSize - 6;
 		}
 		
@@ -452,7 +421,7 @@ public class UI {
 		i = 0;
 		while(i < gp.player.stamina) {
 			g2.drawImage(stamina_half,   x, y, iconSize, iconSize, null); i++;
-			if(i < gp.player.stamina) g2.drawImage(stamina_full,   x, y, iconSize, iconSize, null);
+			if(i < gp.player.stamina) g2.drawImage(stamina_full,   x, y, null);
 			i++; x += iconSize - 14;
 		}
 		
@@ -462,7 +431,7 @@ public class UI {
 			i = 0;
 			while(i < gp.player.mana) {
 				g2.drawImage(mana_half,   x, y, iconSize, iconSize, null); i++;
-				if(i < gp.player.mana) g2.drawImage(mana_full,   x, y, iconSize, iconSize, null);
+				if(i < gp.player.mana) g2.drawImage(mana_full,   x, y, null);
 				i++; x += iconSize - 10;
 			}
 		}
@@ -474,7 +443,7 @@ public class UI {
 		y += iconSize + 2;
 		
 		g2.drawImage(exp_bar,       x, y, (int)expBar, 8*3, null);
-		g2.drawImage(expBarOutline, x, y, iconSize*6,  8*3, null);
+		g2.drawImage(expBarOutline, x, y, null);
 
 	}
 	public void drawEventMessages(Graphics2D g2) {
@@ -521,7 +490,7 @@ public class UI {
 		int screenY = y - gp.player.worldY + gp.player.screenY;
 		
 		g2.setFont(g2.getFont().deriveFont(18f));
-		g2.drawImage(E, screenX + 50, screenY + 10, gp.tileSize/3, gp.tileSize/3, null);
+		g2.drawImage(E, screenX + 50, screenY + 10, null);
 		
 		g2.setColor(Color.black);  g2.drawString(text, screenX + 72 + 1, screenY + 22 + 1);
 		g2.setColor(Color.white); g2.drawString(text, screenX + 72,     screenY + 22);

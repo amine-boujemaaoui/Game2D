@@ -3,6 +3,7 @@
 import object.*;
 import entity.*;
 import item.ARMR_Boots_Leather;
+import item.ITM_Coin_Bronze;
 import item.ITM_Key;
 import item.ITM_Potion_Healing;
 import item.ITM_Potion_Mana;
@@ -32,6 +33,8 @@ public class AssetSetter {
 		gp.itm[i] = new ITM_Potion_Healing (gp); gp.itm[i].worldX = (int)(29  *gp.tileSize); gp.itm[i].worldY = (int)(35   *gp.tileSize); i++;
 		gp.itm[i] = new ITM_Potion_Mana    (gp); gp.itm[i].worldX = (int)(29  *gp.tileSize); gp.itm[i].worldY = (int)(36   *gp.tileSize); i++;
 		gp.itm[i] = new ARMR_Boots_Leather (gp); gp.itm[i].worldX = (int)(43.5*gp.tileSize); gp.itm[i].worldY = (int)(11.5 *gp.tileSize); i++;
+		gp.itm[i] = new ITM_Coin_Bronze (gp); gp.itm[i].worldX = (int)(29*gp.tileSize); gp.itm[i].worldY = (int)(37 *gp.tileSize); i++;
+		gp.itm[i] = new ITM_Coin_Bronze (gp); gp.itm[i].worldX = (int)(29*gp.tileSize); gp.itm[i].worldY = (int)(38 *gp.tileSize); i++;
 	}
 	public void setOBJ() {
 		

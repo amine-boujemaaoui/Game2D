@@ -28,9 +28,9 @@ public class PRJ_Waterball extends PRJ {
 		left_attack = new BufferedImage[spritesNum]; 
 		right_attack = new BufferedImage[spritesNum];
 		
-		for (int i = 0; i < spritesNum; i++) up_attack[i]    = setup("/projectile/waterball/up/"    + (i+1), gp.tileSize, gp.tileSize*2);
-		for (int i = 0; i < spritesNum; i++) down_attack[i]  = setup("/projectile/waterball/down/"  + (i+1), gp.tileSize, gp.tileSize*2);
-		for (int i = 0; i < spritesNum; i++) left_attack[i]  = setup("/projectile/waterball/left/"  + (i+1), gp.tileSize*2, gp.tileSize);
-		for (int i = 0; i < spritesNum; i++) right_attack[i] = setup("/projectile/waterball/right/" + (i+1), gp.tileSize*2, gp.tileSize);
+		for (int i = 0; i < spritesNum; i++) up_attack[i]    = gp.ut.setup("/projectile/waterball/up/"    + (i+1), gp.tileSize, gp.tileSize);
+		for (int i = 0; i < spritesNum; i++) down_attack[i]  = gp.ut.setup("/projectile/waterball/down/"  + (i+1), gp.tileSize, gp.tileSize);
+		for (int i = 0; i < spritesNum; i++) left_attack[i]  = gp.ut.setup("/projectile/waterball/left/"  + (i+1), gp.tileSize, gp.tileSize);
+		for (int i = 0; i < spritesNum; i++) right_attack[i] = gp.ut.setup("/projectile/waterball/right/" + (i+1), gp.tileSize, gp.tileSize);
 	}
 }

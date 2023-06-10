@@ -51,9 +51,9 @@ public class TileManager {
 	}
 	public void getTileImage() {
 		
-		for (int i = 0;  i < 10; i++) setup(i, "/tiles/00"+ i +".png", false, false);
-		for (int i = 10; i < 40; i++) setup(i, "/tiles/0" + i +".png", false, false);
-		//for (int i = 100; i < 103; i++) setup(i, "/tiles/"  + i +".png", false, false);
+		for (int i = 0;   i < 10;  i++) setup(i, "/tiles/00"+ i, false, false);
+		for (int i = 10;  i < 100; i++) setup(i, "/tiles/0" + i, false, false);
+		for (int i = 100; i < 103; i++) setup(i, "/tiles/"  + i, false, false);
 		
 		// COLLISIONS
 		for (int i = 18; i < 32; i++) 
@@ -61,30 +61,22 @@ public class TileManager {
         tiles[32].collision = true; // WALL
         tiles[35].collision = true; // TABLE
         tiles[16].collision = true; // TREE
-        setup(38, "/tiles/038.png", true, true);
-        setup(39, "/tiles/039.png", true, true);
 	}
 	public void setup(int index, String imagePath, boolean collision, boolean tall) {
-		
-		try {
 			
 			tiles[index] = new Tile(); 
-			tiles[index].image = ImageIO.read(getClass().getResourceAsStream(imagePath));
 			if(tall)
-				tiles[index].image = gp.ut.scaleImage(tiles[index].image, gp.tileSize, gp.tileSize*2);
+				tiles[index].image = gp.ut.setup(imagePath, gp.tileSize, gp.tileSize*2);
 			else
-				tiles[index].image = gp.ut.scaleImage(tiles[index].image, gp.tileSize, gp.tileSize);
+				tiles[index].image = gp.ut.setup(imagePath, gp.tileSize, gp.tileSize);
 			tiles[index].collision = collision;
 			tiles[index].tall = tall;
-			
-		} catch (IOException e) { e.printStackTrace(); }
 	}
 	public void draw(Graphics2D g2) {
 		
 		int worldCol = 0, worldRow = 0;
 		while(worldCol < gp.maxWorldCol && worldRow < gp.maxWorldRow) {
 			
-			// pos on map * tile size - pos of player on world - offset of screen
 			int worldX =  worldCol * gp.tileSize;
 			int worldY =  worldRow * gp.tileSize;
 			int screenX = worldX - gp.player.worldX + gp.player.screenX;
@@ -94,10 +86,7 @@ public class TileManager {
 				worldX - gp.tileSize*2 < gp.player.worldX + gp.player.screenX &&
 				worldY + gp.tileSize*2 > gp.player.worldY - gp.player.screenY &&
 				worldY - gp.tileSize*2 < gp.player.worldY + gp.player.screenY) {
-				if(tiles[mapTileNum[worldCol][worldRow]].tall)
-					g2.drawImage(tiles[mapTileNum[worldCol][worldRow]].image, screenX, screenY - gp.tileSize, null);
-				else
-					g2.drawImage(tiles[mapTileNum[worldCol][worldRow]].image, screenX, screenY, null);
+				g2.drawImage(tiles[mapTileNum[worldCol][worldRow]].image, screenX, screenY, null);
 				
 				// DEBUG: PRINT TILE SIZE
 				if(gp.keyH.debug) {
@@ -114,7 +103,7 @@ public class TileManager {
 			}
 			
 			worldCol++;
-			if (worldCol == gp.maxWorldCol) { worldCol = 0; worldRow++;}
+			if (worldCol == gp.maxWorldCol) { worldCol = 0; worldRow++; }
 		}
 	}
 }
