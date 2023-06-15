@@ -14,11 +14,14 @@ public class OBJ_Door extends Entity{
 		name = "Door";
 		type = gp.typeOBJ;
 		size = size1by1;
+		subType = gp.subType_OBJ_CHEST;
 		
 		this.worldX = worldX;
 		this.worldY = worldY;
 		
 		collision = true;
+		
+		hitBox.height = gp.tileSize - 16;
 		
 		ground    = new BufferedImage[6];
 		ground[0] = gp.ut.setup("/objects/door_closed", gp.tileSize, gp.tileSize);

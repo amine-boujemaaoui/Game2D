@@ -72,6 +72,7 @@ public class EventHandler {
 			gp.player.attackCanceled = true;
 			gp.ui.currentDialogue = "You healed from drinking!";
 			gp.player.health = gp.player.maxHealth;
+			gp.player.stamina = gp.player.maxStamina;
 			gp.aSetter.setMON();
 		}
 	}

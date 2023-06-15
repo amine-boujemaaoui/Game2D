@@ -198,6 +198,7 @@ public class UI {
 	public void drawEquipmentWindow(Graphics2D g2) {
 
 		int x = 0, y = gp.tileSize, statValue;
+		String print;
 				
 		g2.drawImage(equipmentWindow, x, y, null);
 		
@@ -208,16 +209,21 @@ public class UI {
 		
 		for(int i = 0; i < gp.statsTitles.length; i++) {
 			statValue = gp.player.getClassStats(i);
-			if(statValue != -1) drawTextShadow(gp.statsTitles[i] + " : " + statValue, Color.gray, Color.white, x, y);
-			y += (int)(gp.tileSize*1.15);
+			print = gp.statsTitles[i] + " : " + statValue;
+			if(gp.statsTitles[i] == "Health" || gp.statsTitles[i] == "Mana" || gp.statsTitles[i] == "Sta")
+				if(gp.player.getClassStats(i+6) > 0)
+					print += "/" + gp.player.getClassStats(i+6);
+				else print = gp.statsTitles[i] + " : X";
+			if(statValue != -1) drawTextShadow(print, Color.gray, Color.white, x, y);
+			y += (int)(gp.tileSize*1.1);
 		}
 		
 		int tempY = y;
-		y += (int)(gp.tileSize*1.25);
+		y += (int)(gp.tileSize*1.4);
 		for(int i = 0; i < gp.playerStatsTitles.length; i++) {
 			statValue = gp.player.getPlayerStats(i);
 			if(statValue != -1) drawTextShadow(gp.playerStatsTitles[i] + " : " + statValue, Color.gray, Color.white, x, y);
-			y += (int)(gp.tileSize*1.15);
+			y += (int)(gp.tileSize*1);
 		}
 		
 		y = tempY;
@@ -225,7 +231,7 @@ public class UI {
 		x += (int)(gp.tileSize*7.5);
 		for(int coinType: gp.ut.coinsType) {
 			drawTextShadow(gp.player.coinsByType.get(coinType) + "", Color.gray, Color.white, x, y);
-			y += (int)(gp.tileSize*1.15);
+			y += (int)(gp.tileSize*1.1);
 		}
 		
 		// WEAPONS SLOTS
@@ -242,7 +248,6 @@ public class UI {
 		}
 		y = (int)(y+gp.tileSize*1.1); 
 		if(gp.player.slotStaff != null) { 
-			System.out.println(gp.player.slotStaff);
 			g2.fillRect(x, y, gp.tileSize, gp.tileSize);
 			g2.drawImage(gp.player.slotStaff.item_icon,  x, y, null);
 		}
@@ -274,6 +279,19 @@ public class UI {
 			g2.fillRect(x, y, gp.tileSize, gp.tileSize);
 			g2.drawImage(gp.player.slotBoots.item_icon,  x, y, null);
 		}
+		
+		// TOOLS SLOTS
+		x = (int)(gp.tileSize*8.67);
+		y = (int)(gp.tileSize*8.35);
+		if(gp.player.slotPickaxe  != null) { 
+			g2.fillRect(x, y, gp.tileSize, gp.tileSize);
+			g2.drawImage(gp.player.slotPickaxe.item_icon,  x, y, null);
+		}
+		x += (int)(gp.tileSize*1.15);
+		if(gp.player.slotAxe  != null) { 
+			g2.fillRect(x, y, gp.tileSize, gp.tileSize);
+			g2.drawImage(gp.player.slotAxe.item_icon,  x, y, null);
+		}
 	}
 	public void drawInventory(Graphics2D g2) {
 		
@@ -304,7 +322,9 @@ public class UI {
 			    item == gp.player.slotHelmet     ||
 			    item == gp.player.slotChestplate ||
 			    item == gp.player.slotLeggings   ||
-			    item == gp.player.slotBoots     ) {
+			    item == gp.player.slotBoots      ||
+			    item == gp.player.slotAxe        ||
+			    item == gp.player.slotPickaxe    ){
 				
 				g2.setColor(equipmentEquipedBGC); 
 				g2.fillRect(slotX + 9, slotY + 9, inventoryItemsSize - 18, inventoryItemsSize - 18);

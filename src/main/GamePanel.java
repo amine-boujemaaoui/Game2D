@@ -14,6 +14,7 @@ import javax.swing.JPanel;
 
 import entity.Entity;
 import entity.Player;
+import tile.InteractiveTile;
 import tile.TileManager;
 
 public class GamePanel extends JPanel implements Runnable {
@@ -30,6 +31,7 @@ public class GamePanel extends JPanel implements Runnable {
 	public final int screenHeight = tileSize * maxScreenRow;
 	final int FPS = 60;
 	public int drawFPS;
+	public int debugFPS;
 
 	// HANDLERS
 	public EventHandler eventH = new EventHandler(this);
@@ -47,10 +49,12 @@ public class GamePanel extends JPanel implements Runnable {
 	public Player player = new Player(this, keyH);
 	public ArrayList<Entity> entityList = new ArrayList<>();
 	public ArrayList<Entity> projectileList = new ArrayList<>();
-	public Entity obj[] = new Entity[20];
+	public ArrayList<Entity> particleList = new ArrayList<>();
+	public Entity obj[] = new Entity[30];
 	public Entity npc[] = new Entity[10];
-	public Entity mon[] = new Entity[20];
-	public Entity itm[] = new Entity[40];
+	public Entity mon[] = new Entity[30];
+	public Entity itm[] = new Entity[30];
+	public InteractiveTile it[] = new InteractiveTile[40];
 	
 	// WORLD SETTINGS
 	public final int maxWorldCol = 61;
@@ -66,10 +70,15 @@ public class GamePanel extends JPanel implements Runnable {
 	
 	// TYPES
 	public final int typePLY = 0;
+
 	public final int typeOBJ = 1;
+	public final int subType_OBJ_CHEST = 17;
+
 	public final int typeNPC = 2;
 	public final int typeMON = 3;
+
 	public final int typeITM = 4;
+	public final int subType_ITM_KEY = 18;
 	
 	public final int typeARMR = 5;
 	public final int subType_ARMR_H = 6;
@@ -83,17 +92,21 @@ public class GamePanel extends JPanel implements Runnable {
 	
 	public final int typePRJ = 13;
 	
+	public final int typeTOOL = 14;
+	public final int subType_TOOL_PKX = 15;
+	public final int subType_TOOL_AXE = 16;
+	
 	public int setSpeedCounter = 0;
 	public boolean startSetSpeedCounter = false;
 	
 	public String classSelectionOptions[] = {"KNIGHT", "THIEF", "ARCHER", "WIZARD", "SORCELER"};
 	public String playerStatsTitles[] = {"Attack", "Atk Speed", "Speed", "Toughness"};
-	public String statsTitles[] = {"Health", "Int", "Sta", "Def", "Mana", "Str"};
-	public int statsValues[][] = {{ 8,        3,     6,     8,     0,      8   },
-								  { 4,        5,     8,     2,     0,      6   },
-								  { 4,        4,     4,     4,     0,      6   },
-								  { 6,        8,     4,     2,    10,      2   },
-								  { 6,        8,     4,    10,     4,      2   }};
+	public String statsTitles[] = {"Health", "Mana", "Sta", "Def", "Str", "Int"};
+	public int statsValues[][] = {{ 8,        0,       6,    8,     8,     8   },
+								  { 4,        0,       8,    2,     4,     6   },
+								  { 4,        0,       4,    4,     4,     6   },
+								  { 6,        8,       4,    2,     1,     2   },
+								  { 6,        0,       4,    10,    2,     2   }};
 
 	public GamePanel() {
 
@@ -109,6 +122,7 @@ public class GamePanel extends JPanel implements Runnable {
 		aSetter.setNPC();
 		aSetter.setOBJ();
 		aSetter.setMON();
+		aSetter.setIT();
 		//playMusic(0);
 		gameState = titleScreenState;
 	}
@@ -123,6 +137,7 @@ public class GamePanel extends JPanel implements Runnable {
 		double drawInterval = 1000000000/FPS, delta = 0;
 		long lastTime = System.nanoTime(), currentTime, timer = 0;
 		drawFPS = 0;
+		debugFPS = 0;
 
 		while (gameThread != null) {
 			currentTime = System.nanoTime(); 
@@ -134,7 +149,7 @@ public class GamePanel extends JPanel implements Runnable {
 				update(); repaint();
 				delta--; drawFPS++;
 			}
-			if ( timer >= 1000000000 ) { drawFPS = 0; timer = 0; }
+			if ( timer >= 1000000000 ) { debugFPS = drawFPS; drawFPS = 0; timer = 0; }
 		}
 	}
 	public void update() {
@@ -155,6 +170,10 @@ public class GamePanel extends JPanel implements Runnable {
 			// ITMs
 			for (int i = 0; i < itm.length; i++) 
 				if(itm[i] != null) itm[i].update();
+			
+			// TILEs
+			for (int i = 0; i < it.length; i++) 
+				if(it[i] != null) it[i].update();
 			
 			// MONs
 			for (int i = 0; i < mon.length; i++) {
@@ -185,12 +204,19 @@ public class GamePanel extends JPanel implements Runnable {
 					else projectileList.remove(i);
 				} 
 			}
-		}
-		if(gameState == pauseState) {
 			
+			// Particles
+			for (int i = 0; i < particleList.size(); i++) {
+				if(particleList.get(i) != null) {
+					if(particleList.get(i).alive) particleList.get(i).update();
+					else particleList.remove(i);
+				} 
+			}
 		}
+		if(gameState == pauseState) { }
 		if(gameState == equipmentWindowState) {
-			if(keyH.enterPressed && setSpeedCounter == 0)  { playSE(4); player.selectItem(); startSetSpeedCounter = true; }
+			     if((keyH.enterPressed || keyH.spacePressed) && setSpeedCounter == 0)  { playSE(4); player.selectItem(); startSetSpeedCounter = true; }
+			else if(keyH.backSpacePressed && setSpeedCounter == 0) { playSE(7); player.dropItem(); startSetSpeedCounter = true; }
 			 
 			if(setSpeedCounter >= 20) { setSpeedCounter = 0; startSetSpeedCounter = false; } 
 			else if (startSetSpeedCounter) setSpeedCounter++;
@@ -210,6 +236,9 @@ public class GamePanel extends JPanel implements Runnable {
 			
 			entityList.add(player);
 			
+			for (int i = 0; i < it.length; i++) 
+				if(it[i] != null) entityList.add(it[i]);
+			
 			for (int i = 0; i < obj.length; i++) 
 				if(obj[i] != null) entityList.add(obj[i]);
 			
@@ -224,6 +253,9 @@ public class GamePanel extends JPanel implements Runnable {
 			
 			for (int i = 0; i < projectileList.size(); i++)
 				if(projectileList.get(i) != null) entityList.add(projectileList.get(i));
+
+			// for (int i = 0; i < particleList.size(); i++)
+			// 	 if(particleList.get(i) != null) entityList.add(particleList.get(i));
 				
 			Collections.sort(entityList, new Comparator<Entity>() {
 				@Override
@@ -233,6 +265,9 @@ public class GamePanel extends JPanel implements Runnable {
 			
 			for (int i = 0; i < entityList.size(); i++)
 				entityList.get(i).draw(g2, this);
+
+			for (int i = 0; i < particleList.size(); i++)
+				if(particleList.get(i) != null) particleList.get(i).draw(g2, this);
 			
 			entityList.clear();
 			
@@ -242,7 +277,7 @@ public class GamePanel extends JPanel implements Runnable {
 				g2.setColor(Color.black);
 				g2.setFont(g2.getFont().deriveFont(Font.BOLD, 30f));
 				g2.drawString("X: " + (player.worldX/tileSize) + ", Y: " + (player.worldY/tileSize), tileSize, tileSize);
-				g2.drawString("FPS: " + drawFPS, tileSize, tileSize + 24); 
+				g2.drawString("FPS: " + debugFPS, tileSize, tileSize + 24); 
 				g2.drawString("Invincible: " + player.invincible, tileSize, tileSize + 48);
 				g2.drawString("Speed: " + player.speed, tileSize, tileSize + 48 + 24);
 			}	
@@ -258,7 +293,7 @@ public class GamePanel extends JPanel implements Runnable {
 	}
 	public void stopMusic() {
 		
-		music.stop();
+		//music.stop();
 	}
 	public void playSE(int i) {
 		

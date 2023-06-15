@@ -16,7 +16,10 @@ public class KeyHandler implements KeyListener {
 				 	spacePressed, 
 				 	shiftPressed,
 				 	attackPressed,
+				 	toolPressed,
 				 	equipmentWindowPressed,
+				 	dashPressed,
+				 	backSpacePressed,
 				 	spellPressed;
 	public int spell = 0;
 	
@@ -42,18 +45,22 @@ public class KeyHandler implements KeyListener {
 		
 		int code = e.getKeyCode();
 		
-	    if (code == KeyEvent.VK_I)     equipmentWindowPressed = false;
-		if (code == KeyEvent.VK_ENTER) enterPressed  = false;
-		if (code == KeyEvent.VK_SHIFT) shiftPressed  = false;
-		if (code == KeyEvent.VK_W)     upPressed     = false;
-		if (code == KeyEvent.VK_A)     leftPressed   = false;
-		if (code == KeyEvent.VK_S)     downPressed   = false;
-		if (code == KeyEvent.VK_D)     rightPressed  = false;
-		if (code == KeyEvent.VK_E)     eventPressed  = false;
-		if (code == KeyEvent.VK_H)     attackPressed = false;
-		if (code == KeyEvent.VK_J)     spellPressed  = false;
-		if (code == KeyEvent.VK_K)     spellPressed  = false;
-		if (code == KeyEvent.VK_L)     spellPressed  = false;
+	    if (code == KeyEvent.VK_I)          equipmentWindowPressed = false;
+	    if (code == KeyEvent.VK_BACK_SPACE) backSpacePressed = false;
+		if (code == KeyEvent.VK_ENTER)      enterPressed  = false;
+		if (code == KeyEvent.VK_SHIFT)      shiftPressed  = false;
+		if (code == KeyEvent.VK_SPACE)      spacePressed  = false; 
+		if (code == KeyEvent.VK_W)          upPressed     = false;
+		if (code == KeyEvent.VK_A)          leftPressed   = false;
+		if (code == KeyEvent.VK_S)          downPressed   = false;
+		if (code == KeyEvent.VK_D)          rightPressed  = false;
+		if (code == KeyEvent.VK_E)          eventPressed  = false;
+		if (code == KeyEvent.VK_H)          attackPressed = false;
+		if (code == KeyEvent.VK_N)          toolPressed   = false;
+		if (code == KeyEvent.VK_J)          spellPressed  = false;
+		if (code == KeyEvent.VK_K)          spellPressed  = false;
+		if (code == KeyEvent.VK_L)          spellPressed  = false;
+		if (code == KeyEvent.VK_G)          dashPressed   = false;
 	}
 	public void titleScreenState(int code) {
 		
@@ -111,7 +118,9 @@ public class KeyHandler implements KeyListener {
 		if (code == KeyEvent.VK_S)     downPressed   = true;
 		if (code == KeyEvent.VK_D)     rightPressed  = true;
 		if (code == KeyEvent.VK_H)     attackPressed = true;
+		if (code == KeyEvent.VK_N)     toolPressed   = true;
 		if (code == KeyEvent.VK_E)     eventPressed  = true;
+		if (code == KeyEvent.VK_G)     dashPressed   = true;
 		if (code == KeyEvent.VK_J)   { spellPressed  = true; spell = 0; }
 		if (code == KeyEvent.VK_K)   { spellPressed  = true; spell = 1; }
 		if (code == KeyEvent.VK_L)   { spellPressed  = true; spell = 2; }
@@ -145,6 +154,8 @@ public class KeyHandler implements KeyListener {
 		if (code == KeyEvent.VK_S) { gp.playSE(5); gp.ui.slotRow++; if(gp.ui.slotRow > 5) gp.ui.slotRow = 0; }
 		if (code == KeyEvent.VK_A) { gp.playSE(5); gp.ui.slotCol--; if(gp.ui.slotCol < 0) gp.ui.slotCol = 3; }
 		if (code == KeyEvent.VK_D) { gp.playSE(5); gp.ui.slotCol++; if(gp.ui.slotCol > 3) gp.ui.slotCol = 0; }
-		if (code == KeyEvent.VK_ENTER) { enterPressed = true; }
+		if (code == KeyEvent.VK_BACK_SPACE) backSpacePressed  = true;
+		if (code == KeyEvent.VK_ENTER)      enterPressed      = true; 
+		if (code == KeyEvent.VK_SPACE)      spacePressed      = true; 
 	}
 }

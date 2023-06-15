@@ -6,10 +6,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.Map;
-
-import javax.imageio.ImageIO;
 
 import main.GamePanel;
 import projectile.PRJ;
@@ -33,6 +30,8 @@ public class Entity {
 	public BufferedImage[] ground;
 	public BufferedImage item_icon;
 	public String dialogues[] = new String[20];
+	public int maxSpriteNumStill = 6;
+	public int maxSpriteNumWalking = 6;
 	
 	// STATUS
 	public int size;
@@ -40,11 +39,10 @@ public class Entity {
 	public String direction = "down";
 	public boolean walking = false;
 	public boolean collisionOn = false;
-	public int collisionV = 0;
-	public int collisionH = 0;
 	public boolean collision = false;
 	public boolean invincible = false;
 	public boolean attacking = false;
+	public boolean usingTool = false;
 	public boolean castingSpell = false;
 	public boolean alive = true;
 	public boolean dying = false;
@@ -99,6 +97,13 @@ public class Entity {
 	public PRJ[] slotProjectiles = new PRJ[3];
 	public int useCost;
 	
+	public Color particleColor = null;
+	public int particleSize = 0;
+	public int particleSpeed = 0;
+	public int particleMaxHealth = 0;
+	public int particleOffsetX = 0;
+	public int particleOffsetY = 0;
+	
 	public Entity(GamePanel gp) {
 		
 		this.gp = gp;
@@ -112,6 +117,7 @@ public class Entity {
 		gp.cChecker.checkObject(this, false);
 		gp.cChecker.checkEntity(this, gp.npc);
 		gp.cChecker.checkEntity(this, gp.mon);
+		gp.cChecker.checkEntity(this, gp.it);
 		boolean contactPlayer = gp.cChecker.checkPlayer(this);
 		
 		if( this.type == gp.typeMON &&
@@ -137,7 +143,9 @@ public class Entity {
 		// SPRITE COUNTER FOR ANIMATION
 		spriteCounter++;
 		if(spriteCounter > 10 - speed) {
-			spriteNum++; if(spriteNum > 6) spriteNum = 1;
+			spriteNum++;
+			if(walking && spriteNum > maxSpriteNumWalking) spriteNum = 1;
+			else if(spriteNum > maxSpriteNumStill) spriteNum = 1;
 			spriteCounter = 0;
 		}
 		
@@ -169,8 +177,8 @@ public class Entity {
 		for(int i = 0; i < gp.itm.length; i++)
 			if( gp.itm[i] == null) {
 				gp.itm[i] = dropITM;
-				gp.itm[i].worldX = worldX;
-				gp.itm[i].worldY = worldY;
+				gp.itm[i].worldX = worldX + gp.r.nextInt(-8, 9);
+				gp.itm[i].worldY = worldY + gp.r.nextInt(-8, 9);
 				break;
 			}
 		
@@ -208,21 +216,26 @@ public class Entity {
 		int screenY = worldY - gp.player.worldY + gp.player.screenY;
 		
 		int offsetX, offsetY, newScreenX, newScreenY;
-		     if(size == size1by1) { offsetX = gp.tileSize; offsetY = gp.tileSize; 
-		     						   newScreenX = screenX;  newScreenY = screenY; }
-		else if(size == size3by4) { offsetX = gp.tileSize*3;  offsetY = gp.tileSize*4; 
-									   newScreenX = screenX - gp.tileSize;  newScreenY = screenY - gp.tileSize*3; }
-		else if(size == size2by2) { offsetX = gp.tileSize*2;  offsetY = gp.tileSize*2;
-									   newScreenX = screenX - gp.tileSize/2;  newScreenY = screenY - gp.tileSize/2;}
-		else              			 { offsetX = gp.tileSize;    offsetY = gp.tileSize*2; 
-									   newScreenX = screenX;  newScreenY = screenY - gp.tileSize;}
+		     if(size == size1by1) { offsetX    = gp.tileSize;             offsetY = gp.tileSize;
+				                    newScreenX = screenX;                 newScreenY = screenY; }
+		else if(size == size3by4) { offsetX    = gp.tileSize*3;           offsetY    = gp.tileSize*4;
+			                        newScreenX = screenX - gp.tileSize;   newScreenY = screenY - gp.tileSize*3; }
+		else if(size == size2by2) { offsetX    = gp.tileSize*2;           offsetY    = gp.tileSize*2;
+			                        newScreenX = screenX - gp.tileSize/2; newScreenY = screenY - gp.tileSize/2;}
+		else              		  { offsetX    = gp.tileSize;             offsetY    = gp.tileSize*2;
+			                        newScreenX = screenX;                 newScreenY = screenY - gp.tileSize;
+							 if(type == gp.typeITM) {
+								 offsetX = gp.tileSize/2;               offsetY = gp.tileSize;
+								 newScreenX = screenX + gp.tileSize/4 ; newScreenY = screenY - gp.tileSize + gp.tileSize;
+							 }
+		}
 		
 		BufferedImage image = null;
 		if(type == gp.typeOBJ) {
 			
 			image = ground[OBJstate];
 		}
-		else if( type == gp.typeARMR || type == gp.typeWPN || type == gp.typeITM) {
+		else if( type == gp.typeARMR || type == gp.typeWPN || type == gp.typeITM || type == gp.typeTOOL) {
 			image = ground[spriteNum-1];
 		} 
 		else if (type == gp.typePRJ) {
@@ -337,6 +350,27 @@ public class Entity {
 		case 1: if(health  + value > maxHealth ) health  = maxHealth;  else if(health  + value < 0) health = 0;  else health  += value; break;
 		case 2: if(mana    + value > maxMana   ) mana    = maxMana;    else if(mana    + value < 0) mana = 0;    else mana    += value; break;
 		case 3: if(stamina + value > maxStamina) stamina = maxStamina; else if(stamina + value < 0) stamina = 0; else stamina += value; break;
+		}
+	}
+	public void generateParticle(Entity generator, Entity target) {
+		
+		Color pColor = generator.particleColor;
+		int   pSize  = generator.particleSize;
+		int   pSpeed = generator.particleSpeed;
+		int   pMaxHealth = generator.particleMaxHealth;
+		int   pOffsetX = target.particleOffsetX;
+		int   pOffsetY = target.particleOffsetY;
+
+		Particle pLeftTop     = new Particle(gp, target, null, pColor, pSize, pSpeed, pMaxHealth, -1 , -1, pOffsetX, pOffsetY);
+		Particle pLeftBottom  = new Particle(gp, target, null, pColor, pSize, pSpeed, pMaxHealth, -1 ,  1, pOffsetX, pOffsetY);
+		Particle pRightTop    = new Particle(gp, target, null, pColor, pSize, pSpeed, pMaxHealth,  1 , -1, pOffsetX, pOffsetY);
+		Particle pRightBottom = new Particle(gp, target, null, pColor, pSize, pSpeed, pMaxHealth,  1 ,  1, pOffsetX, pOffsetY);
+
+		switch (gp.player.direction) {
+			case "up":    gp.particleList.add(pLeftBottom); gp.particleList.add(pRightBottom); break;
+			case "down":  gp.particleList.add(pLeftTop);    gp.particleList.add(pRightTop);    break;
+			case "left":  gp.particleList.add(pRightTop);   gp.particleList.add(pRightBottom); break;
+			case "right": gp.particleList.add(pLeftTop);    gp.particleList.add(pLeftBottom);  break;
 		}
 	}
 }

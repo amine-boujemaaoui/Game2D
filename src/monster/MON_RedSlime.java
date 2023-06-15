@@ -4,9 +4,10 @@ import java.awt.image.BufferedImage;
 import java.util.Random;
 
 import entity.Entity;
-import item.ITM_Coin_Bronze;
-import item.ITM_Potion_Healing;
-import item.ITM_Potion_Mana;
+import item.ITM.ITM_Coin_Bronze;
+import item.ITM.ITM_Key;
+import item.ITM.Potion.ITM_Potion_Healing;
+import item.ITM.Potion.ITM_Potion_Mana;
 import main.GamePanel;
 import projectile.PRJ_Fireball;
 
@@ -109,12 +110,14 @@ public class MON_RedSlime extends Entity {
 		
 		int rand = gp.r.nextInt(300)+1;
 		
+		if(rand > 250) drop(new ITM_Potion_Healing(gp)); 
+		
+		if(rand > 150) drop(new ITM_Key(gp));
+		
 		if(rand > 100) {
 			Entity coin_bronze = new ITM_Coin_Bronze(gp);
 			coin_bronze.amountValue = gp.r.nextInt(4)+1;
 			drop(coin_bronze);
 		}
-		
-		if(rand > 250) drop(new ITM_Potion_Healing(gp)); 
 	}
 }

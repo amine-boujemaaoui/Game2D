@@ -10,10 +10,10 @@ public class PRJ_Waterball extends PRJ {
 		super(gp);
 		
 		name = "Fireball";
-		speed = 5;
+		speed =6;
 		maxHealth = 80;
 		health = maxHealth;
-		attackValue = 3;
+		attackValue = 4;
 		useCost = 1;
 		alive = false;
 		spellCooldown = 60;

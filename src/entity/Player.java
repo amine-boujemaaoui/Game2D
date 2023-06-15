@@ -8,7 +8,17 @@ import java.awt.image.BufferedImage;
 import java.util.Random;
 import java.util.ArrayList;
 
-import item.*;
+import item.ARMR.ARMR_Boots_Leather;
+import item.ARMR.ARMR_Chestplate_Leather;
+import item.ARMR.ARMR_Helmet_Leather;
+import item.ARMR.ARMR_Leggings_Leather;
+import item.ITM.Potion.ITM_Potion_Healing;
+import item.ITM.Potion.ITM_Potion_Mana;
+import item.TOOL.TOOL_Axe_Wood;
+import item.TOOL.TOOL_Pickaxe_Wood;
+import item.WPN.WPN_Shield_Wood;
+import item.WPN.WPN_Sword_Iron;
+import item.WPN.WPN_Sword_Wood;
 import main.GamePanel;
 import main.KeyHandler;
 import projectile.PRJ_Fireball;
@@ -21,6 +31,8 @@ public class Player extends Entity {
 	public final int screenX, screenY;
 	public int caracterClass;
 	public int staminaCounter = 0;
+	public int dashCounter = 0;
+	public boolean canDash = true;
 	public boolean running = false;
 	public int actualSpeed = speed;
 	public boolean attackCanceled = false;
@@ -68,13 +80,6 @@ public class Player extends Entity {
 		
 		coins = 2654;
 		coinsByType = gp.ut.calculerPieces(coins);
-		
-		inventory.add(new ITM_Potion_Mana(gp));
-		inventory.add(new ITM_Potion_Mana(gp));
-		inventory.add(new ITM_Potion_Mana(gp));
-		inventory.add(new ITM_Potion_Mana(gp));
-		inventory.add(new ITM_Potion_Mana(gp));
-		inventory.add(new ITM_Potion_Mana(gp));
 		
 		setAttack();
 		setToughness();
@@ -125,11 +130,11 @@ public class Player extends Entity {
 	public void setClassStats() {
 		
 		maxHealth   = gp.statsValues[caracterClass][0]; health  = maxHealth;
-		inteligence = gp.statsValues[caracterClass][1];
+		maxMana     = gp.statsValues[caracterClass][1]; mana    = maxMana;
 		maxStamina  = gp.statsValues[caracterClass][2]; stamina = maxStamina;
 		defense     = gp.statsValues[caracterClass][3];
-		maxMana     = gp.statsValues[caracterClass][4]; mana    = maxMana;
-		strenght    = gp.statsValues[caracterClass][5];
+		strenght    = gp.statsValues[caracterClass][4];
+		inteligence = gp.statsValues[caracterClass][5];
 		
 		if(caracterClass == 3 || caracterClass == 4) {
 			slotProjectiles[0] = new PRJ_Fireball(gp); 
@@ -140,18 +145,22 @@ public class Player extends Entity {
 		setToughness();
 	}
 	public int getClassStats(int i) {
-	
+		
 		switch(i) {
 		case 0: return health;
-		case 1: return inteligence;
+		case 1: return mana;
 		case 2: return stamina;
 		case 3: return defense;
-		case 4: return mana;
-		case 5: return strenght;
+		case 4: return strenght;
+		case 5: return inteligence;
+		case 6: return maxHealth;
+		case 7: return maxMana;
+		case 8: return maxStamina;
 		}
 		return -1;
 	}
 	public int getPlayerStats(int i) {
+		
 		switch(i) {
 		case 0: return attack;
 		case 1: return attackSpeed;
@@ -224,11 +233,24 @@ public class Player extends Entity {
 		
 		inventory.add(new WPN_Sword_Wood(gp));
 		inventory.add(new WPN_Shield_Wood(gp));
+		inventory.add(new WPN_Sword_Iron(gp));
+		
+		inventory.add(new TOOL_Axe_Wood(gp));
+		inventory.add(new TOOL_Pickaxe_Wood(gp));
+		
 		inventory.add(new ARMR_Helmet_Leather(gp));
 		inventory.add(new ARMR_Chestplate_Leather(gp));
 		inventory.add(new ARMR_Leggings_Leather(gp));
 		inventory.add(new ARMR_Boots_Leather(gp));
-		inventory.add(new WPN_Sword_Iron(gp));
+		
+		inventory.add(new ITM_Potion_Mana(gp));
+		inventory.add(new ITM_Potion_Mana(gp));
+		inventory.add(new ITM_Potion_Mana(gp));
+		inventory.add(new ITM_Potion_Mana(gp));
+		
+		inventory.add(new ITM_Potion_Healing(gp));
+		inventory.add(new ITM_Potion_Healing(gp));
+		inventory.add(new ITM_Potion_Healing(gp));
 	}
 	public void pickUpItm(int index) {
 		
@@ -299,6 +321,18 @@ public class Player extends Entity {
 			
 		}
 	}
+	public void interactIT(int index) {
+		
+		if(index != 999) {
+			if(gp.it[index].destructible && gp.it[index].correctToolUsed(slotAxe)) {
+				
+				generateParticle(gp.it[index], gp.it[index]);
+				
+				gp.it[index].health -= slotAxe.attackValue;
+				if(gp.it[index].health <= 0) gp.it[index] = gp.it[index].afterDestroy;
+			}
+		}
+	}
 	public void damageMonster(int index, int attack, boolean spell) {
 		
 		if(index != 999) {
@@ -327,7 +361,7 @@ public class Player extends Entity {
 						              gp.mon[index].worldX + offsetX + r.nextInt(-8, 9), 
 						              gp.mon[index].worldY + r.nextInt(-8, 9),
 						              false);
-				
+			
 				if (gp.mon[index].health - damage <= 0) gp.mon[index].health = 0;
 				else gp.mon[index].health -= damage; 
 				
@@ -410,8 +444,42 @@ public class Player extends Entity {
 		else {
 			spriteNum = 1; spriteCounter = 0; attacking = false; 
 			if(hit) stamina--; hit = false; 
-		}
+		}	
+	}
+	public void useTool() {
 		
+		spriteCounter++; 
+		if(spriteCounter < attackSpeed * 1) {
+			
+			spriteNum = 1;
+	     
+	     	int currentWorldX = worldX,       currentWorldY = worldY;
+			int hitBoxWidth   = hitBox.width, hitBoxHeight  = hitBox.height;
+			
+			switch(direction) {
+			case "up":    worldY -= attackHitBox.height; break;
+			case "down":  worldY += attackHitBox.height; break;
+			case "left":  worldX -= attackHitBox.width;  break;
+			case "right": worldX += attackHitBox.width;  break;
+			default: break;
+			}
+			
+			hitBox.width  = attackHitBox.width;
+			hitBox.height = attackHitBox.height;
+			
+			int itIndex = gp.cChecker.checkEntity(this, gp.it);
+			if(itIndex != 999 && stamina > 0 && !hit) { interactIT(itIndex); hit = true; }
+			
+			worldX = currentWorldX;     worldY = currentWorldY;
+			hitBox.width = hitBoxWidth; hitBox.height = hitBoxHeight;
+		}
+		else if(spriteCounter < attackSpeed * 2) spriteNum = 2; 
+		else if(spriteCounter < attackSpeed * 3) spriteNum = 3;
+		else if(spriteCounter < attackSpeed * 4) spriteNum = 4;
+		else {
+			spriteNum = 1; spriteCounter = 0; usingTool = false; 
+			if(hit) stamina--; hit = false; 
+		}
 	}
 	public void castingSpell() {
 		
@@ -450,6 +518,57 @@ public class Player extends Entity {
 				
 				if(selectedItem.use(this)) inventory.remove(selectedItem);
 			}
+			else if(selectedItem.type == gp.typeTOOL) {
+				     if(selectedItem.subType == gp.subType_TOOL_AXE) { if(selectedItem != slotAxe    ) slotAxe     = selectedItem; else slotAxe     = null; changed = true; }
+				else if(selectedItem.subType == gp.subType_TOOL_PKX) { if(selectedItem != slotPickaxe) slotPickaxe = selectedItem; else slotPickaxe = null; changed = true; }
+				if(changed) { gp.playSE(19); }
+			}
+		}
+	}
+	public void dropItem() {
+		
+		int itemIndex = gp.ui.getItemIndexInventory();
+		
+		if(itemIndex < inventory.size()) {
+			
+			Entity selectedItem = inventory.get(itemIndex);
+			
+			if( selectedItem != slotHelmet           &&
+				selectedItem != slotChestplate       &&
+				selectedItem != slotLeggings         &&
+				selectedItem != slotBoots            &&
+				selectedItem != slotMele             &&
+				selectedItem != slotShield           &&
+				selectedItem != slotStaff            &&
+				selectedItem != slotProjectileWeapon &&
+				selectedItem != slotRing1            &&
+				selectedItem != slotRing2            &&
+				selectedItem != slotNecklace         &&
+				selectedItem != slotBelt             &&
+				selectedItem != slotPickaxe          &&
+				selectedItem != slotAxe              ){
+				
+				for(int i = 0; i < gp.itm.length; i++) {
+					if(gp.itm[i] == null) {
+						gp.itm[i] = selectedItem;
+						
+						selectedItem.worldX = worldX + gp.r.nextInt(-8, 9);
+						selectedItem.worldY = worldY + gp.r.nextInt(-8, 9);
+						
+						switch(direction) {
+						case "up":    selectedItem.worldY -= 12 + selectedItem.hitBox.height; break;
+						case "down":  selectedItem.worldY += 12 + hitBox.height; break;
+						case "left":  selectedItem.worldX -= 12 + selectedItem.hitBox.width;  break;
+						case "right": selectedItem.worldX += 12 + hitBox.width; break;
+						default: break;
+						}
+						
+						inventory.remove(selectedItem);
+						break;
+					}
+				}
+			}
+				
 		}
 	}
 	public void update() {
@@ -460,16 +579,37 @@ public class Player extends Entity {
 		else if(castingSpell) {
 			castingSpell();
 		}
+		else if(usingTool) {
+			useTool();
+		}
 		else {
 			
-			if (keyH.upPressed    && !keyH.downPressed ) { if(keyH.shiftPressed && stamina > 0) running = true; direction = "up";    walking = true; }
-			if (keyH.downPressed  && !keyH.upPressed   ) { if(keyH.shiftPressed && stamina > 0) running = true; direction = "down";  walking = true; }
-			if (keyH.leftPressed  && !keyH.rightPressed) { if(keyH.shiftPressed && stamina > 0) running = true; direction = "left";  walking = true; }
-			if (keyH.rightPressed && !keyH.leftPressed ) { if(keyH.shiftPressed && stamina > 0) running = true; direction = "right"; walking = true; }
-			
-			if (!keyH.upPressed && !keyH.downPressed && !keyH.leftPressed && !keyH.rightPressed) walking = false;
-			if (!keyH.shiftPressed) running = false;
-			
+			if(keyH.dashPressed && (caracterClass != 3 && caracterClass != 4)) {
+				actualSpeed = 12;
+				String tempDirection = direction;
+				if (keyH.upPressed   ) direction = "up";
+				if (keyH.downPressed ) direction = "down";
+				if (keyH.leftPressed ) direction = "left";
+				if (keyH.rightPressed) direction = "right";
+				gp.cChecker.checkTile(this);
+				gp.cChecker.checkEntity(this, gp.npc);
+				gp.cChecker.checkEntity(this, gp.mon);
+				     if (keyH.upPressed    && dashCounter < 5 && !collisionOn && stamina > 1) { worldY -= actualSpeed; if(canDash)stamina -= 2; canDash = false; }
+				else if (keyH.downPressed  && dashCounter < 5 && !collisionOn && stamina > 1) { worldY += actualSpeed; if(canDash)stamina -= 2; canDash = false; }
+				else if (keyH.leftPressed  && dashCounter < 5 && !collisionOn && stamina > 1) { worldX -= actualSpeed; if(canDash)stamina -= 2; canDash = false; }
+				else if (keyH.rightPressed && dashCounter < 5 && !collisionOn && stamina > 1) { worldX += actualSpeed; if(canDash)stamina -= 2; canDash = false; }
+				
+				direction = tempDirection;
+			} else {
+				
+				if (keyH.upPressed    && !keyH.downPressed ) { if(keyH.shiftPressed && stamina > 0) running = true; direction = "up";    walking = true; }
+				if (keyH.downPressed  && !keyH.upPressed   ) { if(keyH.shiftPressed && stamina > 0) running = true; direction = "down";  walking = true; }
+				if (keyH.leftPressed  && !keyH.rightPressed) { if(keyH.shiftPressed && stamina > 0) running = true; direction = "left";  walking = true; }
+				if (keyH.rightPressed && !keyH.leftPressed ) { if(keyH.shiftPressed && stamina > 0) running = true; direction = "right"; walking = true; }
+				
+				if (!keyH.upPressed && !keyH.downPressed && !keyH.leftPressed && !keyH.rightPressed) walking = false;
+				if (!keyH.shiftPressed) running = false;
+			}
 			// CHECK ITM COLLISIONS
 			int itmIndex = gp.cChecker.checkItem(this, true);
 			pickUpItm(itmIndex);
@@ -486,14 +626,19 @@ public class Player extends Entity {
 			int monIndex = gp.cChecker.checkEntity(this, gp.mon);
 			interactMON(monIndex);
 			
+			// CHECK IT TILES COLLISION
+			int itIndex = gp.cChecker.checkEntity(this, gp.it);
+			//interactIT(itIndex);
+			
 			// CHECK EVENT COLLISION
 			gp.eventH.checkEvent();
 			
 			// CHECK COLLISION
+			actualSpeed = speed;
+			if((caracterClass != 3 && caracterClass != 4) && dashCounter < 20 && !canDash) actualSpeed *= 2;
+			if(running && stamina > 0) actualSpeed = (int)(actualSpeed*1.70);
 			gp.cChecker.checkTile(this);
-			if(!collisionOn && walking && !keyH.eventPressed ) {
-				actualSpeed = speed;
-				if(running && stamina > 0) actualSpeed = (int)(actualSpeed*1.70);
+			if(!collisionOn && walking && !keyH.eventPressed) {
 				switch(direction) {
 				case "up":    worldY -= actualSpeed; break;
 				case "down":  worldY += actualSpeed; break;
@@ -505,6 +650,12 @@ public class Player extends Entity {
 			
 			if(keyH.attackPressed && !attackCanceled) {
 				attacking = true; 
+				gp.playSE(13);
+				spriteCounter = 0;
+			}
+			
+			if(keyH.toolPressed && !attackCanceled) {
+				usingTool = true; 
 				gp.playSE(13);
 				spriteCounter = 0;
 			}
@@ -562,6 +713,17 @@ public class Player extends Entity {
 				invincibleCounter = 0;
 			}
 		}
+		
+		// DASH COUNTER
+		if((caracterClass != 3 && caracterClass != 4) && !canDash) {
+			dashCounter++;
+			if(dashCounter > 60) {
+				canDash = true;
+				dashCounter = 0;
+			}
+		}
+		
+		// PROJECTILE COUNTER
 		for(int i = 0; i < 3; i++) 
 			if(slotProjectiles[i] != null) 
 				if((caracterClass == 3 || caracterClass == 4) && projectileCounter[i] < slotProjectiles[i].spellCooldown) 
@@ -573,21 +735,21 @@ public class Player extends Entity {
 		
 		BufferedImage image = null;
 		int width = gp.tileSize, height = gp.tileSize*2, newScreenX = screenX, newScreenY = screenY - gp.tileSize;
-		if(attacking || castingSpell) { newScreenX = screenX - gp.tileSize; width = gp.tileSize*3; }
+		if(attacking || castingSpell || usingTool) { newScreenX = screenX - gp.tileSize; width = gp.tileSize*3; }
 		
 		if (!walking) {
 			switch(direction) {
-			case "up":    if(attacking || castingSpell) image = up_attack[spriteNum-1];    else image = up_still[spriteNum-1];    break;
-			case "down":  if(attacking || castingSpell) image = down_attack[spriteNum-1];  else image = down_still[spriteNum-1];  break;
-			case "left":  if(attacking || castingSpell) image = left_attack[spriteNum-1];  else image = left_still[spriteNum-1];  break;
-			case "right": if(attacking || castingSpell) image = right_attack[spriteNum-1]; else image = right_still[spriteNum-1]; break;
+			case "up":    if(attacking || castingSpell || usingTool) image = up_attack[spriteNum-1];    else image = up_still[spriteNum-1];    break;
+			case "down":  if(attacking || castingSpell || usingTool) image = down_attack[spriteNum-1];  else image = down_still[spriteNum-1];  break;
+			case "left":  if(attacking || castingSpell || usingTool) image = left_attack[spriteNum-1];  else image = left_still[spriteNum-1];  break;
+			case "right": if(attacking || castingSpell || usingTool) image = right_attack[spriteNum-1]; else image = right_still[spriteNum-1]; break;
 			}
 		} else {
 			switch(direction) {
-			case "up":    if(attacking || castingSpell) image = up_attack[spriteNum-1];    else image = up_walking[spriteNum-1];    break;
-			case "down":  if(attacking || castingSpell) image = down_attack[spriteNum-1];  else image = down_walking[spriteNum-1];  break;
-			case "left":  if(attacking || castingSpell) image = left_attack[spriteNum-1];  else image = left_walking[spriteNum-1];  break;
-			case "right": if(attacking || castingSpell) image = right_attack[spriteNum-1]; else image = right_walking[spriteNum-1]; break;
+			case "up":    if(attacking || castingSpell || usingTool) image = up_attack[spriteNum-1];    else image = up_walking[spriteNum-1];    break;
+			case "down":  if(attacking || castingSpell || usingTool) image = down_attack[spriteNum-1];  else image = down_walking[spriteNum-1];  break;
+			case "left":  if(attacking || castingSpell || usingTool) image = left_attack[spriteNum-1];  else image = left_walking[spriteNum-1];  break;
+			case "right": if(attacking || castingSpell || usingTool) image = right_attack[spriteNum-1]; else image = right_walking[spriteNum-1]; break;
 			}
 		}
 		if(invincible) { 

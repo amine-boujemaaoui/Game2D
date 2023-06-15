@@ -21,7 +21,7 @@ public class TileManager {
 	public TileManager(GamePanel gp) {
 
 		this.gp = gp;
-		tiles = new Tile[110]; // 10 for the number of different type of tiles
+		tiles = new Tile[150]; // 10 for the number of different type of tiles
 		mapTileNum = new int[gp.maxWorldCol][gp.maxWorldRow];
 		getTileImage();
 		loadMap("/maps/map.txt");
@@ -53,14 +53,16 @@ public class TileManager {
 		
 		for (int i = 0;   i < 10;  i++) setup(i, "/tiles/00"+ i, false, false);
 		for (int i = 10;  i < 100; i++) setup(i, "/tiles/0" + i, false, false);
-		for (int i = 100; i < 103; i++) setup(i, "/tiles/"  + i, false, false);
+		for (int i = 100; i < 135; i++) setup(i, "/tiles/"  + i, false, false);
 		
 		// COLLISIONS
 		for (int i = 18; i < 32; i++) 
 		tiles[i].collision  = true; // WATER
         tiles[32].collision = true; // WALL
         tiles[35].collision = true; // TABLE
-        tiles[16].collision = true; // TREE
+        //tiles[16].collision = true; // TREE
+        for (int i = 103; i < 135; i++) 
+    	tiles[i].collision  = true; // NEW WALL
 	}
 	public void setup(int index, String imagePath, boolean collision, boolean tall) {
 			
