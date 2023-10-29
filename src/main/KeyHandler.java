@@ -2,6 +2,7 @@ package main;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class KeyHandler implements KeyListener {
 	
@@ -20,7 +21,8 @@ public class KeyHandler implements KeyListener {
 				 	equipmentWindowPressed,
 				 	dashPressed,
 				 	backSpacePressed,
-				 	spellPressed;
+				 	spellPressed,
+					settingsPressed;
 	public int spell = 0;
 	
 	public KeyHandler(GamePanel gp) {
@@ -39,6 +41,9 @@ public class KeyHandler implements KeyListener {
 		else if(gp.gameState == gp.pauseState) pauseState(code);
 		else if(gp.gameState == gp.dialogueState) dialogueState(code);
 		else if (gp.gameState == gp.equipmentWindowState) equipmentWindowState(code);
+		else if (gp.gameState == gp.settingsState) {
+			settingsState(code);
+		}
 	}
 	@Override
 	public void keyReleased(KeyEvent e) {
@@ -111,24 +116,33 @@ public class KeyHandler implements KeyListener {
 	}
 	public void playState(int code) {
 		
-		if (code == KeyEvent.VK_ENTER) enterPressed  = true;
-		if (code == KeyEvent.VK_SHIFT) shiftPressed  = true;
-		if (code == KeyEvent.VK_W)     upPressed     = true;
-		if (code == KeyEvent.VK_A)     leftPressed   = true;
-		if (code == KeyEvent.VK_S)     downPressed   = true;
-		if (code == KeyEvent.VK_D)     rightPressed  = true;
-		if (code == KeyEvent.VK_H)     attackPressed = true;
-		if (code == KeyEvent.VK_N)     toolPressed   = true;
-		if (code == KeyEvent.VK_E)     eventPressed  = true;
-		if (code == KeyEvent.VK_G)     dashPressed   = true;
-		if (code == KeyEvent.VK_J)   { spellPressed  = true; spell = 0; }
-		if (code == KeyEvent.VK_K)   { spellPressed  = true; spell = 1; }
-		if (code == KeyEvent.VK_L)   { spellPressed  = true; spell = 2; }
-		if (code == KeyEvent.VK_T)     debug = !debug;
+		if (code == KeyEvent.VK_ENTER)  enterPressed    = true;
+		if (code == KeyEvent.VK_SHIFT)  shiftPressed    = true;
+		if (code == KeyEvent.VK_W)      upPressed       = true;
+		if (code == KeyEvent.VK_A)      leftPressed     = true;
+		if (code == KeyEvent.VK_S)      downPressed     = true;
+		if (code == KeyEvent.VK_D)      rightPressed    = true;
+		if (code == KeyEvent.VK_H)      attackPressed   = true;
+		if (code == KeyEvent.VK_N)      toolPressed     = true;
+		if (code == KeyEvent.VK_E)      eventPressed    = true;
+		if (code == KeyEvent.VK_G)      dashPressed     = true;
+
+		if (code == KeyEvent.VK_J)   {  spellPressed    = true; spell = 0; }
+		if (code == KeyEvent.VK_K)   {  spellPressed    = true; spell = 1; }
+		if (code == KeyEvent.VK_L)   {  spellPressed    = true; spell = 2; }
+		if (code == KeyEvent.VK_T) debug = !debug;
 		if (code == KeyEvent.VK_I) {   
 			 gp.gameState = gp.equipmentWindowState; gp.playSE(1); 
 		}
 		if (code == KeyEvent.VK_P) {   	 gp.gameState = gp.pauseState; gp.playSE(4); gp.stopMusic(); 
+		}
+		if (code == KeyEvent.VK_ESCAPE) {
+
+			gp.gameState = gp.settingsState;
+			gp.playSE(5);
+			gp.stopMusic();
+			gp.ui.subStateScreen = 0;
+			gp.ui.selectedOption = 0;
 		}
 	}
 	public void pauseState(int code) {
@@ -157,5 +171,66 @@ public class KeyHandler implements KeyListener {
 		if (code == KeyEvent.VK_BACK_SPACE) backSpacePressed  = true;
 		if (code == KeyEvent.VK_ENTER)      enterPressed      = true; 
 		if (code == KeyEvent.VK_SPACE)      spacePressed      = true; 
+	}
+	public void settingsState(int code) {
+
+		int max = gp.ui.settingsOptions.length - 1;
+		switch (gp.ui.subStateScreen) {
+			case 0: max = gp.ui.settingsOptions.length - 1; break;
+			case 1: break;
+			case 2: max = gp.ui.controlsOptions.length - 1; break;
+			case 5: max = 1; break;
+		}
+
+		if (code == KeyEvent.VK_ESCAPE) {
+			gp.gameState = gp.playState;
+			gp.playSE(5);
+			gp.playMusic(0);
+		}
+		if (code == KeyEvent.VK_W) {
+			gp.playSE(5);
+			gp.ui.selectedOption--;
+			if (gp.ui.selectedOption < 0) gp.ui.selectedOption = max;
+		}
+		if (code == KeyEvent.VK_S) {
+			gp.playSE(5);
+			gp.ui.selectedOption++;
+			if (gp.ui.selectedOption > max) gp.ui.selectedOption = 0;
+		}
+		if (code == KeyEvent.VK_A) {
+			if (gp.ui.subStateScreen == 0) {
+				if (gp.ui.selectedOption == 1 && gp.music.volumeIndicator > 0) {
+					gp.music.volumeIndicator--;
+					gp.music.checkVolume();
+					gp.playSE(5);
+				} else if (gp.ui.selectedOption == 2 && gp.se.volumeIndicator > 0) {
+					gp.se.volumeIndicator--;
+					gp.playSE(5);
+				}
+			}
+			if (gp.ui.subStateScreen == 5) {
+				gp.ui.selectedOption--;
+				if (gp.ui.selectedOption < 0) gp.ui.selectedOption = 1;
+			}
+		}
+		if (code == KeyEvent.VK_D) {
+			if (gp.ui.subStateScreen == 0 ) {
+				if (gp.ui.selectedOption == 1 && gp.music.volumeIndicator < 8) {
+					gp.music.volumeIndicator++;
+					gp.music.checkVolume();
+					gp.playSE(5);
+				} else if (gp.ui.selectedOption == 2 && gp.se.volumeIndicator < 8) {
+					gp.se.volumeIndicator++;
+					gp.playSE(5);
+				}
+			}
+			if (gp.ui.subStateScreen == 5) {
+				gp.ui.selectedOption++;
+				if (gp.ui.selectedOption > 1) gp.ui.selectedOption = 0;
+			}
+		}
+		if (code == KeyEvent.VK_ENTER) {
+			enterPressed = true;
+		}
 	}
 }

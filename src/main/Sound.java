@@ -11,8 +11,10 @@ public class Sound {
 
 	Clip clip;
 	URL soundURL[] = new URL[30];
-	float volume = -20.0f;
-	
+	int volumeIndicator = 2;
+	float volume = 0.0f;
+	FloatControl fc;
+
 	public Sound() {
 		
 		soundURL[0]  = getClass().getResource("/sounds/background_music.wav");
@@ -35,6 +37,8 @@ public class Sound {
 		soundURL[17] = getClass().getResource("/sounds/bottle.wav");
 		soundURL[18] = getClass().getResource("/sounds/cloth.wav");
 		soundURL[19] = getClass().getResource("/sounds/weapon.wav");
+
+
 	}
 	public void setFile(int i) {
 		
@@ -42,8 +46,8 @@ public class Sound {
 			AudioInputStream ais = AudioSystem.getAudioInputStream(soundURL[i]);
 			clip = AudioSystem.getClip();
 			clip.open(ais);
-			FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-			gainControl.setValue(volume);
+			fc = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+			checkVolume();
 			
 		} catch (Exception e) { e.printStackTrace(); }
 	}
@@ -61,5 +65,20 @@ public class Sound {
 	}
 	public void setVolume(float volume) {
 		this.volume = volume;
+	}
+	public void checkVolume() {
+
+		switch (volumeIndicator) {
+		case 0: volume = -60.0f; break;
+		case 1: volume = -53.0f; break;
+		case 2: volume = -40.0f; break;
+		case 3: volume = -35.0f;  break;
+		case 4: volume = -20.0f;  break;
+		case 5: volume = -12.0f;  break;
+		case 6: volume = -5.0f;  break;
+		case 7: volume = 2.0f;  break;
+		case 8: volume = 6.0f;  break;
+		}
+		fc.setValue(volume);
 	}
 }

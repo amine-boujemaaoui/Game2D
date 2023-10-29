@@ -41,6 +41,7 @@ public class Player extends Entity {
 	public final int maxInventoryCol = 4;
 	public final int maxInventoryRow = 6;
 	public boolean hit = false;
+
 	
 	public Player(GamePanel gp, KeyHandler keyH) {
 		
@@ -309,8 +310,8 @@ public class Player extends Entity {
 				if(slotChestplate != null) slotChestplate.durability--;
 				if(slotLeggings   != null) slotLeggings.durability--;
 				if(slotBoots      != null) slotBoots.durability--;
-				
-				health -= damage; 
+
+				modifyStat("health", -damage);
 				invincible = true;
 			}
 		}
@@ -327,8 +328,8 @@ public class Player extends Entity {
 			if(gp.it[index].destructible && gp.it[index].correctToolUsed(slotAxe)) {
 				
 				generateParticle(gp.it[index], gp.it[index]);
-				
-				gp.it[index].health -= slotAxe.attackValue;
+
+				gp.it[index].modifyStat("health", -slotAxe.attackValue);
 				if(gp.it[index].health <= 0) gp.it[index] = gp.it[index].afterDestroy;
 			}
 		}
@@ -346,12 +347,6 @@ public class Player extends Entity {
 				if(damage < 0) damage = 0;
 				
 				int offsetX = 4;
-				switch(direction) {
-				case "up":    offsetX -= 28; break;
-				case "down":  offsetX += 32; break;
-				case "left":  offsetX -= 28; break;
-				case "right": offsetX += 32; break;
-				}
 				
 				gp.ui.addEventMessage("-" + damage, 
 						              24f, 
@@ -363,7 +358,7 @@ public class Player extends Entity {
 						              false);
 			
 				if (gp.mon[index].health - damage <= 0) gp.mon[index].health = 0;
-				else gp.mon[index].health -= damage; 
+				else gp.mon[index].modifyStat("health", -damage);
 				
 				gp.mon[index].invincible = true;
 				if(!spell) {
@@ -583,33 +578,7 @@ public class Player extends Entity {
 			useTool();
 		}
 		else {
-			
-			if(keyH.dashPressed && (caracterClass != 3 && caracterClass != 4)) {
-				actualSpeed = 12;
-				String tempDirection = direction;
-				if (keyH.upPressed   ) direction = "up";
-				if (keyH.downPressed ) direction = "down";
-				if (keyH.leftPressed ) direction = "left";
-				if (keyH.rightPressed) direction = "right";
-				gp.cChecker.checkTile(this);
-				gp.cChecker.checkEntity(this, gp.npc);
-				gp.cChecker.checkEntity(this, gp.mon);
-				     if (keyH.upPressed    && dashCounter < 5 && !collisionOn && stamina > 1) { worldY -= actualSpeed; if(canDash)stamina -= 2; canDash = false; }
-				else if (keyH.downPressed  && dashCounter < 5 && !collisionOn && stamina > 1) { worldY += actualSpeed; if(canDash)stamina -= 2; canDash = false; }
-				else if (keyH.leftPressed  && dashCounter < 5 && !collisionOn && stamina > 1) { worldX -= actualSpeed; if(canDash)stamina -= 2; canDash = false; }
-				else if (keyH.rightPressed && dashCounter < 5 && !collisionOn && stamina > 1) { worldX += actualSpeed; if(canDash)stamina -= 2; canDash = false; }
-				
-				direction = tempDirection;
-			} else {
-				
-				if (keyH.upPressed    && !keyH.downPressed ) { if(keyH.shiftPressed && stamina > 0) running = true; direction = "up";    walking = true; }
-				if (keyH.downPressed  && !keyH.upPressed   ) { if(keyH.shiftPressed && stamina > 0) running = true; direction = "down";  walking = true; }
-				if (keyH.leftPressed  && !keyH.rightPressed) { if(keyH.shiftPressed && stamina > 0) running = true; direction = "left";  walking = true; }
-				if (keyH.rightPressed && !keyH.leftPressed ) { if(keyH.shiftPressed && stamina > 0) running = true; direction = "right"; walking = true; }
-				
-				if (!keyH.upPressed && !keyH.downPressed && !keyH.leftPressed && !keyH.rightPressed) walking = false;
-				if (!keyH.shiftPressed) running = false;
-			}
+
 			// CHECK ITM COLLISIONS
 			int itmIndex = gp.cChecker.checkItem(this, true);
 			pickUpItm(itmIndex);
@@ -647,7 +616,38 @@ public class Player extends Entity {
 				default: break;
 				}
 			}
-			
+
+			if(keyH.dashPressed && (caracterClass != 3 && caracterClass != 4)) {
+				actualSpeed = 10;
+				boolean tempWalking = walking;
+				walking = false;
+				String tempDirection = direction;
+				if (keyH.upPressed   ) direction = "up";
+				if (keyH.downPressed ) direction = "down";
+				if (keyH.leftPressed ) direction = "left";
+				if (keyH.rightPressed) direction = "right";
+				gp.cChecker.checkTile(this);
+				gp.cChecker.checkEntity(this, gp.npc);
+				gp.cChecker.checkEntity(this, gp.mon);
+				     if (keyH.upPressed    && dashCounter < 10 && !collisionOn && stamina > 1) { worldY -= actualSpeed; if(canDash)stamina -= 2; canDash = false; }
+				else if (keyH.downPressed  && dashCounter < 10 && !collisionOn && stamina > 1) { worldY += actualSpeed; if(canDash)stamina -= 2; canDash = false; }
+				else if (keyH.leftPressed  && dashCounter < 10 && !collisionOn && stamina > 1) { worldX -= actualSpeed; if(canDash)stamina -= 2; canDash = false; }
+				else if (keyH.rightPressed && dashCounter < 10 && !collisionOn && stamina > 1) { worldX += actualSpeed; if(canDash)stamina -= 2; canDash = false; }
+
+				direction = tempDirection;
+				walking = tempWalking;
+			} else {
+
+				if (keyH.upPressed    && !keyH.downPressed ) { if(keyH.shiftPressed && stamina > 0) running = true; direction = "up";    walking = true; }
+				if (keyH.downPressed  && !keyH.upPressed   ) { if(keyH.shiftPressed && stamina > 0) running = true; direction = "down";  walking = true; }
+				if (keyH.leftPressed  && !keyH.rightPressed) { if(keyH.shiftPressed && stamina > 0) running = true; direction = "left";  walking = true; }
+				if (keyH.rightPressed && !keyH.leftPressed ) { if(keyH.shiftPressed && stamina > 0) running = true; direction = "right"; walking = true; }
+
+				if (!keyH.upPressed && !keyH.downPressed && !keyH.leftPressed && !keyH.rightPressed) walking = false;
+				if (!keyH.shiftPressed) running = false;
+			}
+
+
 			if(keyH.attackPressed && !attackCanceled) {
 				attacking = true; 
 				gp.playSE(13);
@@ -695,7 +695,9 @@ public class Player extends Entity {
 		if (keyH.spellPressed && (caracterClass == 3 || caracterClass == 4) && slotProjectiles[keyH.spell] != null && !slotProjectiles[keyH.spell].alive && projectileCounter[keyH.spell] == slotProjectiles[keyH.spell].spellCooldown) {
 			if(mana >= slotProjectiles[keyH.spell].useCost) {
 				castingSpell = true;
-				System.out.println(keyH.spell);
+
+
+
 				slotProjectiles[keyH.spell].set(worldX, worldY, direction, true, this);
 				if(!gp.projectileList.contains(slotProjectiles[keyH.spell]))
 					gp.projectileList.add(slotProjectiles[keyH.spell]);
@@ -717,7 +719,7 @@ public class Player extends Entity {
 		// DASH COUNTER
 		if((caracterClass != 3 && caracterClass != 4) && !canDash) {
 			dashCounter++;
-			if(dashCounter > 60) {
+			if(dashCounter > 120) {
 				canDash = true;
 				dashCounter = 0;
 			}

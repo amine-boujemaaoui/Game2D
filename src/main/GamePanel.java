@@ -1,10 +1,7 @@
 package main;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -29,6 +26,11 @@ public class GamePanel extends JPanel implements Runnable {
 	public final int maxScreenRow = 18;
 	public final int screenWidth = tileSize * maxScreenCol;
 	public final int screenHeight = tileSize * maxScreenRow;
+	int screenWidthFull = screenWidth;
+	int screenHeightFull = screenHeight;
+	public boolean fullScreen = true;
+	BufferedImage fullScreenImage;
+	Graphics2D g2;
 	final int FPS = 60;
 	public int drawFPS;
 	public int debugFPS;
@@ -52,8 +54,8 @@ public class GamePanel extends JPanel implements Runnable {
 	public ArrayList<Entity> particleList = new ArrayList<>();
 	public Entity obj[] = new Entity[30];
 	public Entity npc[] = new Entity[10];
-	public Entity mon[] = new Entity[30];
-	public Entity itm[] = new Entity[30];
+	public Entity mon[] = new Entity[99];
+	public Entity itm[] = new Entity[99];
 	public InteractiveTile it[] = new InteractiveTile[40];
 	
 	// WORLD SETTINGS
@@ -67,6 +69,7 @@ public class GamePanel extends JPanel implements Runnable {
 	public final int pauseState = 2;
 	public final int dialogueState = 3;
 	public final int equipmentWindowState = 4;
+	public final int settingsState = 5;
 	
 	// TYPES
 	public final int typePLY = 0;
@@ -102,7 +105,7 @@ public class GamePanel extends JPanel implements Runnable {
 	public String classSelectionOptions[] = {"KNIGHT", "THIEF", "ARCHER", "WIZARD", "SORCELER"};
 	public String playerStatsTitles[] = {"Attack", "Atk Speed", "Speed", "Toughness"};
 	public String statsTitles[] = {"Health", "Mana", "Sta", "Def", "Str", "Int"};
-	public int statsValues[][] = {{ 8,        0,       6,    8,     8,     8   },
+	public int statsValues[][] = {{ 8,        0,      20,    8,     8,     8   },
 								  { 4,        0,       8,    2,     4,     6   },
 								  { 4,        0,       4,    4,     4,     6   },
 								  { 6,        8,       4,    2,     1,     2   },
@@ -123,8 +126,11 @@ public class GamePanel extends JPanel implements Runnable {
 		aSetter.setOBJ();
 		aSetter.setMON();
 		aSetter.setIT();
-		//playMusic(0);
+		playMusic(0);
 		gameState = titleScreenState;
+
+		fullScreenImage = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_ARGB);
+		g2 = (Graphics2D) fullScreenImage.getGraphics();
 	}
 	public void startGameThread() {
 
@@ -146,14 +152,20 @@ public class GamePanel extends JPanel implements Runnable {
 			lastTime = currentTime;
 			
 			if (delta > 1) {
-				update(); repaint();
+				update();
+				// repaint();
+				drawFullScreenImage();
+				drawToScereen();
 				delta--; drawFPS++;
 			}
 			if ( timer >= 1000000000 ) { debugFPS = drawFPS; drawFPS = 0; timer = 0; }
 		}
 	}
 	public void update() {
-		
+
+		if(gameState == titleScreenState) {
+			System.out.println("Title Screen");
+		}
 		if(gameState == playState)  {
 			
 			// PLAYER
@@ -217,11 +229,87 @@ public class GamePanel extends JPanel implements Runnable {
 		if(gameState == equipmentWindowState) {
 			     if((keyH.enterPressed || keyH.spacePressed) && setSpeedCounter == 0)  { playSE(4); player.selectItem(); startSetSpeedCounter = true; }
 			else if(keyH.backSpacePressed && setSpeedCounter == 0) { playSE(7); player.dropItem(); startSetSpeedCounter = true; }
-			 
-			if(setSpeedCounter >= 20) { setSpeedCounter = 0; startSetSpeedCounter = false; } 
-			else if (startSetSpeedCounter) setSpeedCounter++;
+			if(setSpeedCounter >= 20) { setSpeedCounter = 0; startSetSpeedCounter = false; }
+			if (startSetSpeedCounter) setSpeedCounter++;
+		}
+		if (gameState == settingsState) {
+			if((keyH.enterPressed || keyH.spacePressed) && setSpeedCounter == 0) { playSE(4); ui.selectOption(); startSetSpeedCounter = true; }
+			if(setSpeedCounter >= 20) { setSpeedCounter = 0; startSetSpeedCounter = false; }
+			if (startSetSpeedCounter) setSpeedCounter++;
 		}
 	}
+	public void drawFullScreenImage() {
+
+		if(gameState == titleScreenState) { }
+		else {
+
+			tileM.draw(g2);
+
+			entityList.add(player);
+
+			for (int i = 0; i < it.length; i++)
+				if(it[i] != null) entityList.add(it[i]);
+
+			for (int i = 0; i < obj.length; i++)
+				if(obj[i] != null) entityList.add(obj[i]);
+
+			for (int i = 0; i < itm.length; i++)
+				if(itm[i] != null) entityList.add(itm[i]);
+
+			for (int i = 0; i < npc.length; i++)
+				if(npc[i] != null) entityList.add(npc[i]);
+
+			for (int i = 0; i < mon.length; i++)
+				if(mon[i] != null) entityList.add(mon[i]);
+
+			for (int i = 0; i < projectileList.size(); i++)
+				if(projectileList.get(i) != null) entityList.add(projectileList.get(i));
+
+			// for (int i = 0; i < particleList.size(); i++)
+			// 	 if(particleList.get(i) != null) entityList.add(particleList.get(i));
+
+			Collections.sort(entityList, new Comparator<Entity>() {
+				@Override
+				public int compare(Entity e1, Entity e2) {
+					return Integer.compare(e1.worldY, e2.worldY);
+				}
+			});
+
+			for (int i = 0; i < entityList.size(); i++)
+				entityList.get(i).draw(g2, this);
+
+			for (int i = 0; i < particleList.size(); i++)
+				if(particleList.get(i) != null) particleList.get(i).draw(g2, this);
+
+			entityList.clear();
+
+			if (keyH.debug) {
+				g2.setColor(Color.black);
+				g2.setFont(g2.getFont().deriveFont(Font.BOLD, 30f));
+				g2.drawString("X: " + (player.worldX/tileSize) + ", Y: " + (player.worldY/tileSize), tileSize, tileSize);
+				g2.drawString("FPS: " + debugFPS, tileSize, tileSize + 24);
+				g2.drawString("Invincible: " + player.invincible, tileSize, tileSize + 48);
+				g2.drawString("Speed: " + player.speed, tileSize, tileSize + 48 + 24);
+			}
+		}
+		ui.draw(g2);
+	}
+	public void drawToScereen() {
+
+		Graphics g = this.getGraphics();
+		g.drawImage(fullScreenImage, 0, 0, screenWidthFull, screenHeightFull, null);
+		g.dispose();
+	}
+	public void setFullScreen() {
+
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice gd = ge.getDefaultScreenDevice();
+		gd.setFullScreenWindow(Main.window);
+		screenWidthFull = Main.window.getWidth();
+		screenHeightFull = Main.window.getHeight();
+
+	}
+	/*
 	public void paintComponent(Graphics g) {
 
 		super.paintComponent(g);
@@ -284,6 +372,7 @@ public class GamePanel extends JPanel implements Runnable {
 		}
 		g2.dispose();
 	}
+	*/
 	public void playMusic(int i) {
 		music.setVolume(-30f);
 		music.setFile(i);
@@ -292,8 +381,7 @@ public class GamePanel extends JPanel implements Runnable {
 		music.setVolume(-15f);
 	}
 	public void stopMusic() {
-		
-		//music.stop();
+		music.stop();
 	}
 	public void playSE(int i) {
 		

@@ -17,6 +17,7 @@ public class TileManager {
 	GamePanel gp;
 	public Tile[] tiles;
 	public int mapTileNum[][];
+	public Tile[][] mapTiles;
 	
 	public TileManager(GamePanel gp) {
 
@@ -78,7 +79,7 @@ public class TileManager {
 		
 		int worldCol = 0, worldRow = 0;
 		while(worldCol < gp.maxWorldCol && worldRow < gp.maxWorldRow) {
-			
+
 			int worldX =  worldCol * gp.tileSize;
 			int worldY =  worldRow * gp.tileSize;
 			int screenX = worldX - gp.player.worldX + gp.player.screenX;

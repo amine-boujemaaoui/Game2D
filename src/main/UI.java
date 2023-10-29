@@ -41,9 +41,13 @@ public class UI {
 	public String currentDialogue = "";
 	public int selectedOption = 0;
 	public int subStateScreen = 0;
+	public int volumeBar = 0;
     public String indicationText;
 	ArrayList<EventMessage> eventMessages = new ArrayList<EventMessage>();
 	public String titleScreenOptions[] = {"NEW GAME", "LOAD GAME", "QUIT"};
+	public String settingsOptions[] = {"FULL SCREEN", "MUSIC", "SOUND", "CONTROLS", "BACK", "QUIT"};
+	public String controlsOptions[] = {"UP", "DOWN", "LEFT", "RIGHT", "ATTACK", "TOOL", "SPELL", "DASH", "INVENTORY", "BACK"};
+	public String controlsKeys[] = {"W", "S", "A", "D", "H", "N", "J-K-L", "G", "I", ""};
 	public int slotCol = 0, slotRow = 0;
 	
 	public UI(GamePanel gp) {
@@ -51,7 +55,7 @@ public class UI {
 		this.gp = gp;
 
 		InputStream is = getClass().getResourceAsStream("/fonts/Minecraft.TTF");
-		try { pixelFont = Font.createFont(Font.TRUETYPE_FONT, is); } 
+		try { pixelFont = Font.createFont(Font.TRUETYPE_FONT, is); }
 		catch (Exception e) { e.printStackTrace(); }
 		 
 		int iconSize = (int)(gp.tileSize*0.75);
@@ -110,6 +114,7 @@ public class UI {
 		if(gp.gameState == gp.dialogueState       ) { drawDialogueScreen(g2); }
 		if(gp.gameState == gp.equipmentWindowState) { drawEquipmentWindow(g2); drawInventory(g2); }
 		if(gp.gameState == gp.playState           ) { drawGUI(g2); drawEventMessages(g2); }
+		if(gp.gameState == gp.settingsState       ) { drawSettingsScreen(g2); }
 	}
 	public void drawTitleScreen(Graphics2D g2) {
 		String title;
@@ -524,5 +529,176 @@ public class UI {
 	public int getItemIndexInventory() {
 		
 		return slotCol + slotRow * gp.player.maxInventoryCol;
+	}
+	public void drawSettingsScreen(Graphics2D g2){
+
+		g2.setColor(Color.white);
+		g2.setFont(g2.getFont().deriveFont(32f));
+
+		int frameX = gp.tileSize*9;
+		int frameY = gp.tileSize*2;
+		int frameWidth = gp.screenWidth - frameX*2;
+		int frameHeight = gp.screenHeight - frameY*2;
+		if (subStateScreen == 2)    drawSubWindow(frameX, frameY - 80, frameWidth, frameHeight + 160);
+		else 						drawSubWindow(frameX, frameY, frameWidth, frameHeight);
+
+		switch (subStateScreen) {
+			case 0: settings_title(g2);
+				break;
+			case 1: drawNotificationPopUp(frameX, frameY, frameWidth, frameHeight, "Information", "Les modification prendront effet apres le redemarrage du jeu", true);
+				break;
+			case 2: drawControlsSetting(frameX, frameY);
+				break;
+			case 3:
+				break;
+			case 4: gp.gameState = gp.playState;
+				break;
+			case 5: drawNotificationPopUp(frameX, frameY, frameWidth, frameHeight, "Information", "Voulez vous vraiment retourner au menu principale ?", false);
+				break;
+
+		}
+	}
+	public void settings_title(Graphics2D g2) {
+
+		String title = "Settings";
+		g2.setFont(g2.getFont().deriveFont(60f));
+		drawTextShadow(title, Color.gray, Color.white, getXforCenteredText(title), gp.tileSize*4);
+
+		int space = 30;
+		int x = gp.tileSize*9 + gp.tileSize;
+		int y = gp.tileSize*2 + gp.tileSize*5;
+		int width = gp.screenWidth - x*2;
+		int height = gp.screenHeight - y*2;
+
+		g2.setFont(g2.getFont().deriveFont(32f));
+		g2.setColor(Color.gray);
+		for (int i = 0, j = 0 ; i < settingsOptions.length; i++, j+=2) {
+			if (i == settingsOptions.length-2) j+=2;
+			if (i == selectedOption) g2.setColor(Color.white);
+			else g2.setColor(Color.gray);
+			g2.drawString(settingsOptions[i], x + space, y + space*j);
+		}
+
+		g2.setColor(Color.white);
+		if (selectedOption < settingsOptions.length-2) g2.drawString(">", x, y + selectedOption*space*2);
+		else g2.drawString(">", x, y + selectedOption*space*2+space*2);
+
+		if(gp.fullScreen) {
+			g2.setColor(Color.gray);
+			g2.fillRect(x + (int)(width/1.5), y - 24, 24, 24);
+			g2.setColor(Color.white);
+		}
+
+		g2.drawRect(x + (int)(width/1.5), y - 24,           24,   24);
+
+		g2.setColor(Color.gray);
+		g2.fillRect(x + (int)(width/1.5), y - 24 + space*2, 24*gp.music.volumeIndicator, 24);
+		g2.setColor(Color.white);
+		g2.drawRect(x + (int)(width/1.5), y - 24 + space*2, 24*8, 24);
+
+		g2.setColor(Color.gray);
+		g2.fillRect(x + (int)(width/1.5), y - 24 + space*4, 24*gp.se.volumeIndicator, 24);
+		g2.setColor(Color.white);
+		g2.drawRect(x + (int)(width/1.5), y - 24 + space*4, 24*8, 24);
+
+
+	}
+	public void drawNotificationPopUp(int frameX, int frameY, int frameW, int frameH, String title, String text, boolean back) {
+
+		g2.setColor(Color.white);
+		g2.setFont(g2.getFont().deriveFont(32f));
+		drawSubWindow(frameX, frameY, frameW, frameH);
+
+		g2.setFont(g2.getFont().deriveFont(60f));
+		drawTextShadow(title, Color.gray, Color.white, getXforCenteredText(title), frameY + gp.tileSize*4);
+
+		g2.setFont(g2.getFont().deriveFont(32f));
+		gp.ut.drawMultilineString(g2, text, frameX + gp.tileSize*2, frameY + gp.tileSize*6, frameW - gp.tileSize*4, frameH - gp.tileSize*8);
+
+		if(back) g2.drawString("> BACK", frameX + gp.tileSize*2, frameY + gp.tileSize*12);
+		else {
+			int middle = gp.screenWidth/2 -gp.tileSize;
+			g2.drawString("YES", middle + gp.tileSize*2, frameY + gp.tileSize*12);
+			g2.drawString("NO",  middle - gp.tileSize*2, frameY + gp.tileSize*12);
+			int x = middle - 40;
+			if (selectedOption == 1) x += gp.tileSize*2;
+			else 					 x -= gp.tileSize*2;
+			g2.drawString(">", x, frameY + gp.tileSize*12);
+		}
+	}
+	public void selectOption() {
+
+		switch (subStateScreen) {
+			case 0:
+				switch (selectedOption) {
+				case 0:
+					if (gp.fullScreen) gp.fullScreen = false;
+					else gp.fullScreen = true;
+					gp.ui.subStateScreen = 1;
+					gp.ui.selectedOption = 0;
+					break;
+				case 3:
+					gp.ui.subStateScreen = 2;
+					gp.ui.selectedOption = 0;
+					break;
+				case 4:
+					gp.gameState = gp.playState;
+					break;
+				case 5:
+					gp.ui.subStateScreen = 5;
+					gp.ui.selectedOption = 0;
+					break;
+				} break;
+			case 1:
+				gp.ui.subStateScreen = 0;
+				gp.ui.selectedOption = 0;
+				break;
+			case 2:
+				if(selectedOption == controlsOptions.length-1) {
+					gp.ui.subStateScreen = 0;
+					gp.ui.selectedOption = 0;
+				}
+				break;
+			case 5:
+				if(selectedOption == 1) {
+					gp.ui.subStateScreen = 0;
+					gp.ui.selectedOption = 0;
+					gp.gameState = gp.titleScreenState;
+				} else {
+					gp.ui.subStateScreen = 0;
+					gp.ui.selectedOption = 0;
+				}
+				break;
+		}
+	}
+	public void backOption() {
+
+	}
+	public void drawControlsSetting(int frameX, int frameY) {
+
+		String title = "Controls";
+		g2.setFont(g2.getFont().deriveFont(60f));
+		drawTextShadow(title, Color.gray, Color.white, getXforCenteredText(title), gp.tileSize*4 - 80);
+
+		int space = 50;
+		int x = gp.tileSize*9 + gp.tileSize + space;
+		int y = gp.tileSize*5;
+		int width = gp.screenWidth - x*2;
+		int height = gp.screenHeight - y*2;
+		int frameW = gp.screenWidth - gp.tileSize*18;
+		int j = 0;
+
+		g2.setFont(g2.getFont().deriveFont(32f));
+		for(int i = 0; i < controlsOptions.length; i++) {
+			if (i == controlsOptions.length-1)  j = i+1;
+			else j = i;
+			if(selectedOption == i) {
+				g2.setColor(Color.white);
+				g2.drawString(">", x - space, y + j*space);
+			} else g2.setColor(Color.gray);
+
+			g2.drawString(controlsOptions[i], x, y + j*space);
+			g2.drawString(controlsKeys[i], x + frameW/2, y + j*space);
+		}
 	}
 }

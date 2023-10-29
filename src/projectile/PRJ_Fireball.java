@@ -1,5 +1,6 @@
 package projectile;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 
 import main.GamePanel;
@@ -18,6 +19,13 @@ public class PRJ_Fireball extends PRJ {
 		alive = false;
 		spellCooldown = 200;
 		getImages();
+
+		particleColor = new Color(255, 0, 0);
+		particleSize = 6;
+		particleSpeed = 3;
+		particleMaxHealth = 10;
+
+		particleOffsetX = gp.tileSize/2 - particleSize/2;
 	}
 	public void getImages() {
 		

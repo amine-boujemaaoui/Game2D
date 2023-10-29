@@ -26,7 +26,7 @@ public class MON_RedSlime extends Entity {
 		
 		maxHealth = 10;
 		health = maxHealth;
-		attack = 1;
+		attack = 5;
 		toughness = 2;
 		exp = 1;
 		
@@ -110,9 +110,9 @@ public class MON_RedSlime extends Entity {
 		
 		int rand = gp.r.nextInt(300)+1;
 		
-		if(rand > 250) drop(new ITM_Potion_Healing(gp)); 
+		if(rand > 100) drop(new ITM_Potion_Healing(gp));
 		
-		if(rand > 150) drop(new ITM_Key(gp));
+		if(rand > 250) drop(new ITM_Key(gp));
 		
 		if(rand > 100) {
 			Entity coin_bronze = new ITM_Coin_Bronze(gp);

@@ -29,6 +29,7 @@ public class PRJ extends Entity{
 			if(monIndex != 999) {
 				gp.player.damageMonster(monIndex, attackValue, true);
 				alive = false;
+				generateParticle(user.slotProjectiles[gp.keyH.spell], gp.mon[monIndex]);
 			}
 		} else {
 			
@@ -37,6 +38,7 @@ public class PRJ extends Entity{
 				
 				damagePlayer(attackValue);
 				alive = false;
+				generateParticle(user.slotProjectiles[0], gp.player);
 			}
 		}
 		

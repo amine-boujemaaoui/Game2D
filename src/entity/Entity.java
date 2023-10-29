@@ -329,27 +329,25 @@ public class Entity {
 		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
 	}
 	public void damagePlayer(int attack) {
-		
-		
-		   gp.playSE(15); 
-		   
-		   int damage = attack - gp.player.toughness;
-			if(damage < 0) damage = 0;
+
+		gp.playSE(15);
+		int damage = attack - gp.player.toughness;
+		if(damage < 0) damage = 0;
 			
-			if(slotHelmet     != null) slotHelmet.durability--;
-			if(slotChestplate != null) slotChestplate.durability--;
-			if(slotLeggings   != null) slotLeggings.durability--;
-			if(slotBoots      != null) slotBoots.durability--;
-			
-		   gp.player.health -= damage; 
-		   gp.player.invincible = true;
+		if(slotHelmet     != null) slotHelmet.durability--;
+		if(slotChestplate != null) slotChestplate.durability--;
+		if(slotLeggings   != null) slotLeggings.durability--;
+		if(slotBoots      != null) slotBoots.durability--;
+
+		gp.player.modifyStat("health", -damage);
+		gp.player.invincible = true;
 	}
-	public void modifyStat(int stat, int value) {
+	public void modifyStat(String stat, int value) {
 		
 		switch(stat) {
-		case 1: if(health  + value > maxHealth ) health  = maxHealth;  else if(health  + value < 0) health = 0;  else health  += value; break;
-		case 2: if(mana    + value > maxMana   ) mana    = maxMana;    else if(mana    + value < 0) mana = 0;    else mana    += value; break;
-		case 3: if(stamina + value > maxStamina) stamina = maxStamina; else if(stamina + value < 0) stamina = 0; else stamina += value; break;
+		case "health":  if(health  + value > maxHealth ) health  = maxHealth;  else if(health  + value < 0) health = 0;  else health  += value; break;
+		case "mana":    if(mana    + value > maxMana   ) mana    = maxMana;    else if(mana    + value < 0) mana = 0;    else mana    += value; break;
+		case "stamina": if(stamina + value > maxStamina) stamina = maxStamina; else if(stamina + value < 0) stamina = 0; else stamina += value; break;
 		}
 	}
 	public void generateParticle(Entity generator, Entity target) {
