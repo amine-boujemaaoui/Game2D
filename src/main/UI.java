@@ -10,7 +10,9 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import javax.imageio.ImageIO;
+import java.util.Map;
 
 import entity.Entity;
 
@@ -34,6 +36,7 @@ public class UI {
 	public int x, y;
 	BufferedImage dialogueWindow, titleScreen, statsWindow, equipmentWindow, expBarOutline, inventoryWindow, itemInfosWindow, inventoryCursor;
 	BufferedImage E, SPACE;
+	public Map<String, BufferedImage> keys = new HashMap<>();
 	BufferedImage heart_full,   heart_half,   heart_empty;
 	BufferedImage mana_full,    mana_half,    mana_empty;
 	BufferedImage stamina_full, stamina_half, stamina_empty;
@@ -86,14 +89,14 @@ public class UI {
 		exp_bar       = gp.ut.setup("/ui/icons/exp_bar",       4,             4             );
 	
 		// KEYS
-		E     = gp.ut.setup("/ui/keys/E",     gp.tileSize/3, gp.tileSize/3 );
-		SPACE = gp.ut.setup("/ui/keys/SPACE", 2*gp.tileSize, 2*gp.tileSize/3 );
-			
+		keys.put("E", 		gp.ut.setup("/ui/keys/E",       gp.tileSize/3, gp.tileSize/3 ));
+		keys.put("SPACE",	gp.ut.setup("/ui/keys/SPACE", 2*gp.tileSize, 2*gp.tileSize/3 ));
+
 	}
 	public void showMessage(String key, String text, int x, int y) {
 		messageOn = true;
 		this.indicationText = text;
-		this.showKey = key; 
+		this.showKey = key;
 		this.x = x; this.y = y;
 	}
 	public void addEventMessage(String text, float fontSize, int fontType, Color textColor, Color shadowColor, int x, int y, boolean fixedPosition) {
@@ -106,7 +109,8 @@ public class UI {
 		
 		g2.setFont(pixelFont);
 		g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		 
+
+
 		if(messageOn) drawIndication(showKey, indicationText, x, y);
 
 		if(gp.gameState == gp.titleScreenState    ) { drawTitleScreen(g2); }
@@ -517,8 +521,9 @@ public class UI {
 		int screenY = y - gp.player.worldY + gp.player.screenY;
 		
 		g2.setFont(g2.getFont().deriveFont(18f));
-		g2.drawImage(E, screenX + 50, screenY + 10, null);
-		
+
+		if(key != "") g2.drawImage(keys.get(key), screenX + 50, screenY + 10, null);
+
 		g2.setColor(Color.black);  g2.drawString(text, screenX + 72 + 1, screenY + 22 + 1);
 		g2.setColor(Color.white); g2.drawString(text, screenX + 72,     screenY + 22);
 		messageOn = false;

@@ -115,9 +115,9 @@ public class Entity {
 		collisionOn = false;
 		gp.cChecker.checkTile(this);
 		gp.cChecker.checkObject(this, false);
-		gp.cChecker.checkEntity(this, gp.npc);
-		gp.cChecker.checkEntity(this, gp.mon);
-		gp.cChecker.checkEntity(this, gp.it);
+		gp.cChecker.checkEntity(this, gp.npc[gp.currentMap]);
+		gp.cChecker.checkEntity(this, gp.mon[gp.currentMap]);
+		gp.cChecker.checkEntity(this, gp.it[gp.currentMap]);
 		boolean contactPlayer = gp.cChecker.checkPlayer(this);
 		
 		if( this.type == gp.typeMON &&
@@ -174,14 +174,13 @@ public class Entity {
 	}
 	public void drop(Entity dropITM) {
 		
-		for(int i = 0; i < gp.itm.length; i++)
-			if( gp.itm[i] == null) {
-				gp.itm[i] = dropITM;
-				gp.itm[i].worldX = worldX + gp.r.nextInt(-8, 9);
-				gp.itm[i].worldY = worldY + gp.r.nextInt(-8, 9);
+		for(int i = 0; i < gp.itm[gp.currentMap].length; i++)
+			if( gp.itm[gp.currentMap][i] == null) {
+				gp.itm[gp.currentMap][i] = dropITM;
+				gp.itm[gp.currentMap][i].worldX = worldX + gp.r.nextInt(-8, 9);
+				gp.itm[gp.currentMap][i].worldY = worldY + gp.r.nextInt(-8, 9);
 				break;
 			}
-		
 	}
 	public void setAction () {
 		

@@ -30,10 +30,18 @@ public class GamePanel extends JPanel implements Runnable {
 	int screenHeightFull = screenHeight;
 	public boolean fullScreen = true;
 	BufferedImage fullScreenImage;
-	Graphics2D g2;
+	public Graphics2D g2;
 	final int FPS = 60;
 	public int drawFPS;
 	public int debugFPS;
+
+	// WORLD SETTINGS
+	// public int maxWorldCol = 61;
+	// public int maxWorldRow = 57;
+	public int maxWorldCol = 200;
+	public int maxWorldRow = 200;
+	public int maxMaps = 2;
+	public int currentMap = 0;
 
 	// HANDLERS
 	public EventHandler eventH = new EventHandler(this);
@@ -53,15 +61,11 @@ public class GamePanel extends JPanel implements Runnable {
 	public ArrayList<Entity> entityList = new ArrayList<>();
 	public ArrayList<Entity> projectileList = new ArrayList<>();
 	public ArrayList<Entity> particleList = new ArrayList<>();
-	public Entity obj[] = new Entity[30];
-	public Entity npc[] = new Entity[10];
-	public Entity mon[] = new Entity[99];
-	public Entity itm[] = new Entity[99];
-	public InteractiveTile it[] = new InteractiveTile[40];
-	
-	// WORLD SETTINGS
-	public final int maxWorldCol = 61;
-	public final int maxWorldRow = 57;
+	public Entity obj[][] = new Entity[maxMaps][30];
+	public Entity npc[][] = new Entity[maxMaps][10];
+	public Entity mon[][] = new Entity[maxMaps][99];
+	public Entity itm[][] = new Entity[maxMaps][99];
+	public InteractiveTile it[][] = new InteractiveTile[maxMaps][40];
 	
 	// GAME STATES
 	public int gameState;
@@ -174,39 +178,39 @@ public class GamePanel extends JPanel implements Runnable {
 			player.update();
 			
 			// OBJs
-			for (int i = 0; i < obj.length; i++) 
-				if(obj[i] != null) obj[i].update();
+			for (int i = 0; i < obj[currentMap].length; i++)
+				if(obj[currentMap][i] != null) obj[currentMap][i].update();
 			
 			// NPCs
-			for (int i = 0; i < npc.length; i++) 
-				if(npc[i] != null) npc[i].update();
+			for (int i = 0; i < npc[currentMap].length; i++)
+				if(npc[currentMap][i] != null) npc[currentMap][i].update();
 			
 			// ITMs
-			for (int i = 0; i < itm.length; i++) 
-				if(itm[i] != null) itm[i].update();
+			for (int i = 0; i < itm[currentMap].length; i++)
+				if(itm[currentMap][i] != null) itm[currentMap][i].update();
 			
 			// TILEs
-			for (int i = 0; i < it.length; i++) 
-				if(it[i] != null) it[i].update();
+			for (int i = 0; i < it[currentMap].length; i++)
+				if(it[currentMap][i] != null) it[currentMap][i].update();
 			
 			// MONs
-			for (int i = 0; i < mon.length; i++) {
-				if(mon[i] != null) {
-					if(mon[i].alive) mon[i].update();
+			for (int i = 0; i < mon[currentMap].length; i++) {
+				if(mon[currentMap][i] != null) {
+					if(mon[currentMap][i].alive) mon[currentMap][i].update();
 					else {
-						player.exp += mon[i].exp;
-						ui.addEventMessage("+" + mon[i].exp, 
+						player.exp += mon[currentMap][i].exp;
+						ui.addEventMessage("+" + mon[currentMap][i].exp,
 								           24f, 
 								           Font.BOLD, 
 								           ui.evtColM_exp, 
 								           ui.evtColS_exp, 
-								           mon[i].worldX + 24 + r.nextInt(-8, 9), 
-								           mon[i].worldY + 24 + r.nextInt(-8, 9),
+								           mon[currentMap][i].worldX + 24 + r.nextInt(-8, 9),
+								           mon[currentMap][i].worldY + 24 + r.nextInt(-8, 9),
 								           false);
 						
 						player.checkLevel();
-						mon[i].checkDrop();
-						mon[i] = null;
+						mon[currentMap][i].checkDrop();
+						mon[currentMap][i] = null;
 					}
 				} 
 			}
@@ -249,26 +253,20 @@ public class GamePanel extends JPanel implements Runnable {
 
 			entityList.add(player);
 
-			for (int i = 0; i < it.length; i++)
-				if(it[i] != null) entityList.add(it[i]);
+			for (int i = 0; i < it[currentMap].length; i++)
+				if(it[currentMap][i] != null) entityList.add(it[currentMap][i]);
 
-			for (int i = 0; i < obj.length; i++)
-				if(obj[i] != null) entityList.add(obj[i]);
+			for (int i = 0; i < obj[currentMap].length; i++)
+				if(obj[currentMap][i] != null) entityList.add(obj[currentMap][i]);
 
-			for (int i = 0; i < itm.length; i++)
-				if(itm[i] != null) entityList.add(itm[i]);
+			for (int i = 0; i < itm[currentMap].length; i++)
+				if(itm[currentMap][i] != null) entityList.add(itm[currentMap][i]);
 
-			for (int i = 0; i < npc.length; i++)
-				if(npc[i] != null) entityList.add(npc[i]);
+			for (int i = 0; i < npc[currentMap].length; i++)
+				if(npc[currentMap][i] != null) entityList.add(npc[currentMap][i]);
 
-			for (int i = 0; i < mon.length; i++)
-				if(mon[i] != null) entityList.add(mon[i]);
-
-			for (int i = 0; i < projectileList.size(); i++)
-				if(projectileList.get(i) != null) entityList.add(projectileList.get(i));
-
-			// for (int i = 0; i < particleList.size(); i++)
-			// 	 if(particleList.get(i) != null) entityList.add(particleList.get(i));
+			for (int i = 0; i < mon[currentMap].length; i++)
+				if(mon[currentMap][i] != null) entityList.add(mon[currentMap][i]);
 
 			Collections.sort(entityList, new Comparator<Entity>() {
 				@Override
@@ -280,10 +278,13 @@ public class GamePanel extends JPanel implements Runnable {
 			for (int i = 0; i < entityList.size(); i++)
 				entityList.get(i).draw(g2, this);
 
+			entityList.clear();
+
+			for (int i = 0; i < projectileList.size(); i++)
+				if(projectileList.get(i) != null) entityList.add(projectileList.get(i));
+
 			for (int i = 0; i < particleList.size(); i++)
 				if(particleList.get(i) != null) particleList.get(i).draw(g2, this);
-
-			entityList.clear();
 
 			if (keyH.debug) {
 				g2.setColor(Color.black);

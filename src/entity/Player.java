@@ -80,7 +80,7 @@ public class Player extends Entity {
 		nextLevelExp = 2;
 		defaultAttackSpeed = 7; attackSpeed = defaultAttackSpeed;
 		
-		coins = 2654;
+		coins = 0;
 		coinsByType = gp.ut.calculerPieces(coins);
 		
 		setAttack();
@@ -254,34 +254,27 @@ public class Player extends Entity {
 	public void setItems() {
 		
 		inventory.add(new WPN_Sword_Wood(gp));
-		inventory.add(new WPN_Shield_Wood(gp));
-		inventory.add(new WPN_Sword_Iron(gp));
 		
 		inventory.add(new TOOL_Axe_Wood(gp));
 		inventory.add(new TOOL_Pickaxe_Wood(gp));
 		
 		inventory.add(new ARMR_Helmet_Leather(gp));
-		inventory.add(new ARMR_Chestplate_Leather(gp));
-		inventory.add(new ARMR_Leggings_Leather(gp));
 		inventory.add(new ARMR_Boots_Leather(gp));
 		
 		inventory.add(new ITM_Potion_Mana(gp));
 		inventory.add(new ITM_Potion_Mana(gp));
-		inventory.add(new ITM_Potion_Mana(gp));
-		inventory.add(new ITM_Potion_Mana(gp));
-		
-		inventory.add(new ITM_Potion_Healing(gp));
-		inventory.add(new ITM_Potion_Healing(gp));
-		inventory.add(new ITM_Potion_Healing(gp));
+
+		coins = 2632;
+		coinsByType = gp.ut.calculerPieces(coins);
 	}
 	public void pickUpItm(int index) {
 		
 		if(index != 999) {
 			
 			//PICKUP ONLY 
-			if(gp.itm[index].pickupOnly) {
-				gp.itm[index].use(this);
-				gp.itm[index] = null;
+			if(gp.itm[gp.currentMap][index].pickupOnly) {
+				gp.itm[gp.currentMap][index].use(this);
+				gp.itm[gp.currentMap][index] = null;
 			}
 			
 			// INVENTORY
@@ -289,10 +282,10 @@ public class Player extends Entity {
 				
 				if(inventory.size() != maxInventorySize) {
 					
-					inventory.add(gp.itm[index]);
+					inventory.add(gp.itm[gp.currentMap][index]);
 					gp.playSE(7);
 					
-					gp.ui.addEventMessage("picked up " + gp.itm[index].name, 
+					gp.ui.addEventMessage("picked up " + gp.itm[gp.currentMap][index].name,
 							12f, 
 							Font.BOLD, 
 							Color.white, 
@@ -301,7 +294,7 @@ public class Player extends Entity {
 							screenY + gp.tileSize,
 							true);
 					
-					gp.itm[index] = null;
+					gp.itm[gp.currentMap][index] = null;
 				}
 			}
 		}
@@ -310,21 +303,21 @@ public class Player extends Entity {
 		
 		if(index != 999) {
 			attackCanceled = true;
-			gp.ui.showMessage("E", "to talk to " + gp.npc[index].name, gp.npc[index].worldX, gp.npc[index].worldY);
+			gp.ui.showMessage("E", "to talk to " + gp.npc[gp.currentMap][index].name, gp.npc[gp.currentMap][index].worldX, gp.npc[gp.currentMap][index].worldY);
 			if(keyH.eventPressed) {
 				gp.gameState = gp.dialogueState;
-				gp.npc[index].speak();
+				gp.npc[gp.currentMap][index].speak();
 			}
 		} 
 	}
 	public void interactMON(int index) {
 		
 		if(index != 999) {
-			if(!gp.mon[index].dying && !invincible && health > 0) { 
+			if(!gp.mon[gp.currentMap][index].dying && !invincible && health > 0) {
 				
 				gp.playSE(15); 
 				
-				int damage = gp.mon[index].attack - toughness;
+				int damage = gp.mon[gp.currentMap][index].attack - toughness;
 				if(damage < 0) damage = 0;
 				
 				if(slotHelmet     != null) slotHelmet.durability--;
@@ -346,12 +339,12 @@ public class Player extends Entity {
 	public void interactIT(int index) {
 		
 		if(index != 999) {
-			if(gp.it[index].destructible && gp.it[index].correctToolUsed(slotAxe)) {
+			if(gp.it[gp.currentMap][index].destructible && gp.it[gp.currentMap][index].correctToolUsed(slotAxe)) {
 				
-				generateParticle(gp.it[index], gp.it[index]);
+				generateParticle(gp.it[gp.currentMap][index], gp.it[gp.currentMap][index]);
 
-				gp.it[index].modifyStat("health", -slotAxe.attackValue);
-				if(gp.it[index].health <= 0) gp.it[index] = gp.it[index].afterDestroy;
+				gp.it[gp.currentMap][index].modifyStat("health", -slotAxe.attackValue);
+				if(gp.it[gp.currentMap][index].health <= 0) gp.it[gp.currentMap][index] = gp.it[gp.currentMap][index].afterDestroy;
 			}
 		}
 	}
@@ -360,11 +353,11 @@ public class Player extends Entity {
 		if(index != 999) {
 			
 		
-		if(!gp.mon[index].invincible) {
+		if(!gp.mon[gp.currentMap][index].invincible) {
 				
 				gp.playSE(14);
 				
-				int damage = attack - gp.mon[index].toughness;
+				int damage = attack - gp.mon[gp.currentMap][index].toughness;
 				if(damage < 0) damage = 0;
 				
 				int offsetX = 4;
@@ -374,14 +367,14 @@ public class Player extends Entity {
 						              Font.BOLD, 
 						              gp.ui.evtColM_damage, 
 						              gp.ui.evtColS_damage, 
-						              gp.mon[index].worldX + offsetX + r.nextInt(-8, 9), 
-						              gp.mon[index].worldY + r.nextInt(-8, 9),
+						              gp.mon[gp.currentMap][index].worldX + offsetX + r.nextInt(-8, 9),
+						              gp.mon[gp.currentMap][index].worldY + r.nextInt(-8, 9),
 						              false);
 			
-				if (gp.mon[index].health - damage <= 0) gp.mon[index].health = 0;
-				else gp.mon[index].modifyStat("health", -damage);
+				if (gp.mon[gp.currentMap][index].health - damage <= 0) gp.mon[gp.currentMap][index].health = 0;
+				else gp.mon[gp.currentMap][index].modifyStat("health", -damage);
 				
-				gp.mon[index].invincible = true;
+				gp.mon[gp.currentMap][index].invincible = true;
 				if(!spell) {
 					if(slotMele != null) {
 						slotMele.durability--;
@@ -394,7 +387,7 @@ public class Player extends Entity {
 					}
 				}
 			}
-			if(gp.mon[index].health <= 0) gp.mon[index].dying = true; 
+			if(gp.mon[gp.currentMap][index].health <= 0) gp.mon[gp.currentMap][index].dying = true;
 		}
 	}
 	public void checkLevel() {
@@ -448,7 +441,7 @@ public class Player extends Entity {
 			hitBox.width  = attackHitBox.width;
 			hitBox.height = attackHitBox.height;
 			
-			int monIndex = gp.cChecker.checkEntity(this, gp.mon);
+			int monIndex = gp.cChecker.checkEntity(this, gp.mon[gp.currentMap]);
 			if(monIndex != 999 && stamina > 0) { damageMonster(monIndex, attack, false); hit = true; }
 			
 			worldX = currentWorldX;     worldY = currentWorldY;
@@ -483,7 +476,7 @@ public class Player extends Entity {
 			hitBox.width  = attackHitBox.width;
 			hitBox.height = attackHitBox.height;
 			
-			int itIndex = gp.cChecker.checkEntity(this, gp.it);
+			int itIndex = gp.cChecker.checkEntity(this, gp.it[gp.currentMap]);
 			if(itIndex != 999 && stamina > 0 && !hit) { interactIT(itIndex); hit = true; }
 			
 			worldX = currentWorldX;     worldY = currentWorldY;
@@ -565,8 +558,8 @@ public class Player extends Entity {
 				selectedItem != slotAxe              ){
 				
 				for(int i = 0; i < gp.itm.length; i++) {
-					if(gp.itm[i] == null) {
-						gp.itm[i] = selectedItem;
+					if(gp.itm[gp.currentMap][i] == null) {
+						gp.itm[gp.currentMap][i] = selectedItem;
 						
 						selectedItem.worldX = worldX + gp.r.nextInt(-8, 9);
 						selectedItem.worldY = worldY + gp.r.nextInt(-8, 9);
@@ -609,15 +602,15 @@ public class Player extends Entity {
 			interactOBJ(objIndex);
 			
 			// CHECK NPC COLLISION
-			int npcIndex = gp.cChecker.checkEntity(this, gp.npc);
+			int npcIndex = gp.cChecker.checkEntity(this, gp.npc[gp.currentMap]);
 			interactNPC(npcIndex);
 			
 			// CHECK NPC COLLISION
-			int monIndex = gp.cChecker.checkEntity(this, gp.mon);
+			int monIndex = gp.cChecker.checkEntity(this, gp.mon[gp.currentMap]);
 			interactMON(monIndex);
 			
 			// CHECK IT TILES COLLISION
-			int itIndex = gp.cChecker.checkEntity(this, gp.it);
+			int itIndex = gp.cChecker.checkEntity(this, gp.it[gp.currentMap]);
 			//interactIT(itIndex);
 			
 			// CHECK EVENT COLLISION
@@ -648,8 +641,8 @@ public class Player extends Entity {
 				if (keyH.leftPressed ) direction = "left";
 				if (keyH.rightPressed) direction = "right";
 				gp.cChecker.checkTile(this);
-				gp.cChecker.checkEntity(this, gp.npc);
-				gp.cChecker.checkEntity(this, gp.mon);
+				gp.cChecker.checkEntity(this, gp.npc[gp.currentMap]);
+				gp.cChecker.checkEntity(this, gp.mon[gp.currentMap]);
 				     if (keyH.upPressed    && dashCounter < 10 && !collisionOn && stamina > 1) { worldY -= actualSpeed; if(canDash)stamina -= 2; canDash = false; }
 				else if (keyH.downPressed  && dashCounter < 10 && !collisionOn && stamina > 1) { worldY += actualSpeed; if(canDash)stamina -= 2; canDash = false; }
 				else if (keyH.leftPressed  && dashCounter < 10 && !collisionOn && stamina > 1) { worldX -= actualSpeed; if(canDash)stamina -= 2; canDash = false; }
@@ -761,6 +754,7 @@ public class Player extends Entity {
 
 		if (health <= 0) {
 			gp.playSE(12);
+			gp.ui.selectedOption = -1;
 			gp.gameState = gp.gameOverState;
 		}
 	}

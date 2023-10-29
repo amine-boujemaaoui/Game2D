@@ -1,9 +1,11 @@
 package main;
 
+import java.awt.*;
+
 public class EventHandler {
 
 	GamePanel gp;
-	EventRect eventRect[][];
+	EventRect eventRect[][][];
 	int previousEventX, previousEventY;
 	public boolean canInitiateEvent = true;
 	
@@ -11,21 +13,23 @@ public class EventHandler {
 		
 		this.gp = gp;
 		
-		eventRect = new EventRect[gp.maxWorldCol][gp.maxWorldRow];
+		eventRect = new EventRect[gp.maxMaps][gp.maxWorldCol][gp.maxWorldRow];
 		
-		int col = 0, row = 0;
-		while(col < gp.maxWorldCol && row < gp.maxWorldRow) {
+		int map = 0, col = 0, row = 0;
+		while(map < gp.maxMaps && col < gp.maxWorldCol && row < gp.maxWorldRow) {
 			
-			eventRect[col][row] = new EventRect();
+			eventRect[map][col][row] = new EventRect();
 			
-			eventRect[col][row].x     = 23;         eventRect[col][row].y      = 23;
-			eventRect[col][row].width = 2;          eventRect[col][row].height = 2;
-			eventRect[col][row].eventRectDefaultX = eventRect[col][row].x;
-			eventRect[col][row].eventRectDefaultY = eventRect[col][row].y;
+			eventRect[map][col][row].x     = 23;         eventRect[map][col][row].y      = 23;
+			eventRect[map][col][row].width = 2;          eventRect[map][col][row].height = 2;
+			eventRect[map][col][row].eventRectDefaultX = eventRect[map][col][row].x;
+			eventRect[map][col][row].eventRectDefaultY = eventRect[map][col][row].y;
 			
-			col++; if(col == gp.maxWorldCol) { col = 0; row++;}
+			col++; if(col == gp.maxWorldCol) {
+				col = 0; row++;
+				if(row == gp.maxWorldRow) { row = 0; map++; }
+			}
 		}
-		
 	}
 	public void checkEvent() {
 		
@@ -36,36 +40,56 @@ public class EventHandler {
 		if(distance > gp.tileSize) canInitiateEvent = true;
 		
 		if(canInitiateEvent) {
-			if(hit(29, 14, "up"))  { healingPool(29, 14, gp.dialogueState); gp.ui.showMessage("E", "to heal yourself!", 29*gp.tileSize, 14*gp.tileSize); }
-			if(hit(29, 30, "any")) { fallPit(29, 30, gp.dialogueState); gp.ui.showMessage("", "FALLPIT!", 29*gp.tileSize, 30*gp.tileSize);} else { eventRect[29][30].eventDone = false; }
-			if(hit(22, 20, "any")) { fallPit(29, 30, gp.dialogueState); } else { eventRect[29][30].eventDone = false; }
+			if(hit(0, 29, 14, "up"))  {
+				healingPool	(gp.dialogueState);
+				gp.ui.showMessage("E", "to heal yourself!", 29*gp.tileSize, 14*gp.tileSize);
+			}
+
+			if(hit(0, 29, 30, "any")) {
+				fallPit(gp.dialogueState);
+				gp.ui.showMessage("", "FALLPIT!", 29*gp.tileSize, 30*gp.tileSize);
+			} else { eventRect[0][29][30].eventDone = false; }
+
+			if(hit(0, 22, 20, "any")) {
+				fallPit(gp.dialogueState);
+			} else { eventRect[0][29][30].eventDone = false; }
+
+			if(hit(0, 16, 42, "up")) {
+				teleport(1, 25, 27);
+			} else { eventRect[0][16][42].eventDone = false; }
+
+			if(hit(1, 25, 27, "down")) {
+				teleport(0, 16, 42);
+			} else { eventRect[1][25][27].eventDone = false; }
 		}
 	}
-	public boolean hit(int col, int row, String reqDirection) {
+	public boolean hit(int mapNum, int col, int row, String reqDirection) {
 		
 		boolean hit = false;
-		
-		gp.player.hitBox.x = gp.player.worldX + gp.player.hitBox.x;
-		gp.player.hitBox.y = gp.player.worldY + gp.player.hitBox.y;
-		eventRect[col][row].x = col*gp.tileSize + eventRect[col][row].x;
-		eventRect[col][row].y = row*gp.tileSize + eventRect[col][row].y;
-		
-		if(gp.player.hitBox.intersects(eventRect[col][row]) && !eventRect[col][row].eventDone) {
-			if(gp.player.direction.equals(reqDirection) || reqDirection.contentEquals("any")) {
-				hit = true;
-				previousEventX = gp.player.worldX; 
-				previousEventY = gp.player.worldY; 
+
+		if (mapNum == gp.currentMap) {
+			gp.player.hitBox.x = gp.player.worldX + gp.player.hitBox.x;
+			gp.player.hitBox.y = gp.player.worldY + gp.player.hitBox.y;
+			eventRect[mapNum][col][row].x = col*gp.tileSize + eventRect[mapNum][col][row].x;
+			eventRect[mapNum][col][row].y = row*gp.tileSize + eventRect[mapNum][col][row].y;
+
+			if(gp.player.hitBox.intersects(eventRect[mapNum][col][row]) && !eventRect[mapNum][col][row].eventDone) {
+				if(gp.player.direction.equals(reqDirection) || reqDirection.contentEquals("any")) {
+					hit = true;
+					previousEventX = gp.player.worldX;
+					previousEventY = gp.player.worldY;
+				}
 			}
+
+			gp.player.hitBox.x = gp.player.hitBoxDefaultX;
+			gp.player.hitBox.y = gp.player.hitBoxDefaultY;
+			eventRect[mapNum][col][row].x = eventRect[mapNum][col][row].eventRectDefaultX;
+			eventRect[mapNum][col][row].y = eventRect[mapNum][col][row].eventRectDefaultY;
 		}
-		
-		gp.player.hitBox.x = gp.player.hitBoxDefaultX;
-		gp.player.hitBox.y = gp.player.hitBoxDefaultY;
-		eventRect[col][row].x = eventRect[col][row].eventRectDefaultX;
-		eventRect[col][row].y = eventRect[col][row].eventRectDefaultY;
-		
+
 		return hit;
 	}
-	public void healingPool(int col, int row,int gameState) {
+	public void healingPool(int gameState) {
 		
 		if(gp.keyH.eventPressed) {
 			gp.gameState = gameState;
@@ -76,7 +100,7 @@ public class EventHandler {
 			gp.aSetter.setMON();
 		}
 	}
-	public void fallPit(int col, int row,int gameState) {
+	public void fallPit(int gameState) {
 		if(gp.player.health > 0 && gp.player.running) {
 			gp.gameState = gameState;
 			gp.playSE(15);
@@ -84,5 +108,12 @@ public class EventHandler {
 			gp.player.health--;
 			canInitiateEvent = false;
 		}
+	}
+	public void teleport(int mapNum, int col, int row) {
+		gp.currentMap = mapNum;
+			gp.player.worldX = col*gp.tileSize;
+			gp.player.worldY = row*gp.tileSize;
+			previousEventX = gp.player.worldX;
+			previousEventY = gp.player.worldY;
 	}
 }

@@ -25,11 +25,11 @@ public class PRJ extends Entity{
 		
 		if(user == gp.player ) {
 			
-			int monIndex = gp.cChecker.checkEntity(this, gp.mon);
+			int monIndex = gp.cChecker.checkEntity(this, gp.mon[gp.currentMap]);
 			if(monIndex != 999) {
 				gp.player.damageMonster(monIndex, attackValue, true);
 				alive = false;
-				generateParticle(user.slotProjectiles[gp.keyH.spell], gp.mon[monIndex]);
+				generateParticle(user.slotProjectiles[gp.keyH.spell], gp.mon[gp.currentMap][monIndex]);
 			}
 		} else {
 			
