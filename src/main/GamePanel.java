@@ -45,6 +45,7 @@ public class GamePanel extends JPanel implements Runnable {
 	public Sound music = new Sound();
 	public Sound se = new Sound();
 	public UI ui = new UI(this);
+	Config config = new Config(this);
 	Thread gameThread;
 	
 	//PLAYER AND OBJ
@@ -120,7 +121,7 @@ public class GamePanel extends JPanel implements Runnable {
 		this.setFocusable(true);
 	}
 	public void setupGame() {
-		
+
 		aSetter.setITM();
 		aSetter.setNPC();
 		aSetter.setOBJ();
@@ -131,6 +132,8 @@ public class GamePanel extends JPanel implements Runnable {
 
 		fullScreenImage = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_ARGB);
 		g2 = (Graphics2D) fullScreenImage.getGraphics();
+
+		if(fullScreen) setFullScreen();
 	}
 	public void startGameThread() {
 
@@ -163,9 +166,7 @@ public class GamePanel extends JPanel implements Runnable {
 	}
 	public void update() {
 
-		if(gameState == titleScreenState) {
-			System.out.println("Title Screen");
-		}
+		if(gameState == titleScreenState) { }
 		if(gameState == playState)  {
 			
 			// PLAYER
@@ -309,70 +310,6 @@ public class GamePanel extends JPanel implements Runnable {
 		screenHeightFull = Main.window.getHeight();
 
 	}
-	/*
-	public void paintComponent(Graphics g) {
-
-		super.paintComponent(g);
-		Graphics2D g2 = (Graphics2D) g;
-		
-		if(gameState == titleScreenState) {
-			
-			ui.draw(g2);
-		} else {
-
-			tileM.draw(g2);
-			
-			entityList.add(player);
-			
-			for (int i = 0; i < it.length; i++) 
-				if(it[i] != null) entityList.add(it[i]);
-			
-			for (int i = 0; i < obj.length; i++) 
-				if(obj[i] != null) entityList.add(obj[i]);
-			
-			for (int i = 0; i < itm.length; i++) 
-				if(itm[i] != null) entityList.add(itm[i]);
-			
-			for (int i = 0; i < npc.length; i++) 
-				if(npc[i] != null) entityList.add(npc[i]);
-			
-			for (int i = 0; i < mon.length; i++)
-				if(mon[i] != null) entityList.add(mon[i]);
-			
-			for (int i = 0; i < projectileList.size(); i++)
-				if(projectileList.get(i) != null) entityList.add(projectileList.get(i));
-
-			// for (int i = 0; i < particleList.size(); i++)
-			// 	 if(particleList.get(i) != null) entityList.add(particleList.get(i));
-				
-			Collections.sort(entityList, new Comparator<Entity>() {
-				@Override
-				public int compare(Entity e1, Entity e2) {
-					return Integer.compare(e1.worldY, e2.worldY);
-			}});
-			
-			for (int i = 0; i < entityList.size(); i++)
-				entityList.get(i).draw(g2, this);
-
-			for (int i = 0; i < particleList.size(); i++)
-				if(particleList.get(i) != null) particleList.get(i).draw(g2, this);
-			
-			entityList.clear();
-			
-			ui.draw(g2);
-			
-			if (keyH.debug) {
-				g2.setColor(Color.black);
-				g2.setFont(g2.getFont().deriveFont(Font.BOLD, 30f));
-				g2.drawString("X: " + (player.worldX/tileSize) + ", Y: " + (player.worldY/tileSize), tileSize, tileSize);
-				g2.drawString("FPS: " + debugFPS, tileSize, tileSize + 24); 
-				g2.drawString("Invincible: " + player.invincible, tileSize, tileSize + 48);
-				g2.drawString("Speed: " + player.speed, tileSize, tileSize + 48 + 24);
-			}	
-		}
-		g2.dispose();
-	}
-	*/
 	public void playMusic(int i) {
 		music.setVolume(-30f);
 		music.setFile(i);

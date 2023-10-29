@@ -111,7 +111,7 @@ public class KeyHandler implements KeyListener {
 				}
 			}
 			break;
-		case 2: break;	
+		case 2: break;
 		}
 	}
 	public void playState(int code) {
@@ -183,6 +183,8 @@ public class KeyHandler implements KeyListener {
 		}
 
 		if (code == KeyEvent.VK_ESCAPE) {
+
+			gp.config.saveConfig();
 			gp.gameState = gp.playState;
 			gp.playSE(5);
 			gp.playMusic(0);

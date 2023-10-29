@@ -555,8 +555,10 @@ public class UI {
 				break;
 			case 5: drawNotificationPopUp(frameX, frameY, frameWidth, frameHeight, "Information", "Voulez vous vraiment retourner au menu principale ?", false);
 				break;
-
+				
 		}
+
+		gp.config.saveConfig();
 	}
 	public void settings_title(Graphics2D g2) {
 

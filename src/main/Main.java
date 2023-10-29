@@ -16,6 +16,8 @@ public class Main {
 
 		GamePanel gp = new GamePanel();
 		window.add(gp);
+		gp.config.loadConfig();
+		if (gp.fullScreen) window.setUndecorated(true);
 		window.pack();
 
 		window.setLocationRelativeTo(null);

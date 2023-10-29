@@ -29,8 +29,9 @@ public class Player extends Entity {
 	Random r = new Random();
 	KeyHandler keyH;
 	public final int screenX, screenY;
-	public int caracterClass;
+	public int caracterClass = -1;
 	public int staminaCounter = 0;
+	public int manaCounter = 0;
 	public int dashCounter = 0;
 	public boolean canDash = true;
 	public boolean running = false;
@@ -62,6 +63,8 @@ public class Player extends Entity {
 		
 		attackHitBox.x = 32;	 attackHitBox.y = 32;
 		attackHitBox.width = 34; attackHitBox.height = 26;
+
+		System.out.println(caracterClass);
 		
 		setDefaultValues();
 		getImages();
@@ -677,7 +680,7 @@ public class Player extends Entity {
 					gp.playSE(11); 
 				soundCounter = 0;
 			}
-			
+
 			// STAMINA COUNTER
 			staminaCounter++;
 			if(staminaCounter > 90) {
@@ -685,6 +688,13 @@ public class Player extends Entity {
 				else if((!running || !walking) && stamina < maxStamina) stamina++;
 				else if(running && stamina == 0) stamina++;
 				staminaCounter = 0;
+			}
+
+			// MANA COUNTER
+			manaCounter++;
+			if(manaCounter > 380 && (caracterClass == 3 || caracterClass == 4)) {
+				if (mana < maxMana) mana++;
+				manaCounter = 0;
 			}
 			
 			keyH.eventPressed = false;
