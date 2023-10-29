@@ -88,6 +88,26 @@ public class Player extends Entity {
 		setMovementSpeed();
 		setAttackSpeed();
 	}
+	public void retry() {
+
+		worldX = (int)(29   * gp.tileSize);
+		worldY = (int)(24.5 * gp.tileSize);
+
+		health = maxHealth;
+		mana = maxMana;
+		stamina = maxStamina;
+
+		running = false;
+		canDash = true;
+		dashCounter = 0;
+		staminaCounter = 0;
+		manaCounter = 0;
+
+		coins -= 200;
+		exp -= 100;
+		if(exp < 0) exp = 0;
+		coinsByType = gp.ut.calculerPieces(coins);
+	}
 	public void setAttack() {
 		
 		double totalMeleValue = 1;
@@ -738,7 +758,11 @@ public class Player extends Entity {
 			if(slotProjectiles[i] != null) 
 				if((caracterClass == 3 || caracterClass == 4) && projectileCounter[i] < slotProjectiles[i].spellCooldown) 
 					projectileCounter[i]++;
-				
+
+		if (health <= 0) {
+			gp.playSE(12);
+			gp.gameState = gp.gameOverState;
+		}
 	}
 	@Override
 	public void draw(Graphics2D g2, GamePanel gp) {

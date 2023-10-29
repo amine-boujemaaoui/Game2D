@@ -115,13 +115,14 @@ public class UI {
 		if(gp.gameState == gp.equipmentWindowState) { drawEquipmentWindow(g2); drawInventory(g2); }
 		if(gp.gameState == gp.playState           ) { drawGUI(g2); drawEventMessages(g2); }
 		if(gp.gameState == gp.settingsState       ) { drawSettingsScreen(g2); }
+		if(gp.gameState == gp.gameOverState       ) { drawGameOverScreen(g2); }
 	}
 	public void drawTitleScreen(Graphics2D g2) {
 		String title;
 		switch(subStateScreen) {
 		case 0: 
 			
-			title = "Game2D";
+			title = "Bonobo Quest";
 			g2.setColor(titleScreenColor);
 			g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
 			g2.drawImage(titleScreen, 0, 0, null);
@@ -198,6 +199,7 @@ public class UI {
 		width -= (int)(gp.tileSize*2.1); height -=(int)(gp.tileSize*2.1);
 		x += gp.tileSize; y += (int)(gp.tileSize*0.95);
 		g2.setFont(g2.getFont().deriveFont(24f));
+		g2.setColor(Color.black);
 		gp.ut.drawMultilineString(g2, currentDialogue, x, y, width, height);
 	}
 	public void drawEquipmentWindow(Graphics2D g2) {
@@ -701,6 +703,27 @@ public class UI {
 
 			g2.drawString(controlsOptions[i], x, y + j*space);
 			g2.drawString(controlsKeys[i], x + frameW/2, y + j*space);
+		}
+	}
+	public void drawGameOverScreen(Graphics2D g2) {
+
+		String text = "GAME OVER";
+		g2.setColor(shadow); g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+		g2.setFont(g2.getFont().deriveFont(60f));
+		drawTextShadow(text, Color.gray, Color.white, getXforCenteredText(text), gp.screenHeight/2 - gp.tileSize*2);
+
+		String options[] = {"Continue", "Exit"};
+		int x, y = gp.screenHeight/2 + gp.tileSize*2, space = 40;
+
+		g2.setFont(g2.getFont().deriveFont(32f));
+		for (int i = 0; i < options.length; i++) {
+			x = getXforCenteredText(options[i]);
+			if (selectedOption == i) {
+				g2.setColor(Color.white);
+				g2.drawString(">", x - space, y + space*i);
+			}
+			else g2.setColor(Color.gray);
+			g2.drawString(options[i], x, y + space*i);
 		}
 	}
 }

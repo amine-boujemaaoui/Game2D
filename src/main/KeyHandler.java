@@ -1,5 +1,7 @@
 package main;
 
+import entity.Player;
+
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.concurrent.ScheduledExecutorService;
@@ -41,9 +43,8 @@ public class KeyHandler implements KeyListener {
 		else if(gp.gameState == gp.pauseState) pauseState(code);
 		else if(gp.gameState == gp.dialogueState) dialogueState(code);
 		else if (gp.gameState == gp.equipmentWindowState) equipmentWindowState(code);
-		else if (gp.gameState == gp.settingsState) {
-			settingsState(code);
-		}
+		else if (gp.gameState == gp.settingsState)  settingsState(code);
+		else if (gp.gameState == gp.gameOverState) gameOverState(code);
 	}
 	@Override
 	public void keyReleased(KeyEvent e) {
@@ -103,8 +104,10 @@ public class KeyHandler implements KeyListener {
 			}
 			if (code == KeyEvent.VK_ENTER) {
 				gp.playSE(4);
-				if(gp.ui.selectedOption == gp.classSelectionOptions.length) { gp.ui.subStateScreen = 0; gp.ui.selectedOption = 0; }
-				else { 
+				if(gp.ui.selectedOption == gp.classSelectionOptions.length) {
+					gp.ui.subStateScreen = 0;
+					gp.ui.selectedOption = 0;
+				} else {
 					gp.player.caracterClass = gp.ui.selectedOption; 
 					gp.player.setClassStats(); 
 					gp.gameState = gp.playState; 
@@ -233,6 +236,36 @@ public class KeyHandler implements KeyListener {
 		}
 		if (code == KeyEvent.VK_ENTER) {
 			enterPressed = true;
+		}
+	}
+	public void gameOverState(int code) {
+
+		if (code == KeyEvent.VK_ENTER) {
+			gp.playSE(4);
+			switch (gp.ui.selectedOption) {
+				case 0:
+					gp.player.retry();
+					gp.gameState = gp.playState;
+					break;
+				case 1:
+					gp.ui.subStateScreen = 0;
+					gp.ui.selectedOption = 0;
+					gp.gameState = gp.titleScreenState;
+					gp.player = new Player(gp, gp.keyH);
+					gp.ui.eventMessages.clear();
+					gp.setupGame();
+					break;
+			}
+		}
+		if (code == KeyEvent.VK_W) {
+			gp.playSE(5);
+			gp.ui.selectedOption--;
+			if (gp.ui.selectedOption < 0) gp.ui.selectedOption = 1;
+		}
+		if (code == KeyEvent.VK_S) {
+			gp.playSE(5);
+			gp.ui.selectedOption++;
+			if (gp.ui.selectedOption > 1) gp.ui.selectedOption = 0;
 		}
 	}
 }

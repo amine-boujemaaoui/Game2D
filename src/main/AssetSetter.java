@@ -25,13 +25,6 @@ public class AssetSetter {
 		
 		int i = 0;
 		gp.itm[i] = new ITM_Key     (gp); gp.itm[i].worldX = (int)(18.5*gp.tileSize); gp.itm[i].worldY = (int)(34   *gp.tileSize); i++;
-		gp.itm[i] = new ITM_Key     (gp); gp.itm[i].worldX = (int)(19.5*gp.tileSize); gp.itm[i].worldY = (int)(33   *gp.tileSize); i++;
-		gp.itm[i] = new ITM_Key     (gp); gp.itm[i].worldX = (int)(18.5*gp.tileSize); gp.itm[i].worldY = (int)(35   *gp.tileSize); i++;
-		gp.itm[i] = new ITM_Key     (gp); gp.itm[i].worldX = (int)(18.5*gp.tileSize); gp.itm[i].worldY = (int)(32   *gp.tileSize); i++;
-		gp.itm[i] = new ITM_Key     (gp); gp.itm[i].worldX = (int)(19.5*gp.tileSize); gp.itm[i].worldY = (int)(34   *gp.tileSize); i++;
-		gp.itm[i] = new ITM_Key     (gp); gp.itm[i].worldX = (int)(17.5*gp.tileSize); gp.itm[i].worldY = (int)(31   *gp.tileSize); i++;
-		gp.itm[i] = new ITM_Key     (gp); gp.itm[i].worldX = (int)(16.5*gp.tileSize); gp.itm[i].worldY = (int)(30   *gp.tileSize); i++;
-		gp.itm[i] = new ITM_Key     (gp); gp.itm[i].worldX = (int)(17.5*gp.tileSize); gp.itm[i].worldY = (int)(34   *gp.tileSize); i++;
 		gp.itm[i] = new ITM_Potion_Healing (gp); gp.itm[i].worldX = (int)(29  *gp.tileSize); gp.itm[i].worldY = (int)(34   *gp.tileSize); i++;
 		gp.itm[i] = new ITM_Potion_Healing (gp); gp.itm[i].worldX = (int)(29  *gp.tileSize); gp.itm[i].worldY = (int)(35   *gp.tileSize); i++;
 		gp.itm[i] = new ITM_Potion_Mana    (gp); gp.itm[i].worldX = (int)(29  *gp.tileSize); gp.itm[i].worldY = (int)(36   *gp.tileSize); i++;
