@@ -63,8 +63,6 @@ public class Player extends Entity {
 		
 		attackHitBox.x = 32;	 attackHitBox.y = 32;
 		attackHitBox.width = 34; attackHitBox.height = 26;
-
-		System.out.println(caracterClass);
 		
 		setDefaultValues();
 		getImages();

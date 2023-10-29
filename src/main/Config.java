@@ -20,8 +20,8 @@ public class Config {
             BufferedReader br = new BufferedReader(new FileReader("config.txt"));
 
             gp.fullScreen = Boolean.parseBoolean(br.readLine().split("=")[1]);
-            gp.music.volumeIndicator = Integer.parseInt(br.readLine());
-            gp.se.volumeIndicator = Integer.parseInt(br.readLine());
+            gp.music.volumeIndicator = Integer.parseInt(br.readLine().split("=")[1]);
+            gp.se.volumeIndicator = Integer.parseInt(br.readLine().split("=")[1]);
         } catch (IOException e) { e.printStackTrace(); }
     }
     public void saveConfig() {
@@ -31,8 +31,8 @@ public class Config {
 
             if (gp.fullScreen) { bw.write("fullscreen=true"); }
             else { bw.write("fullscreen=false"); } bw.newLine();
-            bw.write(String.valueOf(gp.music.volumeIndicator)); bw.newLine();
-            bw.write(String.valueOf(gp.se.volumeIndicator)); bw.newLine();
+            bw.write("musicVolunme=" + String.valueOf(gp.music.volumeIndicator)); bw.newLine();
+            bw.write("seVolunme=" + String.valueOf(gp.se.volumeIndicator)); bw.newLine();
 
             bw.close();
         } catch (IOException e) { e.printStackTrace(); }
