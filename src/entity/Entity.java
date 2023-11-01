@@ -55,6 +55,7 @@ public class Entity {
 	public boolean pickupOnly = false;
 	public int OBJstate = 0;
 	public boolean trading = false;
+	public boolean onPath = false;
 	
 	// ENTITY SIZE
 	public final int size1by1 = 0;
@@ -118,28 +119,31 @@ public class Entity {
 		
 		this.gp = gp;
 	}
-	public void update() {
-		
-		setAction();
-		
+	public void checkCollision() {
+
 		collisionOn = false;
 		gp.cChecker.checkTile(this);
-		gp.cChecker.checkObject(this, false);
 		gp.cChecker.checkObject(this, false);
 		gp.cChecker.checkEntity(this, gp.npc[gp.currentMap]);
 		gp.cChecker.checkEntity(this, gp.mon[gp.currentMap]);
 		gp.cChecker.checkEntity(this, gp.it[gp.currentMap]);
+
 		boolean contactPlayer = gp.cChecker.checkPlayer(this);
-		
+
 		if( this.type == gp.typeMON &&
-		    contactPlayer &&
-		    !gp.player.invincible &&
-		    gp.player.health > 0 &&
-		    alive) {
-			
+				contactPlayer &&
+				!gp.player.invincible &&
+				gp.player.health > 0 &&
+				alive) {
+
 			damagePlayer(attack);
 		}
+	}
+	public void update() {
 		
+		setAction();
+		checkCollision();
+
 		// CHECK COLLISION
 		if(alive && !collisionOn && walking) {
 			switch(direction) {
@@ -408,5 +412,56 @@ public class Entity {
 	public Entity clone() {
 
 		return null;
+	}
+	public void searchPath(int goalCol, int goalRow) {
+
+		int startCol = (worldX + hitBox.x) / gp.tileSize;
+		int startRow = (worldY + hitBox.y) / gp.tileSize;
+
+		gp.pathF.setNodes(startCol, startRow, goalCol, goalRow);
+
+		if (gp.pathF.search()) {
+
+			int nextX = gp.pathF.pathList.get(0).col * gp.tileSize;
+			int nextY = gp.pathF.pathList.get(0).row * gp.tileSize;
+
+			int leftX   = worldX + hitBox.x;
+			int rightX  = worldX + hitBox.x + hitBox.width;
+			int topY    = worldY + hitBox.y;
+			int bottomY = worldY + hitBox.y + hitBox.height;
+
+			     if (topY  > nextY && leftX >= nextX && rightX < nextX + gp.tileSize) { direction = "up"; }
+			else if (topY  < nextY && leftX >= nextX && rightX < nextX + gp.tileSize) { direction = "down"; }
+			else if (topY  >= nextY && bottomY  <  nextY  + gp.tileSize) {
+				if (leftX > nextX) direction = "left";
+				if (leftX < nextX) direction = "right";
+			} else if (topY > nextY && leftX > nextX) {
+				direction = "up";
+				checkCollision();
+				if (collisionOn) direction = "left";
+			} else if (topY > nextY && leftX < nextX) {
+				direction = "up";
+				checkCollision();
+				if (collisionOn) direction = "right";
+			} else if (topY < nextY && leftX > nextX) {
+				direction = "down";
+				checkCollision();
+				if (collisionOn) direction = "left";
+			} else if (topY < nextY && leftX < nextX) {
+				direction = "down";
+				checkCollision();
+				if (collisionOn) direction = "right";
+			}
+
+			/*
+			int nextCol = gp.pathF.pathList.get(0).col;
+			int nextRow = gp.pathF.pathList.get(0).row;
+
+			if (nextCol == goalCol && nextRow == goalRow) {
+				onPath = false;
+			}
+
+			 */
+		}
 	}
 }

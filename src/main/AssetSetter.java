@@ -39,7 +39,6 @@ public class AssetSetter {
 		int i = 0;
 		gp.obj[0][i] = new OBJ_Chest   (gp, (36  *gp.tileSize),      (31   *gp.tileSize)); i++;
 		gp.obj[0][i] = new OBJ_Door    (gp, (18  *gp.tileSize),      (14   *gp.tileSize)); i++;
-		gp.obj[0][i] = new OBJ_BigTree (gp, (23  *gp.tileSize), (int)(29.25*gp.tileSize)); i++;
 		gp.obj[0][i] = new OBJ_BigTree (gp, (36  *gp.tileSize), (int)(16.25*gp.tileSize)); i++;
 		gp.obj[0][i] = new OBJ_BigTree (gp, (24  *gp.tileSize), (int)(16.25*gp.tileSize)); i++;
 		gp.obj[0][i] = new OBJ_BigTree (gp, (17  *gp.tileSize), (int)(19.25*gp.tileSize)); i++;
@@ -51,25 +50,28 @@ public class AssetSetter {
 	public void setNPC() {
 		
 		int i = 0;
-		gp.npc[0][i] = new NPC_YoungMen(gp, (34  *gp.tileSize), (23   *gp.tileSize)); i++;
-		gp.npc[0][i] = new NPC_YoungMen(gp, (31  *gp.tileSize), (23   *gp.tileSize)); i++;
+		gp.npc[0][i] = new NPC_YoungMen(gp, (32  *gp.tileSize), (37   *gp.tileSize)); i++;
+		gp.npc[0][i] = new NPC_Women   (gp, (32  *gp.tileSize), (35   *gp.tileSize)); i++;
 
 		gp.npc[1][i] = new NPC_Merchant(gp, (25  *gp.tileSize), (25   *gp.tileSize)); i++;
 	}
 	public void setMON() {
-		
+
 		int i = 0;
-		gp.mon[0][i] = new MON_BlueSlime (gp, (28  *gp.tileSize), (40   *gp.tileSize)); i++;
-		gp.mon[0][i] = new MON_BlueSlime (gp, (29  *gp.tileSize), (41   *gp.tileSize)); i++;
-		gp.mon[0][i] = new MON_BlueSlime (gp, (30  *gp.tileSize), (42   *gp.tileSize)); i++;
-		gp.mon[0][i] = new MON_BlueSlime (gp, (31  *gp.tileSize), (43   *gp.tileSize)); i++;
+		gp.mon[0][i] = new MON_RedSlime  (gp, (28  *gp.tileSize), (40   *gp.tileSize)); i++;
+		gp.mon[0][i] = new MON_RedSlime  (gp, (29  *gp.tileSize), (41   *gp.tileSize)); i++;
+		gp.mon[0][i] = new MON_RedSlime  (gp, (30  *gp.tileSize), (42   *gp.tileSize)); i++;
+		gp.mon[0][i] = new MON_RedSlime  (gp, (31  *gp.tileSize), (43   *gp.tileSize)); i++;
 		gp.mon[0][i] = new MON_RedSlime  (gp, (29  *gp.tileSize), (40   *gp.tileSize)); i++;
+		/*
 		gp.mon[0][i] = new MON_RedSlime  (gp, (30  *gp.tileSize), (41   *gp.tileSize)); i++;
 		gp.mon[0][i] = new MON_RedSlime  (gp, (31  *gp.tileSize), (42   *gp.tileSize)); i++;
 		gp.mon[0][i] = new MON_RedSlime  (gp, (32  *gp.tileSize), (43   *gp.tileSize)); i++;
 
 		gp.mon[1][i] = new MON_RedSlime  (gp, (30  *gp.tileSize), (30   *gp.tileSize)); i++;
 		gp.mon[1][i] = new MON_BlueSlime (gp, (34  *gp.tileSize), (34   *gp.tileSize)); i++;
+
+		 */
 	}
 	public void setIT() {
 		

@@ -10,13 +10,15 @@ import entity.Entity;
 import main.GamePanel;
 
 public class NPC_Women extends Entity {
+
+	int soundCounter = 0;
 	
 	public NPC_Women(GamePanel gp, int worldX, int worldY) {
 		
 		super(gp);
 		
-		name = "Young men";
-		speed = 2;
+		name = "WOMAAAAAAAAAANNNN";
+		speed = 3;
 		
 		size = size1by2;
 		type = gp.typeNPC;
@@ -36,19 +38,11 @@ public class NPC_Women extends Entity {
 		setDialogues();
 	}
 	public void setAction() {
-		
-		actionCounter++;
-		if(actionCounter == 60) {
-			Random r = new Random();
-			int i = r.nextInt(100)+1;
-			
-			     if(i > 90) { direction = "up";    walking = true;  }
-			else if(i > 70) { direction = "down";  walking = true;  }
-			else if(i > 60) { direction = "left";  walking = true;  }
-			else if(i > 50) { direction = "right"; walking = true;  }
-			else            {                      walking = false; }
-			actionCounter = 0;
-		}
+
+		walking = true;
+		soundCounter++;
+		if (soundCounter > 30 && gp.cChecker.checkPlayer(this)) { gp.playSE(20); soundCounter = 0; }
+		searchPath((gp.player.worldX + gp.player.hitBox.x)/gp.tileSize, (gp.player.worldY + gp.player.hitBox.y)/gp.tileSize);
 	}
 	public void setDialogues() {
 		

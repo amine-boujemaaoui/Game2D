@@ -15,6 +15,8 @@ public class TileManager {
 	public Tile[] tiles;
 	public int mapTileNum[][][];
 	public Tile[][] mapTiles;
+	boolean drwPath = false;
+	Color pathColor = new Color(255, 0, 255, 20);
 	
 	public TileManager(GamePanel gp) {
 
@@ -61,12 +63,11 @@ public class TileManager {
 		// COLLISIONS
 		for (int i = 18; i < 32; i++)
 			tiles[i].collision  = true; // WATER
-        tiles[32].collision = true; 	// WALL
+		tiles[32].collision = true; 	// WALL
 		tiles[33].collision = true; 	// HOUSE
         tiles[35].collision = true; 	// TABLE
-        //tiles[16].collision = true; 	// TREE
-        for (int i = 103; i < 135; i++)
-    		tiles[i].collision  = true; // NEW WALL
+		for (int i = 103; i < 135; i++)
+			tiles[i].collision  = true; // NEW WALL
 	}
 	public void setup(int index, String imagePath, boolean collision, boolean tall) {
 			
@@ -103,6 +104,45 @@ public class TileManager {
 					// DEBUG: PRINT TILE HITBOX 
 					if(tiles[mapTileNum[gp.currentMap][worldCol][worldRow]].collision) {
 						g2.setColor(new Color(255, 0, 0, 90));
+						g2.fillRect(screenX, screenY, gp.tileSize, gp.tileSize);
+					}
+
+					g2.setColor(Color.black);
+					g2.setFont(gp.ui.debugFont.deriveFont(10f));
+
+					// DEBUG: PRINT TILE NUM
+					g2.drawString("num: "+mapTileNum[gp.currentMap][worldCol][worldRow], screenX+5, screenY+15);
+
+					// DEBUG: PRINT TILE COORDINATES
+					g2.drawString("x: "+worldCol, screenX+5, screenY+30);
+					g2.drawString("y: "+worldRow, screenX+5, screenY+45);
+
+					g2.setFont(gp.ui.pixelFont);
+				}
+
+				// DEBUG: PRINT PATH
+				if (drwPath) {
+					// DEBUG: PRINT ENTITY PATH
+					g2.setColor(pathColor);
+					for (int i = 0; i < gp.pathF.pathList.size(); i++) {
+
+						worldX  = gp.pathF.pathList.get(i).col * gp.tileSize;
+						worldY  = gp.pathF.pathList.get(i).row * gp.tileSize;
+						screenX = worldX - gp.player.worldX + gp.player.screenX;
+						screenY = worldY - gp.player.worldY + gp.player.screenY;
+
+						g2.fillRect(screenX, screenY, gp.tileSize, gp.tileSize);
+					}
+
+					// DEBUG: PRINT PATH NODES
+					g2.setColor(Color.red);
+					for (int i = 0; i < gp.pathF.openList.size(); i++) {
+
+						worldX  = gp.pathF.openList.get(i).col * gp.tileSize;
+						worldY  = gp.pathF.openList.get(i).row * gp.tileSize;
+						screenX = worldX - gp.player.worldX + gp.player.screenX;
+						screenY = worldY - gp.player.worldY + gp.player.screenY;
+
 						g2.fillRect(screenX, screenY, gp.tileSize, gp.tileSize);
 					}
 				}

@@ -31,18 +31,25 @@ public class NPC_YoungMen extends Entity {
 		setDialogues();
 	}
 	public void setAction() {
-		
-		actionCounter++;
-		if(actionCounter == 60) {
-			Random r = new Random();
-			int i = r.nextInt(100)+1;
-			
-			     if(i > 90) { direction = "up";    walking = true;  }
-			else if(i > 70) { direction = "down";  walking = true;  }
-			else if(i > 60) { direction = "left";  walking = true;  }
-			else if(i > 50) { direction = "right"; walking = true;  }
-			else            {                      walking = false; }
-			actionCounter = 0;
+
+		if (onPath) {
+
+			walking = true;
+			searchPath(42, 44);
+
+		} else {
+			actionCounter++;
+			if(actionCounter == 60) {
+				Random r = new Random();
+				int i = r.nextInt(100)+1;
+
+					 if (i > 90) { direction = "up";    walking = true;  }
+				else if (i > 70) { direction = "down";  walking = true;  }
+				else if (i > 60) { direction = "left";  walking = true;  }
+				else if (i > 50) { direction = "right"; walking = true;  }
+				else             {                      walking = false; }
+				actionCounter = 0;
+			}
 		}
 	}
 	public void setDialogues() {
@@ -74,5 +81,7 @@ public class NPC_YoungMen extends Entity {
 	public void interact() {
 		speak();
 		gp.gameState = gp.dialogueState;
+
+		onPath = true;
 	}
 }

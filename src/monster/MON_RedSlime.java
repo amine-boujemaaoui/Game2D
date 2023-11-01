@@ -73,38 +73,45 @@ public class MON_RedSlime extends Entity {
 	public void setAction() {
 		
 		int rand;
-		
-		actionCounter++;
-		if(actionCounter == 60) {
-
-			rand = gp.r.nextInt(100)+1;
-			
-			     if(rand > 90) { direction = "up";    walking = true;  }
-			else if(rand > 70) { direction = "down";  walking = true;  }
-			else if(rand > 60) { direction = "left";  walking = true;  }
-			else if(rand > 50) { direction = "right"; walking = true;  }
-			else            {                      walking = false; }
-			actionCounter = 0;
-		}
-		
 		rand = gp.r.nextInt(200)+1;
-		
-		if(rand > 199 && health < maxHealth && !slotProjectiles[0].alive && projectileCounter[0] == slotProjectiles[0].spellCooldown) {
-			
-			String oppositeDirection = "any";
-			switch(gp.player.direction) {
-			case "up":    oppositeDirection = "down";  break;
-			case "down":  oppositeDirection = "up";    break;
-			case "left":  oppositeDirection = "right"; break;
-			case "right": oppositeDirection = "left";  break;
+
+		if (health < maxHealth) {
+
+			walking = true;
+			searchPath((gp.player.worldX + gp.player.hitBox.x)/gp.tileSize, (gp.player.worldY + gp.player.hitBox.y)/gp.tileSize);
+
+			if(rand > 199 && !slotProjectiles[0].alive && projectileCounter[0] == slotProjectiles[0].spellCooldown) {
+
+				String oppositeDirection = "any";
+				switch(gp.player.direction) {
+					case "up":    oppositeDirection = "down";  break;
+					case "down":  oppositeDirection = "up";    break;
+					case "left":  oppositeDirection = "right"; break;
+					case "right": oppositeDirection = "left";  break;
+				}
+
+				slotProjectiles[0].set(worldX, worldY, direction, true, this);
+				if(!gp.projectileList.contains(slotProjectiles[0]))
+					gp.projectileList.add(slotProjectiles[0]);
+				gp.playSE(13);
+				projectileCounter[0] = 0;
 			}
-			
-			slotProjectiles[0].set(worldX, worldY, oppositeDirection, true, this);
-			if(!gp.projectileList.contains(slotProjectiles[0]))
-				gp.projectileList.add(slotProjectiles[0]);
-			gp.playSE(13);
-			projectileCounter[0] = 0;
+		} else {
+
+			actionCounter++;
+			if(actionCounter == 60) {
+
+				rand = gp.r.nextInt(100)+1;
+
+				     if(rand > 90) { direction = "up";    walking = true;  }
+				else if(rand > 70) { direction = "down";  walking = true;  }
+				else if(rand > 60) { direction = "left";  walking = true;  }
+				else if(rand > 50) { direction = "right"; walking = true;  }
+				else               {                      walking = false; }
+				actionCounter = 0;
+			}
 		}
+
 	}
 	public void checkDrop() {
 		

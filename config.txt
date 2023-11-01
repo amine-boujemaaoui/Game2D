@@ -1,3 +1,3 @@
-fullscreen=false
+fullscreen=true
 musicVolunme=0
-seVolunme=4
+seVolunme=5

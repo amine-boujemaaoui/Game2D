@@ -2,6 +2,7 @@ package main;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -9,6 +10,7 @@ import java.util.Random;
 
 import javax.swing.JPanel;
 
+import ai.PathFinder;
 import entity.Entity;
 import entity.Player;
 import tile.InteractiveTile;
@@ -54,6 +56,7 @@ public class GamePanel extends JPanel implements Runnable {
 	public Sound se = new Sound();
 	public UI ui = new UI(this);
 	Config config = new Config(this);
+	public PathFinder pathF = new PathFinder(this);
 	Thread gameThread;
 	
 	//PLAYER AND OBJ
@@ -121,7 +124,7 @@ public class GamePanel extends JPanel implements Runnable {
 	public String classSelectionOptions[] = {"KNIGHT", "THIEF", "ARCHER", "WIZARD", "SORCELER"};
 	public String playerStatsTitles[] = {"Attack", "Atk Speed", "Speed", "Toughness"};
 	public String statsTitles[] = {"Health", "Mana", "Sta", "Def", "Str", "Int"};
-	public int statsValues[][] = {{ 8,        0,      20,    8,     8,     8   },
+	public int statsValues[][] = {{ 200,        0,      20,    8,     8,     8   },
 								  { 4,        0,       8,    2,     4,     6   },
 								  { 4,        0,       4,    4,     4,     6   },
 								  { 6,        8,       4,    2,     1,     2   },
@@ -297,12 +300,16 @@ public class GamePanel extends JPanel implements Runnable {
 				if(particleList.get(i) != null) particleList.get(i).draw(g2, this);
 
 			if (keyH.debug) {
+
+
 				g2.setColor(Color.black);
-				g2.setFont(g2.getFont().deriveFont(Font.BOLD, 30f));
+				//g2.setFont(g2.getFont().deriveFont(Font.BOLD, 30f));
+				g2.setFont(ui.debugFont);
 				g2.drawString("X: " + (player.worldX/tileSize) + ", Y: " + (player.worldY/tileSize), tileSize, tileSize);
 				g2.drawString("FPS: " + debugFPS, tileSize, tileSize + 24);
 				g2.drawString("Invincible: " + player.invincible, tileSize, tileSize + 48);
 				g2.drawString("Speed: " + player.speed, tileSize, tileSize + 48 + 24);
+				g2.setFont(ui.pixelFont);
 			}
 		}
 		ui.draw(g2);

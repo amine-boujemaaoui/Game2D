@@ -21,7 +21,8 @@ public class UI {
 
 	GamePanel gp;
 	Graphics2D g2;
-	Font pixelFont;
+	public Font pixelFont;
+	public Font debugFont = new Font("Arial", Font.BOLD, 24);
 	public Color shadow = new Color(0, 0, 0, 200);
 	public Color titleScreenColor = new Color(59, 143, 202);
 	public Color barColor = new Color(24, 20, 37);
