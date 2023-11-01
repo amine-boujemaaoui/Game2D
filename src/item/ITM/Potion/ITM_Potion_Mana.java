@@ -18,6 +18,7 @@ public class ITM_Potion_Mana extends Entity{
 		size = size1by2;
 		type = gp.typeITM;
 		amountValue = 6;
+		price = 10;
 		
 		hitBox.x = 9;
 		hitBox.width = 30;
@@ -49,5 +50,8 @@ public class ITM_Potion_Mana extends Entity{
 		if(entity.mana + amountValue > entity.maxMana) entity.mana = entity.maxMana;
 		else entity.mana += amountValue;
 		return true;
+	}
+	public Entity clone() {
+		return new ITM_Potion_Mana(gp);
 	}
 }

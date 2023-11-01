@@ -32,4 +32,7 @@ public class ARMR_Helmet_Leather extends Entity{
 		
 		item_icon = gp.ut.setup("/items/armor/helmet/helmet_leather", gp.tileSize, gp.tileSize);
 	}
+	public Entity clone() {
+		return new ARMR_Helmet_Leather(gp);
+	}
 }

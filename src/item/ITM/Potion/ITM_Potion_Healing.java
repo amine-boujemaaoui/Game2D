@@ -18,6 +18,7 @@ public class ITM_Potion_Healing extends Entity{
 		size = size1by2;
 		type = gp.typeITM;
 		amountValue = 2;
+		price = 10;
 		
 		hitBox.x = 9;
 		hitBox.width = 30;
@@ -49,5 +50,8 @@ public class ITM_Potion_Healing extends Entity{
 		if(entity.health + amountValue > entity.maxHealth) entity.health = entity.maxHealth;
 		else entity.health += amountValue;
 		return true;
+	}
+	public Entity clone() {
+		return new ITM_Potion_Healing(gp);
 	}
 }

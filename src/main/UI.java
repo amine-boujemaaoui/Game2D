@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import javax.imageio.ImageIO;
+import javax.xml.stream.events.StartDocument;
 import java.util.Map;
 
 import entity.Entity;
@@ -34,7 +35,7 @@ public class UI {
 	public boolean messageOn = false;
 	public String showKey = "";
 	public int x, y;
-	BufferedImage dialogueWindow, titleScreen, statsWindow, equipmentWindow, expBarOutline, inventoryWindow, itemInfosWindow, inventoryCursor;
+	BufferedImage dialogueWindow, titleScreen, statsWindow, equipmentWindow, expBarOutline, inventoryWindow, itemInfosWindow, inventoryCursor, price_coins;
 	BufferedImage E, SPACE;
 	public Map<String, BufferedImage> keys = new HashMap<>();
 	BufferedImage heart_full,   heart_half,   heart_empty;
@@ -51,7 +52,13 @@ public class UI {
 	public String settingsOptions[] = {"FULL SCREEN", "MUSIC", "SOUND", "CONTROLS", "BACK", "QUIT"};
 	public String controlsOptions[] = {"UP", "DOWN", "LEFT", "RIGHT", "ATTACK", "TOOL", "SPELL", "DASH", "INVENTORY", "BACK"};
 	public String controlsKeys[] = {"W", "S", "A", "D", "H", "N", "J-K-L", "G", "I", ""};
-	public int slotCol = 0, slotRow = 0;
+	public int playerSlotCol = 0, playerSlotRow = 0;
+	public int npcSlotCol = 0, npcSlotRow = 0;
+	public int counter = 0;
+	boolean transition = false;
+	public Entity npc;
+	public boolean trade = false;
+	public Entity selectedItem;
 	
 	public UI(GamePanel gp) {
 		
@@ -71,7 +78,8 @@ public class UI {
 		expBarOutline   = gp.ut.setup("/ui/ui_expBarOutline",    iconSize*6,               8*3                    );
 		inventoryWindow = gp.ut.setup("/ui/ui_inventory",        gp.tileSize*9,            gp.tileSize*12         );
 		itemInfosWindow = gp.ut.setup("/ui/ui_item_infos",       gp.tileSize*10,           gp.tileSize*10         );
-		inventoryCursor = gp.ut.setup("/ui/ui_inventory_cursor", (int)(gp.tileSize*1.5),   (int)(gp.tileSize*1.5) );
+		inventoryCursor = gp.ut.setup("/ui/ui_inventory_cursor", (int)(gp.tileSize*1.5),   	(int)(gp.tileSize*1.5) );
+		price_coins     = gp.ut.setup("/ui/ui_price_coins",     (int)(gp.tileSize*4.5),   		(int)(gp.tileSize*1.80) );
 		
 		// ICONS
 		plus          = gp.ut.setup("/ui/icons/plus",          gp.tileSize/2, gp.tileSize/2 );
@@ -113,15 +121,17 @@ public class UI {
 
 		if(messageOn) drawIndication(showKey, indicationText, x, y);
 
-		if(gp.gameState == gp.titleScreenState    ) { drawTitleScreen(g2); }
-		if(gp.gameState == gp.pauseState          ) { drawPauseScreen(g2); }
-		if(gp.gameState == gp.dialogueState       ) { drawDialogueScreen(g2); }
-		if(gp.gameState == gp.equipmentWindowState) { drawEquipmentWindow(g2); drawInventory(g2); }
-		if(gp.gameState == gp.playState           ) { drawGUI(g2); drawEventMessages(g2); }
-		if(gp.gameState == gp.settingsState       ) { drawSettingsScreen(g2); }
-		if(gp.gameState == gp.gameOverState       ) { drawGameOverScreen(g2); }
+		if(gp.gameState == gp.titleScreenState    ) { drawTitleScreen(); }
+		if(gp.gameState == gp.pauseState          ) { drawPauseScreen(); }
+		if(gp.gameState == gp.dialogueState       ) { drawDialogueScreen(); }
+		if(gp.gameState == gp.equipmentWindowState) { drawEquipmentWindow(); drawInventory(gp.player, true); }
+		if(gp.gameState == gp.playState           ) { drawGUI(); drawEventMessages(); }
+		if(gp.gameState == gp.settingsState       ) { drawSettingsScreen(); }
+		if(gp.gameState == gp.gameOverState       ) { drawGameOverScreen(); }
+		if(gp.gameState == gp.transitionState     ) { drawTransition(); }
+		if(gp.gameState == gp.tradeState          ) { drawTradeScreen(); }
 	}
-	public void drawTitleScreen(Graphics2D g2) {
+	public void drawTitleScreen() {
 		String title;
 		switch(subStateScreen) {
 		case 0: 
@@ -185,14 +195,14 @@ public class UI {
 		}
 		
 	}
-	public void drawPauseScreen(Graphics2D g2) {
+	public void drawPauseScreen() {
 		
 		String text = "PAUSE";
 		g2.setColor(shadow); g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
 		g2.setFont(g2.getFont().deriveFont(60f));
 		drawTextShadow(text, Color.gray, Color.white, getXforCenteredText(text), gp.screenHeight/2 - gp.tileSize*2);
 	}
-	public void drawDialogueScreen(Graphics2D g2) {
+	public void drawDialogueScreen() {
 		
 		int x = gp.screenWidth/2 - gp.tileSize * 10, y =  gp.screenHeight - gp.tileSize*6;
 		int width =  gp.tileSize * 20, height =  gp.tileSize * 5;
@@ -206,7 +216,7 @@ public class UI {
 		g2.setColor(Color.black);
 		gp.ut.drawMultilineString(g2, currentDialogue, x, y, width, height);
 	}
-	public void drawEquipmentWindow(Graphics2D g2) {
+	public void drawEquipmentWindow() {
 
 		int x = 0, y = gp.tileSize, statValue;
 		String print;
@@ -304,12 +314,25 @@ public class UI {
 			g2.drawImage(gp.player.slotAxe.item_icon,  x, y, null);
 		}
 	}
-	public void drawInventory(Graphics2D g2) {
-		
+	public void drawInventory(Entity entity, boolean cursor) {
+
+		int x = 0, y = 0, slotCol = 0, slotRow = 0;
+
 		int inventoryItemsSize = (int)(gp.tileSize*1.5);
-		
+
 		// INVENTORY WINDOW
-		int x = gp.screenWidth - gp.tileSize - gp.tileSize*9, y = gp.tileSize;
+		if (entity == gp.player) {
+			x = gp.screenWidth - gp.tileSize - gp.tileSize*9;
+			y = gp.tileSize;
+			slotCol = playerSlotCol;
+			slotRow = playerSlotRow;
+		} else {
+			x = gp.tileSize;
+			y = gp.tileSize;
+			slotCol = npcSlotCol;
+			slotRow = npcSlotRow;
+		}
+
 		g2.drawImage(inventoryWindow, x, y, null);
 		
 		// CURSOR
@@ -325,27 +348,29 @@ public class UI {
 		
 		// INVENTORY ITEMS
 		Entity item;
-		for(int i = 0; i < gp.player.inventory.size(); i++) {
-			item = gp.player.inventory.get(i);
-			
-			if( item == gp.player.slotMele       || 
-			    item == gp.player.slotShield     ||
-			    item == gp.player.slotHelmet     ||
-			    item == gp.player.slotChestplate ||
-			    item == gp.player.slotLeggings   ||
-			    item == gp.player.slotBoots      ||
-			    item == gp.player.slotAxe        ||
-			    item == gp.player.slotPickaxe    ){
-				
-				g2.setColor(equipmentEquipedBGC); 
-				g2.fillRect(slotX + 9, slotY + 9, inventoryItemsSize - 18, inventoryItemsSize - 18);
-				g2.setColor(barColor);  
-				g2.setStroke(new BasicStroke(3)); 
-				g2.drawRect(slotX + 9, slotY + 9, inventoryItemsSize - 18, inventoryItemsSize - 18);
-				g2.setStroke(new BasicStroke(1));
+		for(int i = 0; i < entity.inventory.size(); i++) {
+			item = entity.inventory.get(i);
+
+			if(entity == gp.player) {
+				if( item == entity.slotMele       ||
+						item == entity.slotShield     ||
+						item == entity.slotHelmet     ||
+						item == entity.slotChestplate ||
+						item == entity.slotLeggings   ||
+						item == entity.slotBoots      ||
+						item == entity.slotAxe        ||
+						item == entity.slotPickaxe    ){
+
+					g2.setColor(equipmentEquipedBGC);
+					g2.fillRect(slotX + 9, slotY + 9, inventoryItemsSize - 18, inventoryItemsSize - 18);
+					g2.setColor(barColor);
+					g2.setStroke(new BasicStroke(3));
+					g2.drawRect(slotX + 9, slotY + 9, inventoryItemsSize - 18, inventoryItemsSize - 18);
+					g2.setStroke(new BasicStroke(1));
+				}
 			}
 			
-			g2.drawImage(gp.player.inventory.get(i).item_icon,  slotX + 9, slotY + 9, inventoryItemsSize - 18, inventoryItemsSize - 18, null);
+			g2.drawImage(entity.inventory.get(i).item_icon,  slotX + 9, slotY + 9, inventoryItemsSize - 18, inventoryItemsSize - 18, null);
 			slotX += inventoryItemsSize;
 
 			if(i == 3 || i == 7 || i == 11|| i == 15 || i == 19 ) { slotY += inventoryItemsSize; slotX = slotStartX; }
@@ -353,78 +378,82 @@ public class UI {
 		
 		
 		// ITEM INFOS WINDOW
-		if(getItemIndexInventory() < gp.player.inventory.size()) {
-			
-			item = gp.player.inventory.get(getItemIndexInventory());
-			
-			// DRAW ITEM INFOS WINDOW
-			x = gp.screenWidth - gp.tileSize*17; y = (int)(gp.tileSize*1.5);
-			g2.drawImage(itemInfosWindow, x, y, null);
-			
-			// ITEM INFOS CURRENT ITEM
-			x += (int)(gp.tileSize*1.875); y += (int)(gp.tileSize*1.875);
-			g2.drawImage(item.item_icon, x, y, null); 
-			x += (int)(gp.tileSize*1.75); y += (int)(gp.tileSize/3);
-			g2.setFont(g2.getFont().deriveFont(16f));
-			drawTextShadow(item.name, Color.gray, Color.white, x, y);
-			
-			if(item.durability >= 0) {
-				// CURRENT ITEM DURABILITY - TEXT
-				x -= (int)(gp.tileSize*0.05); y += (int)(gp.tileSize/1.75);
-				g2.setFont(g2.getFont().deriveFont(10f));
-				g2.setColor(Color.gray);  g2.drawString("durability " + item.durability + "/" + item.maxDurability, x + 1, y + 1);
-				g2.setColor(Color.white); g2.drawString("durability " + item.durability + "/" + item.maxDurability, x, y);
-				
-				float oneScale = (float)gp.tileSize*2/item.maxDurability;
-				float durabilityBar = (float)oneScale * item.durability;
-				
-				// CURRENT ITEM DURABILITY - BAR 
-				y += (int)(gp.tileSize/6);
-				g2.setStroke(new BasicStroke(3));
-				g2.drawImage(exp_bar, x, y, (int)durabilityBar, gp.tileSize/4, null);
-				g2.setColor(barColor);
-				g2.drawRect(x, y, gp.tileSize*2, gp.tileSize/4);
-				g2.setStroke(new BasicStroke(1));
-			}
-			// SKIP DURABILITY BAR
-			else y += (int)(gp.tileSize/1.75) + (int)(gp.tileSize/6);
-			
-			// DRAW DESCRIPTION
-			y += (int)(gp.tileSize); 
-			int tempY = y;
-			g2.setFont(g2.getFont().deriveFont(14f));
-			g2.setColor(Color.gray);
-			gp.ut.drawMultilineString(g2, item.description, x + 1, y + 1, gp.tileSize*3, gp.tileSize*4);
-			g2.setColor(Color.white);
-			gp.ut.drawMultilineString(g2, item.description, x, y, gp.tileSize*3, gp.tileSize*4);
-			
-			
-			y = tempY + 4; x = gp.screenWidth - gp.tileSize*17 + (int)(gp.tileSize*1.875);
-			g2.setFont(g2.getFont().deriveFont(20f));
-			
-			
-			Entity selectedItem = gp.player.inventory.get(getItemIndexInventory());
-			
-			if(selectedItem.type == gp.typeITM) {
-				g2.setColor(equipmentEquipedBGC);
-				g2.fillRect(x - 10, tempY, gp.tileSize + 10, gp.tileSize*4);
-			} 
-			else {
-				
-				for(int i = 0; i < gp.playerStatsTitles.length; i++) {
-					
-					if(selectedItem.getStatValues(i) < 0) g2.drawImage(minus, x, y, null);
-					else if((i != 0 && i != 1) && selectedItem.getStatValues(i) > 0) g2.drawImage(plus,  x, y, null);
-					drawTextShadow(selectedItem.getStatValues(i) + "", Color.gray, Color.white, x + 30, y + 20);
-					y += (gp.tileSize);
+		if(cursor) {
+			if(getItemIndexInventory(entity) < entity.inventory.size()) {
+
+				item = entity.inventory.get(getItemIndexInventory(entity));
+
+				// DRAW ITEM INFOS WINDOW
+				if (entity == gp.player) 	x = gp.screenWidth - gp.tileSize * 17;
+				else 						x = itemInfosWindow.getWidth() - gp.tileSize;
+				y = (int)(gp.tileSize*1.5);
+				g2.drawImage(itemInfosWindow, x, y, null);
+
+				// ITEM INFOS CURRENT ITEM
+				x += (int)(gp.tileSize*1.875); y += (int)(gp.tileSize*1.875);
+				g2.drawImage(item.item_icon, x, y, null);
+				x += (int)(gp.tileSize*1.75); y += (int)(gp.tileSize/3);
+				g2.setFont(g2.getFont().deriveFont(16f));
+				drawTextShadow(item.name, Color.gray, Color.white, x, y);
+
+				if(item.durability >= 0) {
+					// CURRENT ITEM DURABILITY - TEXT
+					x -= (int)(gp.tileSize*0.05); y += (int)(gp.tileSize/1.75);
+					g2.setFont(g2.getFont().deriveFont(10f));
+					g2.setColor(Color.gray);  g2.drawString("durability " + item.durability + "/" + item.maxDurability, x + 1, y + 1);
+					g2.setColor(Color.white); g2.drawString("durability " + item.durability + "/" + item.maxDurability, x, y);
+
+					float oneScale = (float)gp.tileSize*2/item.maxDurability;
+					float durabilityBar = (float)oneScale * item.durability;
+
+					// CURRENT ITEM DURABILITY - BAR
+					y += (int)(gp.tileSize/6);
+					g2.setStroke(new BasicStroke(3));
+					g2.drawImage(exp_bar, x, y, (int)durabilityBar, gp.tileSize/4, null);
+					g2.setColor(barColor);
+					g2.drawRect(x, y, gp.tileSize*2, gp.tileSize/4);
+					g2.setStroke(new BasicStroke(1));
+				}
+				// SKIP DURABILITY BAR
+				else y += (int)(gp.tileSize/1.75) + (int)(gp.tileSize/6);
+
+				// DRAW DESCRIPTION
+				y += (int)(gp.tileSize);
+				int tempY = y;
+				g2.setFont(g2.getFont().deriveFont(14f));
+				g2.setColor(Color.gray);
+				gp.ut.drawMultilineString(g2, item.description, x + 1, y + 1, gp.tileSize*3, gp.tileSize*4);
+				g2.setColor(Color.white);
+				gp.ut.drawMultilineString(g2, item.description, x, y, gp.tileSize*3, gp.tileSize*4);
+
+				y = tempY + 4;
+				if (entity == gp.player) 	x = gp.screenWidth - gp.tileSize * 17;
+				else 						x = itemInfosWindow.getWidth() - gp.tileSize;
+				x += (int)(gp.tileSize*1.875);
+				g2.setFont(g2.getFont().deriveFont(20f));
+
+				selectedItem = entity.inventory.get(getItemIndexInventory(entity));
+
+				if(selectedItem.type == gp.typeITM) {
+					g2.setColor(equipmentEquipedBGC);
+					g2.fillRect(x - 10, tempY, gp.tileSize + 10, gp.tileSize*4);
+				}
+				else {
+					for(int i = 0; i < gp.playerStatsTitles.length; i++) {
+
+						if(selectedItem.getStatValues(i) < 0) g2.drawImage(minus, x, y, null);
+						else if((i != 0 && i != 1) && selectedItem.getStatValues(i) > 0) g2.drawImage(plus,  x, y, null);
+						drawTextShadow(selectedItem.getStatValues(i) + "", Color.gray, Color.white, x + 30, y + 20);
+						y += (gp.tileSize);
+					}
 				}
 			}
+
+			// DRAW CURSOR
+			g2.drawImage(inventoryCursor, cursorX, cursorY, null);
 		}
-		
-		// DRAW CURSOR
-		g2.drawImage(inventoryCursor, cursorX, cursorY, null);
 	}
-	public void drawGUI(Graphics2D g2) {
+	public void drawGUI() {
 		
 		int i;
 		int iconSize = (int)(gp.tileSize*0.75);
@@ -477,7 +506,7 @@ public class UI {
 		g2.drawImage(expBarOutline, x, y, null);
 
 	}
-	public void drawEventMessages(Graphics2D g2) {
+	public void drawEventMessages() {
 		
 		int screenX, screenY, offset = 10;
 		EventMessage e; 
@@ -533,11 +562,19 @@ public class UI {
 		int length = (int)g2.getFontMetrics().getStringBounds(text, g2).getWidth();
 		return (gp.screenWidth/2 - length/2);
 	}
-	public int getItemIndexInventory() {
-		
-		return slotCol + slotRow * gp.player.maxInventoryCol;
+	public int getItemIndexInventory(Entity entity) {
+		int slotCol = 0, slotRow = 0;
+		if(entity == gp.player) {
+			slotCol = playerSlotCol;
+			slotRow = playerSlotRow;
+		}
+		else {
+			slotCol = npcSlotCol;
+			slotRow = npcSlotRow;
+		}
+		return slotCol + slotRow * entity.maxInventoryCol;
 	}
-	public void drawSettingsScreen(Graphics2D g2){
+	public void drawSettingsScreen(){
 
 		g2.setColor(Color.white);
 		g2.setFont(g2.getFont().deriveFont(32f));
@@ -550,7 +587,7 @@ public class UI {
 		else 						drawSubWindow(frameX, frameY, frameWidth, frameHeight);
 
 		switch (subStateScreen) {
-			case 0: settings_title(g2);
+			case 0: settings_title();
 				break;
 			case 1: drawNotificationPopUp(frameX, frameY, frameWidth, frameHeight, "Information", "Les modification prendront effet apres le redemarrage du jeu", true);
 				break;
@@ -567,7 +604,7 @@ public class UI {
 
 		gp.config.saveConfig();
 	}
-	public void settings_title(Graphics2D g2) {
+	public void settings_title() {
 
 		String title = "Settings";
 		g2.setFont(g2.getFont().deriveFont(60f));
@@ -710,7 +747,7 @@ public class UI {
 			g2.drawString(controlsKeys[i], x + frameW/2, y + j*space);
 		}
 	}
-	public void drawGameOverScreen(Graphics2D g2) {
+	public void drawGameOverScreen() {
 
 		String text = "GAME OVER";
 		g2.setColor(shadow); g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
@@ -730,5 +767,137 @@ public class UI {
 			else g2.setColor(Color.gray);
 			g2.drawString(options[i], x, y + space*i);
 		}
+	}
+	public void drawTransition() {
+
+
+		if (counter < 25 && !transition) {
+			counter++;
+			if (counter == 25) {
+				transition = true;
+				gp.currentMap = gp.eventH.tempMap;
+				gp.player.worldX = gp.eventH.tempCol * gp.tileSize;
+				gp.player.worldY = gp.eventH.tempRow * gp.tileSize;
+				gp.eventH.previousEventX = gp.player.worldX;
+				gp.eventH.previousEventY = gp.player.worldY;
+			}
+			g2.setColor(new Color(0, 0, 0, counter*9));
+			g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+		}
+		else {
+			if (counter == 0) {
+				counter = -1;
+				transition = false;
+				gp.gameState = gp.playState;
+			} else {
+				counter--;
+				g2.setColor(new Color(0, 0, 0, counter*9));
+				g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+			}
+		}
+	}
+	public void drawTradeScreen() {
+
+		switch (subStateScreen) {
+		case 0: trade_select(); break;
+		case 1: trade_buy();  	break;
+		case 2: trade_sell();   break;
+		}
+		gp.keyH.enterPressed = false;
+	}
+	public void trade_select() {
+
+		drawDialogueScreen();
+		int space = 40;
+		int x = gp.screenWidth - gp.tileSize*11;
+		int y = gp.screenHeight - gp.tileSize*9;
+
+		drawSubWindow(x, y, gp.tileSize*4, gp.tileSize*3);
+
+		x += gp.tileSize;
+		y += gp.tileSize*0.85;
+
+		g2.setColor(Color.white);
+		g2.setFont(g2.getFont().deriveFont(24f));
+
+		String options[] = {"Buy", "Sell", "Leave"};
+		for (int i = 0; i < options.length; i++) {
+			if (selectedOption == i) {
+				g2.setColor(Color.white);
+				g2.drawString(">", x - space/2, y + space*i);
+			}
+			else g2.setColor(Color.gray);
+			g2.drawString(options[i], x, y + space*i);
+		}
+	}
+	public void trade_sell() {
+
+		// DRAW PLAYER INVENTORY
+		drawInventory(gp.player, true);
+
+		// DRAW NPC INVENTORY
+		drawInventory(npc, false);
+
+		x = itemInfosWindow.getWidth() + (int) (gp.tileSize * 6.25);
+		y = itemInfosWindow.getHeight() + (int) (gp.tileSize * 0.25);
+		g2.drawImage(price_coins, x, y, null);
+		g2.setFont(g2.getFont().deriveFont(20f));
+		g2.setColor(Color.black);
+
+		String priceText = selectedItem.price + "";
+		if(selectedItem.price < 0) priceText = "Untradeable !";
+		g2.drawString("price: " + priceText, x + 30, y + 25);
+		g2.drawString("coins: " + gp.player.coins, x + 30, y + 70);
+
+		if (trade) {
+			int itemIndex = getItemIndexInventory(gp.player);
+			if (itemIndex < gp.player.inventory.size() && !gp.player.isEquipedItem(gp.player.inventory.get(itemIndex)) && gp.player.inventory.get(itemIndex).price >= 0) {
+				gp.player.coins += gp.player.inventory.get(itemIndex).price;
+				gp.player.inventory.remove(gp.player.inventory.get(itemIndex));
+
+			}
+			trade = false;
+		}
+		gp.player.coinsByType = gp.ut.calculerPieces(gp.player.coins);
+	}
+	public void trade_buy() {
+
+		// DRAW PLAYER INVENTORY
+		drawInventory(gp.player, false);
+
+		// DRAW NPC INVENTORY
+		drawInventory(npc, true);
+
+		x = itemInfosWindow.getWidth() + (int) (gp.tileSize * 0.25);
+		y = itemInfosWindow.getHeight() + (int) (gp.tileSize * 0.25);
+		g2.drawImage(price_coins, x, y, null);
+		g2.setFont(g2.getFont().deriveFont(20f));
+		g2.setColor(Color.black);
+
+		String priceText = selectedItem.price + "";
+		if(selectedItem.price < 0) priceText = "Untradeable !";
+		g2.drawString("price: " + priceText, x + 30, y + 25);
+		g2.drawString("coins: " + gp.player.coins, x + 30, y + 70);
+
+		if (trade) {
+
+			int itemIndex = getItemIndexInventory(npc);
+			if (itemIndex < npc.inventory.size()) {
+				if (npc.inventory.get(itemIndex).price > gp.player.coins) {
+					subStateScreen = 0;
+					currentDialogue = "You don't have enough coins !";
+					gp.gameState = gp.dialogueState;
+				} else if (gp.player.inventory.size() == gp.player.maxInventorySize) {
+					subStateScreen = 0;
+					currentDialogue = "Your inventory is full !";
+					gp.gameState = gp.dialogueState;
+				} else {
+					gp.player.coins -= npc.inventory.get(itemIndex).price;
+					gp.player.inventory.add(npc.inventory.get(itemIndex).clone());
+				}
+			}
+			trade = false;
+		}
+		gp.player.coinsByType = gp.ut.calculerPieces(gp.player.coins);
 	}
 }

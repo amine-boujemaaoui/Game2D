@@ -37,12 +37,7 @@ public class Player extends Entity {
 	public boolean running = false;
 	public int actualSpeed = speed;
 	public boolean attackCanceled = false;
-	public ArrayList<Entity> inventory = new ArrayList<Entity>();
-	public final int maxInventorySize = 24;
-	public final int maxInventoryCol = 4;
-	public final int maxInventoryRow = 6;
 	public boolean hit = false;
-
 	
 	public Player(GamePanel gp, KeyHandler keyH) {
 		
@@ -71,8 +66,8 @@ public class Player extends Entity {
 	}
 	public void setDefaultValues() {
 		
-		worldX = (int)(29   * gp.tileSize);
-		worldY = (int)(24.5 * gp.tileSize);
+		worldX = (int)(18   * gp.tileSize);
+		worldY = (int)(40   * gp.tileSize);
 		defaultSpeed = 3; speed = defaultSpeed;
 		direction = "right";
 		level = 0; 
@@ -254,17 +249,8 @@ public class Player extends Entity {
 	public void setItems() {
 		
 		inventory.add(new WPN_Sword_Wood(gp));
-		
-		inventory.add(new TOOL_Axe_Wood(gp));
-		inventory.add(new TOOL_Pickaxe_Wood(gp));
-		
-		inventory.add(new ARMR_Helmet_Leather(gp));
-		inventory.add(new ARMR_Boots_Leather(gp));
-		
-		inventory.add(new ITM_Potion_Mana(gp));
-		inventory.add(new ITM_Potion_Mana(gp));
 
-		coins = 2632;
+		coins = 300;
 		coinsByType = gp.ut.calculerPieces(coins);
 	}
 	public void pickUpItm(int index) {
@@ -290,8 +276,10 @@ public class Player extends Entity {
 							Font.BOLD, 
 							Color.white, 
 							Color.gray, 
-							screenX + gp.tileSize,
-							screenY + gp.tileSize,
+							//screenX + gp.tileSize,
+							//screenY + gp.tileSize,
+								gp.tileSize*2,
+							 gp.screenHeight - gp.tileSize*4,
 							true);
 					
 					gp.itm[gp.currentMap][index] = null;
@@ -305,8 +293,9 @@ public class Player extends Entity {
 			attackCanceled = true;
 			gp.ui.showMessage("E", "to talk to " + gp.npc[gp.currentMap][index].name, gp.npc[gp.currentMap][index].worldX, gp.npc[gp.currentMap][index].worldY);
 			if(keyH.eventPressed) {
-				gp.gameState = gp.dialogueState;
-				gp.npc[gp.currentMap][index].speak();
+				gp.npc[gp.currentMap][index].interact();
+				//gp.gameState = gp.dialogueState;
+				//gp.npc[gp.currentMap][index].speak();
 			}
 		} 
 	}
@@ -503,7 +492,7 @@ public class Player extends Entity {
 	public void selectItem() {
 		
 		boolean changed = false;
-		int itemIndex = gp.ui.getItemIndexInventory();
+		int itemIndex = gp.ui.getItemIndexInventory(this);
 		
 		if(itemIndex < inventory.size()) {
 			
@@ -534,30 +523,34 @@ public class Player extends Entity {
 			}
 		}
 	}
+	public boolean isEquipedItem(Entity selectedItem) {
+		if( selectedItem != slotHelmet           &&
+			selectedItem != slotChestplate       &&
+			selectedItem != slotLeggings         &&
+			selectedItem != slotBoots            &&
+			selectedItem != slotMele             &&
+			selectedItem != slotShield           &&
+			selectedItem != slotStaff            &&
+			selectedItem != slotProjectileWeapon &&
+			selectedItem != slotRing1            &&
+			selectedItem != slotRing2            &&
+			selectedItem != slotNecklace         &&
+			selectedItem != slotBelt             &&
+			selectedItem != slotPickaxe          &&
+			selectedItem != slotAxe              )
+			return false;
+		return true;
+	}
 	public void dropItem() {
 		
-		int itemIndex = gp.ui.getItemIndexInventory();
+		int itemIndex = gp.ui.getItemIndexInventory(this);
 		
 		if(itemIndex < inventory.size()) {
 			
 			Entity selectedItem = inventory.get(itemIndex);
 			
-			if( selectedItem != slotHelmet           &&
-				selectedItem != slotChestplate       &&
-				selectedItem != slotLeggings         &&
-				selectedItem != slotBoots            &&
-				selectedItem != slotMele             &&
-				selectedItem != slotShield           &&
-				selectedItem != slotStaff            &&
-				selectedItem != slotProjectileWeapon &&
-				selectedItem != slotRing1            &&
-				selectedItem != slotRing2            &&
-				selectedItem != slotNecklace         &&
-				selectedItem != slotBelt             &&
-				selectedItem != slotPickaxe          &&
-				selectedItem != slotAxe              ){
-				
-				for(int i = 0; i < gp.itm.length; i++) {
+			if( isEquipedItem(selectedItem) ) {
+				for(int i = 0; i < gp.itm[gp.currentMap].length; i++) {
 					if(gp.itm[gp.currentMap][i] == null) {
 						gp.itm[gp.currentMap][i] = selectedItem;
 						

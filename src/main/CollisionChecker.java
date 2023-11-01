@@ -71,7 +71,7 @@ public class CollisionChecker {
 		if(player) testSpeed = gp.player.actualSpeed;
 		else testSpeed = entity.speed;
 		
-		for (int i = 0; i < gp.obj.length; i++)
+		for (int i = 0; i < gp.obj[gp.currentMap].length; i++)
 			if(gp.obj[gp.currentMap][i] != null) {
 
 				entity.hitBox.x = entity.worldX + entity.hitBox.x;
@@ -88,7 +88,8 @@ public class CollisionChecker {
 				}
 				if(entity.hitBox.intersects(gp.obj[gp.currentMap][i].hitBox)) {
 					if(gp.obj[gp.currentMap][i].collision) entity.collisionOn = true;
-					if(player == true) index = i;
+					//if(player == true) index = i;
+					index = i;
 				}
 				entity.hitBox.x = entity.hitBoxDefaultX;
 				entity.hitBox.y = entity.hitBoxDefaultY;

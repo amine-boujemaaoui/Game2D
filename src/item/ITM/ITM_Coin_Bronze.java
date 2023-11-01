@@ -43,12 +43,17 @@ public class ITM_Coin_Bronze extends Entity{
 	              Font.BOLD, 
 	              Color.white, 
 	              Color.gray, 
-	              gp.player.screenX + gp.tileSize,
-	              gp.player.screenY + gp.tileSize,
+	              //gp.player.screenX + gp.tileSize,
+	              //gp.player.screenY + gp.tileSize,
+					gp.tileSize*2,
+				gp.screenHeight - gp.tileSize*4,
 	              true);
 		
 		gp.player.coins += amountValue;
 		gp.player.coinsByType = gp.ut.calculerPieces(gp.player.coins);
 		return true;
+	}
+	public Entity clone() {
+		return new ITM_Coin_Bronze(gp);
 	}
 }

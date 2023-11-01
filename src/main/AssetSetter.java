@@ -1,5 +1,6 @@
   package main;
 
+import npc.NPC_Merchant;
 import object.*;
 import tile.IT_DryTree;
 import entity.*;
@@ -53,7 +54,7 @@ public class AssetSetter {
 		gp.npc[0][i] = new NPC_YoungMen(gp, (34  *gp.tileSize), (23   *gp.tileSize)); i++;
 		gp.npc[0][i] = new NPC_YoungMen(gp, (31  *gp.tileSize), (23   *gp.tileSize)); i++;
 
-		gp.npc[1][i] = new NPC_YoungMen(gp, (25  *gp.tileSize), (25   *gp.tileSize)); i++;
+		gp.npc[1][i] = new NPC_Merchant(gp, (25  *gp.tileSize), (25   *gp.tileSize)); i++;
 	}
 	public void setMON() {
 		

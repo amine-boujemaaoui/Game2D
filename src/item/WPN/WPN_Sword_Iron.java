@@ -16,6 +16,7 @@ public class WPN_Sword_Iron extends Entity{
 		size = size1by1;
 		type = gp.typeWPN;
 		subType = gp.subType_WPN_SW;
+		price = 80;
 		
 		attackValue = 22;
 		attackSpeedValue = 5;
@@ -31,5 +32,8 @@ public class WPN_Sword_Iron extends Entity{
 		ground[5] = gp.ut.setup("/items/weapon/sword/sword_iron", gp.tileSize, gp.tileSize);
 		
 		item_icon = gp.ut.setup("/items/weapon/sword/sword_iron", gp.tileSize, gp.tileSize);
+	}
+	public Entity clone() {
+		return new WPN_Sword_Iron(gp);
 	}
 }

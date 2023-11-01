@@ -69,13 +69,15 @@ public class GamePanel extends JPanel implements Runnable {
 	
 	// GAME STATES
 	public int gameState;
-	public final int titleScreenState = 0;
-	public final int playState = 1;
-	public final int pauseState = 2;
-	public final int dialogueState = 3;
-	public final int equipmentWindowState = 4;
-	public final int settingsState = 5;
-	public final int gameOverState = 6;
+	public final int titleScreenState 		= 0;
+	public final int playState 				= 1;
+	public final int pauseState 			= 2;
+	public final int dialogueState 			= 3;
+	public final int equipmentWindowState 	= 4;
+	public final int settingsState			= 5;
+	public final int gameOverState 			= 6;
+	public final int transitionState 		= 7;
+	public final int tradeState 			= 8;
 	
 	// TYPES
 	public final int typePLY = 0;
@@ -104,6 +106,14 @@ public class GamePanel extends JPanel implements Runnable {
 	public final int typeTOOL = 14;
 	public final int subType_TOOL_PKX = 15;
 	public final int subType_TOOL_AXE = 16;
+
+	// RARITY
+	public final int RARITY_Common 		= 0;
+	public final int RARITY_Uncommon 	= 1;
+	public final int RARITY_Rare 		= 2;
+	public final int RARITY_Epic 		= 3;
+	public final int RARITY_Legendary 	= 4;
+
 	
 	public int setSpeedCounter = 0;
 	public boolean startSetSpeedCounter = false;

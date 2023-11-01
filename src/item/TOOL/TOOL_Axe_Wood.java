@@ -32,4 +32,7 @@ public class TOOL_Axe_Wood extends Entity{
 		
 		item_icon = gp.ut.setup("/items/tools/axe/axe_wood", gp.tileSize, gp.tileSize);
 	}
+	public Entity clone() {
+		return new TOOL_Axe_Wood(gp);
+	}
 }

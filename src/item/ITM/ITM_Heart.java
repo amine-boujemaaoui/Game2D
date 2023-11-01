@@ -13,6 +13,7 @@ public class ITM_Heart extends Entity {
 		name = "Heart";
 		size = size1by1;
 		type = gp.typeITM;
+		price = 10;
 		
 		ground    = new BufferedImage[6];	
 		ground[0] = gp.ut.setup("/items/heart", gp.tileSize, gp.tileSize);
@@ -23,5 +24,8 @@ public class ITM_Heart extends Entity {
 		ground[5] = gp.ut.setup("/items/heart", gp.tileSize, gp.tileSize);
 		
 		item_icon = gp.ut.setup("/items/heart", gp.tileSize, gp.tileSize);
+	}
+	public Entity clone() {
+		return new ITM_Heart(gp);
 	}
 }

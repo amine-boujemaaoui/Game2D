@@ -1,9 +1,6 @@
 package npc;
 
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Random;
 
 import entity.Entity;
@@ -50,24 +47,7 @@ public class NPC_YoungMen extends Entity {
 	}
 	public void setDialogues() {
 		
-		try {
-			
-			InputStream is = getClass().getResourceAsStream("/dialogues/youngMen.txt");
-			BufferedReader br = new BufferedReader(new InputStreamReader(is));
-			
-			String line; int i = 0, nbLigne = 0; 
-			while ((line = br.readLine()) != null) { 
-				if(line.equals("%")) i++;
-				else {
-					if(nbLigne == 5) { i++; nbLigne = 0; }
-					if(dialogues[i] == null) dialogues[i] = line;
-					else dialogues[i] += line;
-					nbLigne++;
-				}
-			}
-			br.close();
-			
-		} catch (Exception e) { e.printStackTrace(); }
+		super.setDialogues("youngMen.txt");
 	}
 	public void getImages() {
 		
@@ -91,4 +71,8 @@ public class NPC_YoungMen extends Entity {
 	public void speak() {
 		super.speak();
  	}
+	public void interact() {
+		speak();
+		gp.gameState = gp.dialogueState;
+	}
 }

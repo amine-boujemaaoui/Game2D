@@ -6,6 +6,10 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Map;
 
 import main.GamePanel;
@@ -50,6 +54,7 @@ public class Entity {
 	public int type, subType;
 	public boolean pickupOnly = false;
 	public int OBJstate = 0;
+	public boolean trading = false;
 	
 	// ENTITY SIZE
 	public final int size1by1 = 0;
@@ -85,6 +90,9 @@ public class Entity {
 	public int coins;
 	public int spellCooldown;
 	public Map<Integer, Integer> coinsByType;
+	public ArrayList<Entity> inventory = new ArrayList<Entity>();
+	public final int maxInventorySize = 24;
+	public int price = -1;
 	
 	// EQUIPMENTS
 	public Entity slotHelmet,  slotChestplate, slotLeggings, slotBoots;
@@ -96,6 +104,8 @@ public class Entity {
 	public int durability = -1, maxDurability;
 	public PRJ[] slotProjectiles = new PRJ[3];
 	public int useCost;
+	public final int maxInventoryCol = 4;
+	public final int maxInventoryRow = 6;
 	
 	public Color particleColor = null;
 	public int particleSize = 0;
@@ -114,6 +124,7 @@ public class Entity {
 		
 		collisionOn = false;
 		gp.cChecker.checkTile(this);
+		gp.cChecker.checkObject(this, false);
 		gp.cChecker.checkObject(this, false);
 		gp.cChecker.checkEntity(this, gp.npc[gp.currentMap]);
 		gp.cChecker.checkEntity(this, gp.mon[gp.currentMap]);
@@ -184,6 +195,27 @@ public class Entity {
 	}
 	public void setAction () {
 		
+	}
+	public void setDialogues(String dialoguesFile) {
+
+		try {
+
+			InputStream is = getClass().getResourceAsStream("/dialogues/" + dialoguesFile);
+			BufferedReader br = new BufferedReader(new InputStreamReader(is));
+
+			String line; int i = 0, nbLigne = 0;
+			while ((line = br.readLine()) != null) {
+				if(line.equals("%")) i++;
+				else {
+					if(nbLigne == 5) { i++; nbLigne = 0; }
+					if(dialogues[i] == null) dialogues[i] = line;
+					else dialogues[i] += line;
+					nbLigne++;
+				}
+			}
+			br.close();
+
+		} catch (Exception e) { e.printStackTrace(); }
 	}
 	public void speak() {
 		
@@ -369,5 +401,12 @@ public class Entity {
 			case "left":  gp.particleList.add(pRightTop);   gp.particleList.add(pRightBottom); break;
 			case "right": gp.particleList.add(pLeftTop);    gp.particleList.add(pLeftBottom);  break;
 		}
+	}
+	public void interact() {
+
+	}
+	public Entity clone() {
+
+		return null;
 	}
 }
